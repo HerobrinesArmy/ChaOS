@@ -1,0 +1,741 @@
+; --------------------------------------------
+; Title:   DAT-CS
+; Author:  Alex Ford
+; Date:    4/28/2012
+; Version: 0.01
+; --------------------------------------------
+
+HWN I
+SET J, 0
+:setScreen
+ADD J, 1
+IFE I, J
+	SET PC, init
+HWQ J
+IFE B, 0x7349
+	IFE A, 0xF615
+		SET PC,monitor_found
+IFE B, 0x30CF
+	IFE A, 0x7406
+		SET PC,keyboard_found
+:monitor_found
+SET A, 0
+SET B, 0x8000
+SET [monitorID], J
+HWI J
+SET PC, setScreen
+:keyboard_found
+SET A, 0
+SET [keyboardID], J
+HWI J
+SET PC, setScreen
+
+:shutdown
+SET B, 0x0000
+JSR clear_screen
+SET [video_cur], 0x8000
+SET A, shutdownText
+JSR text_out
+:shutdownLoop
+SET PC, shutdownLoop
+
+:init
+SET A, 0x8000
+SET [video_cur], 0x8000
+SET B, 0x7120
+JSR clear_screen
+SET A, logo_txt_1
+SET C, 1
+JSR text_out
+SET [max_backspace], [video_cur]
+:start
+JSR keyboard_input
+JSR render_cursor
+SET PC, start
+
+:keyboard_input
+SET PUSH, A
+SET PUSH, B
+SET PUSH, C
+SET PUSH, X
+SET B, 0
+SET X, 0
+SET A, 1
+HWI [keyboardID]
+SET A, [video_cur]
+IFE C, 0 
+	SET PC, keyboard_input_end
+IFE C, 0x10 
+	SET B, 1
+IFE C, 0x11
+	SET X, 1
+BOR C, 0xA100
+IFE B, 0 
+	IFE X, 0 
+		JSR keyboard_output_character
+IFE B, 1 
+	JSR keyboard_input_delete
+IFE X, 1
+	JSR keyboard_input_enter
+ADD A, 1
+:keyboard_input_end
+IFN X, 1
+	SET [video_cur], A
+SET X, POP
+SET C, POP
+SET B, POP
+SET A, POP
+SET PC, POP
+
+:keyboard_output_character
+SET [A], C
+IFE [keyboardBufferPos], 31
+	SET PC, keyboard_output_character_end_stop
+SET PUSH, X
+SET X, keyboardBuffer
+ADD X, [keyboardBufferPos]
+ADD [keyboardBufferPos], 1
+BOR C, 0xFF00
+XOR C, 0xFF00
+SET [X], C
+SET X, POP
+SET PC, keyboard_output_character_end
+
+:keyboard_output_character_end_stop
+SUB A, 1
+:keyboard_output_character_end
+SET PC, POP
+
+:keyboard_input_delete
+SET B, 0
+SET [A], 0x7120
+IFE A, [max_backspace] 
+	SET PC, keyboard_input_delete_end
+SET PUSH, X
+SET X, keyboardBuffer
+ADD X, [keyboardBufferPos]
+SUB [keyboardBufferPos], 1
+SET [X], 0x0000
+SUB A, 1
+SET X, POP
+
+:keyboard_input_delete_end
+SET [A], 0x7120
+SUB A, 1
+SET PC, POP
+
+:keyboard_input_enter
+SET PUSH, A
+SET PUSH, B
+SET PUSH, Y
+SET A, keyboardBuffer
+SET B, cmdShutdown
+JSR startswith
+IFE Y, 1
+	SET PC, keyboard_input_enter_cmdShutdown
+SET B, cmdHash
+JSR startswith
+IFE Y, 1
+	SET PC, keyboard_input_enter_cmdHash
+SET Y, POP
+SET B, POP
+SET A, POP
+SET PUSH, A
+SET [A], 0x7120
+SET A, endLine
+JSR text_out
+SET A, cmdBadCommand
+JSR text_out
+SET A, endLine
+JSR text_out
+SET A, POP
+SET PC, keyboard_input_enter_clearBuffer
+
+:keyboard_input_enter_cmdShutdown
+SET PC, shutdown
+
+:keyboard_input_enter_cmdHash
+SET A, keyboardBuffer
+ADD A, 5
+SET PUSH, B
+SET B, calcMD5_Data
+:keyboard_input_enter_cmdHash_loop
+IFE [A], 0x0000
+	SET PC,keyboard_input_enter_cmdHash_end
+SET [B], [A]
+ADD A, 1
+ADD B, 1
+SET PC, keyboard_input_enter_cmdHash_loop
+:keyboard_input_enter_cmdHash_end
+SET B, POP
+JSR calcMD5
+SET PC, keyboard_input_enter_end
+
+:keyboard_input_enter_end
+SET Y, POP
+SET B, POP
+SET A, POP
+SET PUSH, A
+SET [A], 0x7120
+SET A, endLine
+JSR text_out
+SET A, POP
+SET PC, keyboard_input_enter_clearBuffer
+
+:keyboard_input_enter_clearBuffer
+SET PUSH, A
+:keyboard_input_enter_clearBuffer_loop
+SET A, keyboardBuffer
+ADD A, [keyboardBufferPos]
+SET [A], 0x0000
+SUB [keyboardBufferPos], 1
+IFN [keyboardBufferPos], 0
+	SET PC, keyboard_input_enter_clearBuffer_loop
+SET A, POP
+SET PC, POP
+
+
+:clear_screen
+SET PUSH, A
+SET A, 0x8000
+:clear_screen_loop
+SET [A], B
+ADD A, 1
+IFG 0x8180, A 
+	SET PC, clear_screen_loop
+SET A, POP
+SET PC, POP
+
+:render_cursor
+SET PUSH, A
+SET A, [video_cur]
+SET [A], 0x71DF
+SET A, POP
+SET PC, POP
+
+
+; Stolen from the Atlas OS, I'll make sure to rennovate it!
+:text_out
+      SET PUSH, A
+      SET PUSH, B
+      SET PUSH, C
+      SET PUSH, I
+
+      SET B, [sys_txt_col]
+      SET I, [video_cur]
+
+:text_out_loop
+      SET C, [A]
+      IFE C, 0x0000
+          SET PC, text_out_end
+      IFE C, 0x00A0
+          SET PC, text_out_nl
+      IFG C, 0x00FF
+          AND C, 0x00FF
+      BOR C, B
+      SET [I], C
+      ADD A, 1
+      ADD I, 1
+      IFE I, 0x8200
+          SET PC, text_out_scroll
+      SET PC, text_out_loop
+
+:text_out_scroll
+      SET [video_cur], I
+      JSR scroll
+      SET I, [video_cur]
+      SET PC, text_out_loop
+
+:text_out_nl
+      SET [video_cur], I
+      JSR newline
+      SET I, [video_cur]
+      ADD A, 1
+      SET PC, text_out_loop
+
+:text_out_end
+      SET [video_cur], I
+      SET I, POP
+      SET C, POP
+      SET B, POP
+      SET A, POP
+      SET PC, POP
+
+; Linefeed (working)
+:newline
+      SET PUSH, A
+      SET PUSH, B
+
+      SET A, 0x0020
+      SET B, [video_cur]
+     ; SUB B, 0x8000
+      MOD B, A
+      SUB A, B
+      ADD [video_cur], A
+      IFE [video_cur], 0x8180
+          JSR scroll
+
+      SET B, POP
+      SET A, POP
+      SET PC, POP
+
+; Scrolls the screen one line (working)
+:scroll
+      SET PUSH, X
+      SET PUSH, Y
+      SET PUSH, A
+
+      SET X, 0x8000 ; Set X to the video memory
+      SET Y, 0x8020 ; Set Y to the second line in the video memory
+
+:scroll_loop1
+      SET [X], [Y]
+      ADD X, 1
+      ADD Y, 1
+      IFE Y, 0x8180
+          SET PC, scroll_loop2
+      SET PC, scroll_loop1
+
+:scroll_loop2
+	  SET A, [usr_txt_col]
+	  ADD A, 0x20
+      SET [X], A
+      ADD X, 1
+      IFE X, 0x8180
+          SET PC, scroll_end
+      SET PC, scroll_loop2
+
+:scroll_end
+      SUB [video_cur], 0x20
+      SET A, POP
+      SET Y, POP
+      SET X, POP
+      SET PC, POP
+      
+; stolen from RedditOS
+
+:startswith
+	set y, 0
+
+	ife [b], 0
+	set pc, startswith_end_success
+
+    ifn [a], [b]
+    set pc, pop
+
+	add a, 1
+	add b, 1
+	set pc, startswith
+
+	:startswith_end_success
+		set y, 1
+		set pc, pop
+
+; end stolen stuff!
+
+
+:video_cur dat 0x8000
+:monitorID dat 0x0000
+:keyboardID dat 0x0000
+:keyboardBufferPos dat 0x0000
+:keyboardBuffer dat 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+:max_backspace dat 0x8000
+:sys_txt_col dat 0xE100
+:usr_txt_col dat 0xB100
+:endLine dat 0xA0, 0x00
+:logo_txt_1 dat "    __       _     _____        "
+:logo_txt_2 dat "   |  \     / |   [__ __]       "
+:logo_txt_3 dat "   | D }   /__|      ||         "
+:logo_txt_4 dat "   |__/   /_/||      ||         "
+:logo_txt_5 dat "  Dragon Arms   and Technology  "
+:logo_txt_6 dat "       CONTROL SYSTEM           ", 0xA0, 0x00
+:shutdownText dat "   The System has shutdown.   ", 0x00
+:cmdShutdown dat "shutdown", 0x00
+:cmdHash dat "hash", 0x00
+:cmdBadCommand dat "Bad Command", 0x00
+
+
+
+
+;__________________________
+;|     MD5 Algorithm       |
+;|_________________________|
+
+;MD5 for DCPU
+; By Alex Ford
+; a.k.a thePalindrome
+
+:calcMD5 ; mem at calcMD5_data is data, and return
+SET [calcMD5_shiftammountsPointer], calcMD5_constants_shiftammounts
+SET PUSH, A
+SET PUSH, C
+SET PUSH, X
+SET PUSH, Z
+    SET PUSH, A
+    SET A, calcMD5_constants_h0
+    SET [A], 0x6745
+    ADD A, 1
+    SET [A], 0x2301
+    ADD A, 1
+    SET [A], 0xefcd
+    ADD A, 1
+    SET [A], 0xab89
+    ADD A, 1
+    SET [A], 0x98ba
+    ADD A, 1
+    SET [A], 0xdcfe
+    ADD A, 1
+    SET [A], 0x1032
+    ADD A, 1
+    SET [A], 0x5476
+    SET A, POP
+SHL [calcMD5_Data], 1
+ADD [calcMD5_Data], 1
+SET X, calcMD5_Data
+ADD X, 15
+SHL [X],1
+IFN EX, 0 
+	JSR calcMD5_propAdd
+SET X, calcMD5_Data
+SET Z, calcMD5_Data
+ADD Z, 15
+SET Z, [Z]
+:calcMD5_padWithZeros
+SHL X, 1
+IFN EX, 0 
+	JSR calcMD5_propAdd
+IFE [Z], 0x00 
+	SET PC, calcMD5_padWithZeros
+SET C, 0
+SET Z, POP
+:calcMD5_mainLoop
+SET PUSH, A
+SET A, 16
+IFG A, C 
+	SET PC, calcMD5_funcF
+SET A, 32
+IFG A, C 
+	SET PC, calcMD5_funcG
+SET A, 48
+IFG A, C 
+	SET PC, calcMD5_funcH
+SET A, 64
+IFG A, C 
+	SET PC, calcMD5_funcI
+SET A, POP
+:calcMD5_mainLoop_endSwitch
+SET I, A
+        SET PUSH, A
+        SET PUSH, B
+        SET PUSH, C
+        SET PUSH, X
+        SET PUSH, Y
+        SET PUSH, Z
+        SET Y, [calcMD5_constants_h3]
+        SET Z, calcMD5_constants_h3
+        ADD Z, 1
+        SET Z, [Z]
+        SET C, calcMD5_constants_h2
+        SET X, calcMD5_constants_h3
+        SET [X], [C]
+        ADD C, 1
+        ADD X, 1
+        SET [X], [C]
+        SET C, calcMD5_constants_h1
+        SET X, calcMD5_constants_h2
+        SET [X], [C]
+        ADD C, 1
+        ADD X, 1
+        SET [X], [C]
+        SET X, calcMD5_constants_h1
+        SET C, [calcMD5_constants_h0]
+        ADD C, [calcMD5_CompData]
+        ADD I, [calcMD5_Data]
+        ADD C, I
+        SET A, C
+        SET B, calcMD5_constants_shiftammounts
+        ADD B, [calcMD5_shiftammountsPointer]
+        SET B, [B]
+        JSR calcMD5_rotateLeft
+        ADD [X], C  ; first half has been rotated...
+        ADD X, 1
+        SET C, calcMD5_constants_h0
+        ADD C, 1
+        SET C, [C]
+        SET B, calcMD5_CompData
+        ADD B, 1
+        SET B, [B]
+        ADD C, B
+        SET B, calcMD5_constants_shiftammounts
+        ADD B, [calcMD5_shiftammountsPointer]
+        SET B, [B]
+        ADD [calcMD5_shiftammountsPointer], 1
+        ADD C, I
+        SET A, C
+        JSR calcMD5_rotateLeft
+        ADD [X], C  ; Whew!  rotation complete!
+        SET [calcMD5_constants_h0], Y
+        SET X, calcMD5_constants_h0
+        ADD X, 1
+        SET [X], Z
+        SET Z, POP
+        SET Y, POP
+        SET X, POP
+        SET C, POP
+        SET B, POP
+        SET A, POP
+        SET A, POP
+ADD C, 1
+IFN C, 63 
+	SET PC, calcMD5_mainLoop
+SET PUSH, A
+    SET A, calcMD5_constants_h0
+    ADD [A], 0x6745
+    ADD A, 1
+    ADD [A], 0x2301
+    ADD A, 1
+    ADD [A], 0xefcd
+    ADD A, 1
+    ADD [A], 0xab89
+    ADD A, 1
+    ADD [A], 0x98ba
+    ADD A, 1
+    ADD [A], 0xdcfe
+    ADD A, 1
+    ADD [A], 0x1032
+    ADD A, 1
+    ADD [A], 0x5476
+    SET A, POP
+SET X, calcMD5_constants_h0
+SET C, calcMD5_Data
+SET [C], [X]
+ADD X, 1
+ADD C, 1
+SET [C], [X]
+ADD C, 1
+ADD X, 1
+SET [C], [X]
+ADD X, 1
+ADD C, 1
+SET [C], [X]
+ADD C, 1
+ADD X, 1
+SET [C], [X]
+ADD X, 1
+ADD C, 1
+SET [C], [X]
+ADD C, 1
+ADD X, 1
+SET [C], [X]
+ADD X, 1
+ADD C, 1
+SET [C], [X]
+SET X, POP
+SET C, POP
+SET A, POP
+SET A, calcMD5_Data
+SET PC, POP
+
+:calcMD5_funcF ;returns calcMD5_CompData[0 and 1] and g in A  (b&c) | ((!b)&d)
+SET PUSH, B
+SET PUSH, C
+SET PUSH, X
+SET PUSH, Y
+SET PUSH, Z
+SET B, calcMD5_constants_h1
+SET C, calcMD5_constants_h1
+ADD C, 1
+SET Y, calcMD5_constants_h2
+SET Z, calcMD5_constants_h2
+ADD Z, 1
+SET X, calcMD5_CompData
+SET [X], [B]
+AND [X], [Y]
+ADD X, 1
+SET [X], [C]
+AND [X], [Z]       ; (b&c)
+XOR [B], 0xFFFF
+XOR [C], 0xFFFF      ; (!b)
+SET Y, calcMD5_constants_h3
+SET Z, calcMD5_constants_h3
+ADD Z, 1
+ADD X, 1
+SET [X], [B]
+AND [X], [Y]
+ADD X, 1
+SET [X], [C]
+AND [X], [Z]       ; & d
+SET B, calcMD5_CompData
+SET C, calcMD5_CompData
+ADD C, 1
+SET Y, calcMD5_CompData
+ADD Y, 2
+SET Z, calcMD5_CompData
+ADD Z, 3
+BOR [B], [Y]
+SET [Y], 0x0000
+BOR [C], [Z]
+SET [Z], 0x0000   ; |
+SET Z, POP
+SET Y, POP
+SET X, POP
+SET C, POP
+SET A, C
+SET B, POP
+SET PC, calcMD5_mainLoop_endSwitch
+
+:calcMD5_funcG  ; same return, (d&b) | ((!d)&c)
+SET PUSH, B
+SET PUSH, C
+SET PUSH, X
+SET PUSH, Y
+SET PUSH, Z
+SET B, calcMD5_constants_h3
+SET C, calcMD5_constants_h3
+ADD C, 1
+SET Y, calcMD5_constants_h1
+SET Z, calcMD5_constants_h1
+ADD Z, 1
+SET X, calcMD5_CompData
+SET [X], [B]
+AND [X], [Y]
+ADD X, 1
+SET [X], [C]
+AND [X], [Z]       ; (b&c)
+XOR B, 0xFFFF
+XOR C, 0xFFFF      ; (!b)
+SET Y, calcMD5_constants_h2
+SET Z, calcMD5_constants_h2
+ADD Z, 1
+ADD X, 1
+SET [X], [B]
+AND [X], [Y]
+ADD X, 1
+SET [X], [C]
+AND [X], [Z]       ; & d
+SET B, calcMD5_CompData
+SET C, calcMD5_CompData
+ADD C, 1
+SET Y, calcMD5_CompData
+ADD Y, 2
+SET Z, calcMD5_CompData
+ADD Z, 3
+BOR [B], [Y]
+SET [Y], 0x0000
+BOR [C], [Z]
+SET [Z], 0x0000   ; |
+SET Z, POP
+SET Y, POP
+SET X, POP
+SET C, POP
+SET B, C
+MUL B, 5
+ADD B, 1
+MOD B, 16
+SET A, B
+SET B, POP
+SET PC, calcMD5_mainLoop_endSwitch
+
+:calcMD5_funcH
+SET PUSH, B
+SET PUSH, C
+SET PUSH, X
+SET PUSH, Y
+SET PUSH, Z
+SET Y, calcMD5_constants_h1
+SET X, calcMD5_constants_h2
+SET C, [Y]
+XOR C, [X]                      ; C now has the first word
+ADD Y, 1
+ADD X, 1
+SET Z, [Y]
+XOR Z, [X]                      ; Z now has the second word
+SET Y, calcMD5_constants_h3
+ADD Y, 1
+SET X, calcMD5_constants_h3
+XOR C, [X]
+XOR Z, [Y]
+SET Y, calcMD5_CompData
+SET [Y], C
+ADD Y, 1
+SET [Y], Z
+SET Z, POP
+SET Y, POP
+SET X, POP
+SET C, POP
+SET B, C
+MUL B, 7
+MOD B, 16
+SET A, B
+SET B, POP
+SET PC, calcMD5_mainLoop_endSwitch
+
+:calcMD5_funcI
+SET PUSH, B
+SET PUSH, C
+SET PUSH, X
+SET PUSH, Z
+SET X, calcMD5_constants_h3
+SET Y, calcMD5_constants_h3
+XOR X, 0xFFFF
+SET C, [X]
+ADD X, 1
+XOR X, 0xFFFF
+SET Z, [X]
+SET X, calcMD5_constants_h1
+BOR C, [X]
+ADD X, 1
+BOR Z, [X]
+SET X, calcMD5_constants_h2
+XOR C, [X]
+ADD X, 1
+XOR Z, [X]
+SET X, calcMD5_CompData
+SET [X], C
+ADD X, 1
+SET [X], Z
+SET Z, POP
+SET X, POP
+SET C, POP
+SET B, C
+MUL B, 3
+ADD B, 5
+MOD B, 16
+SET A, B
+SET B, POP
+SET PC, calcMD5_mainLoop_endSwitch
+
+:calcMD5_propAdd
+SET PUSH, X
+SET A, EX
+SET EX, 0
+SUB X, 1
+ADD [X], A
+IFN EX, 0 
+	JSR calcMD5_propAdd
+SET A, POP
+SET PC, POP
+
+:calcMD5_Data dat 0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00
+:calcMD5_CompData dat 0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00
+:calcMD5_constants_h0 dat 0x6745, 0x2301
+:calcMD5_constants_h1 dat 0xefcd, 0xab89
+:calcMD5_constants_h2 dat 0x98ba, 0xdcfe
+:calcMD5_constants_h3 dat 0x1032, 0x5476
+:calcMD5_constants_shiftammounts dat 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21
+:calcMD5_shiftammountsPointer dat 0x0000
+:calcMD5_rotateLeft ; A is data, B is shift ammount, C is return
+SET PUSH, A
+SET PUSH, B
+SET PUSH, X
+SET X, A
+SHL X, B
+SET C, X
+SET X, 32
+SUB X, B
+SHR A, X
+BOR C, A
+SET X, POP
+SET B, POP
+SET A, POP
+SET PC, POP

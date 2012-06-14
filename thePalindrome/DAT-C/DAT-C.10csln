@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<solution>
+  <name>DAT-C</name>
+  <properties>
+    <property name="emuLoadMode">project</property>
+    <property name="emuLoad.projectName">DAT-CS</property>
+  </properties>
+  <projects>
+    <project path="DAT-CS\DAT-CS.10cproj" />
+  </projects>
+</solution>

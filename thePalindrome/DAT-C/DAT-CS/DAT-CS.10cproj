@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project version="1.7.5" type="code">
+  <name>DAT-CS</name>
+  <properties>
+    <property name="code.generateBinaryOutput">False</property>
+    <property name="code.generateHexOutput">False</property>
+    <property name="code.setFirstFile">True</property>
+    <property name="code.firstFile">main.10c</property>
+  </properties>
+  <references />
+  <files>
+    <file path="main.10c" />
+  </files>
+</project>
