@@ -1,1 +1,1 @@
-The Kernel currently HWQ's all devices we know of per Notch's information on the DCPU-16.
+The Kernel currently HWQ's all devices we know of per Notch's information on the DCPU-16, and lauches TEMPOS from a floppy.
