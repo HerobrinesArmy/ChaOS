@@ -1,0 +1,16 @@
+; --------------------------------------------
+; Title:   fat16
+; Author:  Jannis Froese
+; Date:    15.06.2012
+; Version: 
+; --------------------------------------------
+
+;call when disk was inserted, rereads buffers
+:diskchange
+set pc, pop
+
+;returns name of disk
+:diskname
+set pc, pop
+
+:fat

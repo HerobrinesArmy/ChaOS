@@ -1,10 +1,16 @@
 ; --------------------------------------------
 ; Title:   main
-; Author:  Alex
-; Date:    6/14/2012
+; Author:  Alex, smith10
+; Date:    2012-06-15
 ; Version: 
 ; For use within Herobrine's army
 ;--------------------------------------------
+
+;fat header, makes disk valid fat16
+DAT 0xCB82 ;add pc, 0x11 - also magic word for bootable disk
+DAT 0x2441 0x410B 0x7EF7 0x489A 0x79EB ;media name, with some luck that means "HA BootDisk"
+DAT 0x200 0x0001 0x05A0 0x0000 0x0003 0x0002 0x0028 0x0012 ;setting all sectors reserved, effectively no filesystem
+DAT 0x736f 0x7f6c ;serial number
 
 HWN I
 SET J, 0
