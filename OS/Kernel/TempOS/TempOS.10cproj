@@ -6,9 +6,12 @@
     <property name="compress">true</property>
     <property name="filesystem.enabled">true</property>
     <property name="filesystem.type">Structureless</property>
+    <property name="autoLoad.enabled">True</property>
   </properties>
   <references />
   <files>
     <file path="main.10c" />
+    <file path="fat16.10c" />
+    <file path="memory_manager.10c" />
   </files>
 </project>

@@ -6,6 +6,7 @@
 ; For use within Herobrine's army
 ;--------------------------------------------
 
+#segment boot
 ;fat header, makes disk valid fat16
 DAT 0xCB82 ;add pc, 0x11 - also magic word for bootable disk
 DAT 0x2441 0x410B 0x7EF7 0x489A 0x79EB ;media name, with some luck that means "HA BootDisk"
@@ -43,6 +44,7 @@ SET [max_backspace], [video_cur]
 :start
 SUB PC, 1
 
+#segment data
 :monitorID dat 0x0000
 :keyboardID dat 0x0000
 :video_cur dat 0x0000

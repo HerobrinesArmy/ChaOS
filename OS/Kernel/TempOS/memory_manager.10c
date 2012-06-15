@@ -1,5 +1,5 @@
 ; --------------------------------------------
-; Title:   fat16
+; Title:   memory_manager
 ; Author:  smith10
 ; Date:    2012-06-15
 ; Version: 
@@ -7,17 +7,14 @@
 
 #segment code
 
-;call when disk was inserted, rereads buffers
-:diskchange
-set pc, pop
+:mem_init
 
-;returns name of disk
-:diskname
+:mem_get
 
-set pc, pop
+:mem_free
 
 #segment data
 
-:fat
 
-:readcache
+#segment mem_heap 990
+:mem_heap_start DAT 0x0000
