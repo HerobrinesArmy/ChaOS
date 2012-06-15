@@ -1,0 +1,42 @@
+; --------------------------------------------
+; Title:   main
+; Author:  Alex
+; Date:    6/14/2012
+; Version: 
+; --------------------------------------------
+
+HWN I
+SET J, 0
+:setScreen
+ADD J, 1
+IFE I, J
+	SET PC, init
+HWQ J
+IFE B, 0x7349
+	IFE A, 0xF615
+		SET PC, monitor_found
+IFE B, 0x30CF
+	IFE A, 0x7406
+		SET PC, keyboard_found
+:monitor_found
+SET A, 0
+SET B, 0x8000
+SET [monitorID], J
+HWI J
+SET PC,setScreen
+:keyboard_found
+SET A, 0
+SET [keyboardID], J
+HWI J
+SET PC, setScreen
+
+:init
+SET B, 0x7120
+SET [max_backspace], [video_cur]
+:start
+SUB PC, 1
+
+:monitorID dat 0x0000
+:keyboardID dat 0x0000
+:video_cur dat 0x0000
+:max_backspace dat 0x0000

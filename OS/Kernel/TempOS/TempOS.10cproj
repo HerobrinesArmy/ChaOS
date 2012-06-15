@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project version="1.7.5" type="disk">
+  <name>TempOS</name>
+  <properties>
+    <property name="outputFilename">TempOS.bief</property>
+    <property name="compress">true</property>
+    <property name="filesystem.enabled">true</property>
+    <property name="filesystem.type">Structureless</property>
+  </properties>
+  <references />
+  <files>
+    <file path="main.10c" />
+  </files>
+</project>
