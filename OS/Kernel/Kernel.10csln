@@ -8,5 +8,6 @@
   <projects>
     <project path="Main\Main.10cproj" />
     <project path="TempOS\TempOS.10cproj" />
+    <project path="SomeOS\SomeOS.10cproj" />
   </projects>
 </solution>

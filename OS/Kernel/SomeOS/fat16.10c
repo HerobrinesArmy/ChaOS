@@ -15,9 +15,3 @@ set pc, pop
 :diskname
 
 set pc, pop
-
-#segment data
-
-:fat
-
-:readcache

@@ -9,9 +9,9 @@
 #segment boot
 ;fat header, makes disk valid fat16
 DAT 0xCB82 ;add pc, 0x11 - also magic word for bootable disk
-DAT 0x2441 0x410B 0x7EF7 0x489A 0x79EB ;media name, with some luck that means "HA BootDisk"
-DAT 0x200 0x0001 0x05A0 0x0000 0x0003 0x0002 0x0028 0x0012 ;setting all sectors reserved, effectively no filesystem
-DAT 0x736f 0x7f6c ;serial number
+DAT 0x2441, 0x410B, 0x7EF7, 0x489A, 0x79EB ;media name, with some luck that means "HA BootDisk"
+DAT 0x200, 0x0001, 0x05A0, 0x0000, 0x0003, 0x0002, 0x0028, 0x0012 ;setting all sectors reserved, effectively no filesystem
+DAT 0x736f, 0x7f6c ;serial number
 
 HWN I
 SET J, 0
@@ -41,6 +41,7 @@ SET PC, setScreen
 :init
 SET B, 0x7120
 SET [max_backspace], [video_cur]
+JSR mem_init
 :start
 SUB PC, 1
 
@@ -49,3 +50,5 @@ SUB PC, 1
 :keyboardID dat 0x0000
 :video_cur dat 0x0000
 :max_backspace dat 0x0000
+
+

@@ -8,13 +8,22 @@
 #segment code
 
 :mem_init
+set pc, pop
 
+;A: amount of needed words
+;out A: address of allocated memory
 :mem_get
+set push, A
+set A, mem_heap_first_free
+add [mem_heap_first_free], pop
+set pc, pop
 
+;A: address of memory to be freed
 :mem_free
+set pc, pop	;that's right, no free implemented yet
 
 #segment data
-
+:mem_heap_first_free DAT mem_heap_start
 
 #segment mem_heap 990
 :mem_heap_start DAT 0x0000
