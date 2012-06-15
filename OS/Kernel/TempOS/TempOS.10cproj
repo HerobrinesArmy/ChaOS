@@ -9,5 +9,9 @@
     <property name="autoLoad.enabled">True</property>
   </properties>
   <references />
-  <files />
+  <files>
+    <file path="..\SomeOS\SomeOS.bin">
+      <property name="Identifier">SomeOS</property>
+    </file>
+  </files>
 </project>

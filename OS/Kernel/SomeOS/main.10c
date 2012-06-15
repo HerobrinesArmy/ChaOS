@@ -10,9 +10,9 @@
 ;fat header, makes disk valid fat16
 DAT 0xCB82 ;add pc, 0x11 - also magic word for bootable disk
 DAT 0x2441, 0x410B, 0x7EF7, 0x489A, 0x79EB ;media name, with some luck that means "HA BootDisk"
-DAT 0x200, 0x0001, 0x05A0, 0x0000, 0x0003, 0x0002, 0x0028, 0x0012 ;setting all sectors reserved, effectively no filesystem
+DAT 0x200, 0x0001, 0x05A0, 0x0000, 0x05A0, 0x0000, 0x0003, 0x0002, 0x0028, 0x0012 ;setting all sectors reserved, effectively no filesystem
 DAT 0x736f, 0x7f6c ;serial number
-
+:codestart
 HWN I
 SET J, 0
 :setScreen
@@ -26,6 +26,10 @@ IFE B, 0x7349
 IFE B, 0x30CF
 	IFE A, 0x7406
 		SET PC, keyboard_found
+IFE B, 0x74FA
+	IFE A, 0x4CAE
+		SET PC, floppy_found
+SET PC, setScreen
 :monitor_found
 SET A, 0
 SET B, 0x8000
@@ -37,17 +41,32 @@ SET A, 0
 SET [keyboardID], J
 HWI J
 SET PC, setScreen
+:floppy_found
+SET [floppyID], J
+SET PC, setScreen
 
 :init
 SET B, 0x7120
 SET [max_backspace], [video_cur]
 JSR mem_init
+
 :start
+SET A,0x8000
+JSR fat16_diskname
+
+SET I, 0
+:start_loop
+BOR [0x8000+I], 0xF000
+ADD I, 1
+IFN I, 11
+  SET PC, start_loop
+  
 SUB PC, 1
 
 #segment data
 :monitorID dat 0x0000
 :keyboardID dat 0x0000
+:floppyID dat 0x0000
 :video_cur dat 0x0000
 :max_backspace dat 0x0000
 

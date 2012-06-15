@@ -8,11 +8,12 @@
 #segment code
 
 :mem_init
+set [mem_heap_first_free], mem_heap_start
 set pc, pop
 
 ;A: amount of needed words
 ;out A: address of allocated memory
-:mem_get
+:mem_alloc
 set push, A
 set A, mem_heap_first_free
 add [mem_heap_first_free], pop
