@@ -51,15 +51,8 @@ SET [max_backspace], [video_cur]
 JSR mem_init
 
 :start
-SET A,0x8000
-JSR fat16_diskname
-
-SET I, 0
-:start_loop
-BOR [0x8000+I], 0xF000
-ADD I, 1
-IFN I, 11
-  SET PC, start_loop
+SET [0x8000], 0xF048
+SET [0x8001], 0xF041
   
 SUB PC, 1
 

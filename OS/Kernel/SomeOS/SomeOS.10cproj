@@ -12,7 +12,6 @@
   <references />
   <files>
     <file path="main.10c" />
-    <file path="fat16.10c" />
     <file path="memory_manager.10c" />
   </files>
 </project>
