@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project version="1.7.5" type="code">
+  <name>SomeOS</name>
+  <properties>
+    <property name="code.generateBinaryOutput">true</property>
+    <property name="code.binaryOutputFilename">SomeOS.bin</property>
+    <property name="code.generateHexOutput">false</property>
+    <property name="code.hexOutputFilename">SomeOS.hex</property>
+    <property name="code.setFirstFile">True</property>
+    <property name="code.firstFile">C:\Users\Jannis Froese\Development\hrsdl\assembla\OS\Kernel\SomeOS\main.10c</property>
+  </properties>
+  <references />
+  <files>
+    <file path="main.10c" />
+    <file path="memory_manager.10c" />
+  </files>
+</project>

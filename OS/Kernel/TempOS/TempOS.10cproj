@@ -6,9 +6,12 @@
     <property name="compress">true</property>
     <property name="filesystem.enabled">true</property>
     <property name="filesystem.type">Structureless</property>
+    <property name="autoLoad.enabled">True</property>
   </properties>
   <references />
   <files>
-    <file path="main.10c" />
+    <file path="..\SomeOS\SomeOS.bin">
+      <property name="Identifier">SomeOS</property>
+    </file>
   </files>
 </project>
