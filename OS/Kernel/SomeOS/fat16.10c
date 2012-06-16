@@ -28,9 +28,9 @@ set x, [diskbufferaddress]
 hwi [floppyID]
 
 set b, pop
-;set a, [diskbufferaddress]
-;add a, 1
-;jsr fat16_fatStringTo16bit
+set a, [diskbufferaddress]
+add a, 1
+jsr fat16_fatStringTo16bit
 set pc, pop
 
 ;A: Address of 11 character 7bit string
@@ -39,23 +39,48 @@ set pc, pop
 set push, c
 set push, x
 set [b], [a]
-shr [b], 1
+shr [b], 9
 set c, ex
 
-set [b+1], [a+1]
-shr [b+1], 2
-set x, ex
-shr c, 2
-bor [b+1], c
+set [b+1], c
+shr [b+1], 9
+set c, ex
 
-set c, 0
-dbg1:
-set [b], [a]
-add c, 1
-add a, 1
-add b, 1
-ifn c, 5
-  set pc, dbg1
+set [b+2], [a+1]
+shr [b+2], 11
+set x, ex
+shr c, 9
+bor [b+2], c
+
+set [b+3], x
+shr [b+3], 9
+set x, ex
+
+set [b+4], [a+2]
+shr [b+4], 13
+set c, ex
+shr x, 9
+bor [b+4], x
+
+set [b+5], c
+shr [b+5], 9
+set c, ex
+
+set [b+6], [a+3]
+shr [b+6], 15
+set x, ex
+shr c, 9
+bor [b+6], c
+
+
+;set c, 0
+;dbg1:
+;set [b], [a]
+;add c, 1
+;add a, 1
+;add b, 1
+;ifn c, 5
+;  set pc, dbg1
 
 set x, pop
 set c, pop
