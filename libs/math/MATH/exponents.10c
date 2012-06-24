@@ -5,6 +5,7 @@
 ; For use within Herobrine's army				
 ; --------------------------------------------
 SUB b, 1			;computes a^b
+set c, a
 ife b, 0
 	set PC, lb0		;if b == 0
 set pc, lbn0
@@ -12,8 +13,13 @@ set pc, lbn0
 set a, 1			;then set a to 1
 set PC, end			;then exit
 :lbn0				;if b is not 0
+bor c, 1			;if even
+ife c, 0
+	DIV b, 2
 ife b, 0			;loop, mul a*a, then decrement b
 	SET PC, end
+ife c, 0
+	MUL a, a
 MUL a, a
 SUB b, 1
 set PC, lbn0
