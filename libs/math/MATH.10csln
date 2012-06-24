@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<solution>
+  <name>HRSDL</name>
+  <properties>
+    <property name="emuLoad.projectName">MATH</property>
+    <property name="emuLoadMode">project</property>
+  </properties>
+  <projects>
+    <project path="MATH\MATH.10cproj" />
+  </projects>
+</solution>

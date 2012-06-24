@@ -1,0 +1,20 @@
+; --------------------------------------------
+; Title:   exponents
+; Author:  Dilbertfan
+; Date:    6/24/2012
+; For use within Herobrine's army				
+; --------------------------------------------
+SUB b, 1
+ife b, 0
+	set PC, lb0
+set pc, lbn0
+:lb0
+set a, 1
+set PC, end
+:lbn0
+ife b, 0
+	SET PC, end
+MUL a, a
+SUB b, 1
+set PC, lbn0
+:end

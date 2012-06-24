@@ -1,1 +1,1 @@
-fac computes the value of A!- Dilbertfan
+exponents computes a^b- dilbertfan
