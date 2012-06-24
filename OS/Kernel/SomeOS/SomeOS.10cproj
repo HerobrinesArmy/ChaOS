@@ -13,5 +13,6 @@
   <files>
     <file path="main.10c" />
     <file path="memory_manager.10c" />
+    <file path="cluster_management.10c" />
   </files>
 </project>

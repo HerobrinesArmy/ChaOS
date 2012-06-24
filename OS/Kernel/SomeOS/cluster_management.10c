@@ -1,0 +1,108 @@
+; --------------------------------------------
+; Title:   cluster_manager
+; Author:  Liraal
+; Date:    2012-06-22
+; Version: 0x1
+; --------------------------------------------
+
+:ClusterMemory	DAT 0x0
+:ClusterOffset	DAT 0x2 ;clusters != sectors, they have different numbers
+:OS_drive		DAT 0x2 ; we need a routine for this
+:FAT_offset		DAT 0x1 ; where the FATs are placed
+:FAT_number		DAT 0x1 ;number of FATs
+
+:initClusterMemoryArea		;inits temp memory for cluster operations.
+set push, a
+set A, 0x200
+jsr mem_alloc
+set [ClusterMemory], A
+set a, pop
+set pc, pop
+
+:loadClusterToTemp ;A - cluster number, B- drive adress, reads data from a sector of a drive to temp memory
+set push, x
+set push, b
+set push, a
+set a, 0x10
+set b, pop
+set c, 0x1
+set x, [ClusterMemory]
+hwi pop
+set x, pop
+set pc, pop
+
+:writeClusterFromTemp ;A - cluster number, B - drive adress, writes data from temp memory to a sector of drive 
+set push, x
+set push, b
+set push, a
+set a, 0x11
+set b, pop
+add b, [ClusterOffset]
+set c, 0x1
+set x, [ClusterMemory]
+hwi pop
+set x, pop
+set pc, pop
+
+:getFileSectors			;A - number of file, loads fiel to memory, output: A - adress of 1. byte of said file
+jsr loadFAT
+sub a, 1
+set i, ClusterMemory
+set j, 0
+:searchFAT
+ife a, j
+	set pc, fileEntryFound
+ife [i], 0xFFFF
+	add j, 1
+add i, 1
+set pc, searchFAT
+:fileEntryFound
+set a, i
+jsr loadClusterToMemory
+set push, a
+:loadingFile
+ife [i], 0xFFFF
+	set pc, fileEnd
+add i, 1
+set a, i
+jsr loadClusterToMemory
+set pc, loadingFile
+:fileEnd
+set a, pop
+set pc, pop
+
+:loadFAT				;loads FAT table to temp memory. Temp memory only holds 1KB, so bigger ttables won't fit.
+set push, a
+set push, b
+set a, [FAT_offset]
+set b, [OS_drive]
+jsr loadClusterToTemp
+set b, pop
+set a, pop
+set pc, pop
+
+:loadClusterToMemory ;A - cluster number, loads a cluster to memory, output: A - adress of said cluster
+set push, b
+set push, c
+set push, i
+set push, x
+set push, a
+set A, 0x200
+jsr mem_alloc
+set i, a
+set a, 0x10
+set b, pop
+set c, 0x1
+set x, [i]
+hwi [OS_drive]
+set a, i
+set x, pop
+set i, pop
+set c, pop
+set b, pop
+set pc, pop
+
+:loadRoot		;Loads root directory, no params, output: A - adress of the first byte of root
+set a, 0x0
+jsr getFileSectors
+set pc, pop
