@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project version="1.7.5" type="test">
+  <name>MATH-Tests</name>
+  <properties />
+  <references>
+    <project>MATH</project>
+  </references>
+  <files>
+    <file path="exponents.10ctest" />
+  </files>
+</project>

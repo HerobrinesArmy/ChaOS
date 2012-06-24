@@ -7,5 +7,6 @@
   </properties>
   <projects>
     <project path="MATH\MATH.10cproj" />
+    <project path="MATH-Tests\MATH-Tests.10cproj" />
   </projects>
 </solution>
