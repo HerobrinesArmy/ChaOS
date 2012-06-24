@@ -4,17 +4,17 @@
 ; Date:    6/24/2012
 ; For use within Herobrine's army				
 ; --------------------------------------------
-SUB b, 1
+SUB b, 1			;computes a^b
 ife b, 0
-	set PC, lb0
+	set PC, lb0		;if b == 0
 set pc, lbn0
 :lb0
-set a, 1
-set PC, end
-:lbn0
-ife b, 0
+set a, 1			;then set a to 1
+set PC, end			;then exit
+:lbn0				;if b is not 0
+ife b, 0			;loop, mul a*a, then decrement b
 	SET PC, end
 MUL a, a
 SUB b, 1
 set PC, lbn0
-:end
+:end				;exit
