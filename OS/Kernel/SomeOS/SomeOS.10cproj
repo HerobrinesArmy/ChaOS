@@ -17,5 +17,6 @@
     <file path="TEA.10c" />
     <file path="IO.10c" />
     <file path="displaylibs.10c" />
+    <file path="startup.10c" />
   </files>
 </project>
