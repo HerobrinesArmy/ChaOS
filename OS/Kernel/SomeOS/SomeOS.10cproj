@@ -18,5 +18,6 @@
     <file path="IO.10c" />
     <file path="displaylibs.10c" />
     <file path="startup.10c" />
+    <file path="ABIchecks.10c" />
   </files>
 </project>
