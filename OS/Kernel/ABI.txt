@@ -1,0 +1,40 @@
+CHA_OS Application Binary Interface
+This interface requires two RAM entries per program
+Each program is assigned an 8-bit variable from witch it can be called
+Breakdown of RAM entries and what they mean
+ 1st RAM entry-stored in one location for all programs
+0-Length of program
+0-''
+0-''
+0-''
+0-''
+0-''
+0-''
+0-''
+0-''
+0-''
+0-6 bit unique processor assiged program number (UPAPN)
+0-allows for up to 63 progs
+0-''
+0-''
+0-''
+0-''
+ 2nd RAM entry-stored in same place- stores location of program, refrence by DCPU when call to run is given
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+
+
