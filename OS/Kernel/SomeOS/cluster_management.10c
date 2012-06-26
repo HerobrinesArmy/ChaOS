@@ -47,7 +47,7 @@ set pc, pop
 :getFileSectors			;A - number of file, loads fiel to memory, output: A - adress of 1. byte of said file
 jsr loadFAT
 sub a, 1
-set i, ClusterMemory
+set i, [ClusterMemory]
 set j, 0
 :searchFAT
 ife a, j
@@ -81,6 +81,16 @@ set b, pop
 set a, pop
 set pc, pop
 
+:updateFAT				;loads FAT table to temp memory. Temp memory only holds 1KB, so bigger ttables won't fit.
+set push, a
+set push, b
+set a, [FAT_offset]
+set b, [OS_drive]
+jsr writeClusterToTemp
+set b, pop
+set a, pop
+set pc, pop
+
 :loadClusterToMemory ;A - cluster number, loads a cluster to memory, output: A - adress of said cluster
 set push, b
 set push, c
@@ -102,7 +112,112 @@ set c, pop
 set b, pop
 set pc, pop
 
+:writeClusterFromMemory ;TODO---------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+:editFile	;A - file no., B - file length (clusters), C - 1. byte in memory
+jsr loadFAT
+sub a, 1
+set i, [ClusterMemory]
+set j, 0
+:edit_searchFAT
+ife a, j
+	set pc, edit_fileEntryFound
+ife [i], 0xFFFF
+	add j, 1
+add i, 1
+set pc, edit_searchFAT
+:edit_fileEntryFound
+set push, a
+set push, x
+set push, c
+set push, b
+set b, i
+add b, [ClusterOffset]
+set c, pop
+set x, pop
+set a, 0x11
+hwi [OS_drive]
+set b, c
+set c, x
+set x, pop
+set a, pop
+set pc, pop
+
 :loadRoot		;Loads root directory, no params, output: A - adress of the first byte of root
 set a, 0x0
 jsr getFileSectors
+set pc, pop
+
+:deleteFile		;A - file number
+jsr loadFAT
+sub a, 1
+set i, [ClusterMemory]
+set j, 0
+:delete_searchFAT
+ife a, j
+	set pc, delete_fileEntryFound
+ife [i], 0xFFFF
+	add j, 1
+add i, 1
+set pc, delete_searchFAT
+:delete_fileEntryFound
+set a, i
+set [a], 0x0
+set push, a
+:deletingFile
+ife [i], 0xFFFF
+	set pc, delete_fileEnd
+add i, 1
+set a, i
+jsr loadClusterToMemory
+set pc, deletingFile
+:delete_fileEnd
+set [i], 0x0
+jsr updateFAT
+set a, pop
+set pc, pop
+
+:createFile		;A - file length in clusters, B - file 1. byte adress
+jsr loadFAT
+sub a, 1
+set i, [ClusterMemory]
+set j, 0
+:create_searchFAT
+ife a, j
+	set pc, create_fileEntryFound
+ife [i], 0x0
+	add j, 1
+ifn [i], 0x0
+	set j, 0x0
+add i, 1
+set pc, create_searchFAT
+:create_fileEntryFound
+set push, a
+set push, c
+set push, x
+set push, b
+set b, i
+add b, [ClusterOffset]
+set c, a
+set x, pop
+set a, 0x11
+hwi [OS_drive]
+set b, x
+set x, pop
+set c, pop
+set a, pop
+set j, 0x0
+add i, [ClusterMemory]
+:create_updateFAT
+ife j, a
+	set pc, create_end
+add i, j
+set [i], j
+sub i, j
+add j, 1
+set pc, create_updateFAT
+:create_end
+jsr updateFAT
+set a, pop
 set pc, pop
