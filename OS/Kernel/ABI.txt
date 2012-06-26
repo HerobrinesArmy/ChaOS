@@ -1,6 +1,6 @@
 CHA_OS Application Binary Interface
 This interface requires three RAM entries per program
-Each program is assigned an 8-bit variable from witch it can be called
+Each program is assigned an 6-bit variable from witch it can be called
 Breakdown of RAM entries and what they mean
  1st RAM entry-stored in one location for all programs
 0-Length of program, including 3rd header
