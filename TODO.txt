@@ -4,4 +4,4 @@ List of tasks for HRSDL
 3- All other OS tasks (make terminal window,etc.)
 4- Establish program compatility with the OS
 5- program CS if possible at the time
-6- other programs- text editor, graphic 
+6- other programs- text editor, graphics, networking 
