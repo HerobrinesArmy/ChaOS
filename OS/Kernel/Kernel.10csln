@@ -10,6 +10,6 @@
     <project path="TempOS\TempOS.10cproj" />
     <project path="SomeOS\SomeOS.10cproj" />
     <project path="TestDisk2\TestDisk.10cproj" />
-	<project path="SomeTests\SomeTests.10cproj" />
+    <project path="SomeTests\SomeTests.10cproj" />
   </projects>
 </solution>

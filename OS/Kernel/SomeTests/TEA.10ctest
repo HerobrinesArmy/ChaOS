@@ -1,0 +1,118 @@
+; --------------------------------------------
+; Title:   TEA
+; Author:  smith10
+; Date:    2012-06-29
+; Version: 
+; --------------------------------------------
+
+#segment code
+; ========================================================================
+; user unit test code function
+; ========================================================================
+:unit_test
+	;first test
+	jsr encrypt
+	jsr decrypt
+	ifn [v0], 0
+		set pc, fail
+	ifn [v1], 0
+		set pc, fail
+	ifn [k0], 0
+		set pc, fail
+	ifn [k1], 0
+		set pc, fail
+	ifn [k2], 0
+		set pc, fail
+	ifn [k3], 0
+		set pc, fail
+		
+	;second test
+	set [v0], 0x0102
+	set [v1], 0x0304
+	set [k0], 0x0506
+	set [k1], 0x0708
+	set [k2], 0x090A
+	set [k3], 0x0B0C
+	jsr encrypt
+	ife [v0], 0x0102
+		set pc, fail
+	ife [v1], 0x0304
+		set pc, fail
+	ifn [k0], 0x0506
+		set pc, fail
+	ifn [k1], 0x0708
+		set pc, fail
+	ifn [k2], 0x090A
+		set pc, fail
+	ifn [k3], 0x0B0C
+		set pc, fail
+	jsr decrypt
+	
+	ifn [v0], 0x0102
+		set pc, fail
+	ifn [v1], 0x0304
+		set pc, fail
+	ifn [k0], 0x0506
+		set pc, fail
+	ifn [k1], 0x0708
+		set pc, fail
+	ifn [k2], 0x090A
+		set pc, fail
+	ifn [k3], 0x0B0C
+		set pc, fail
+	
+	set pc, pass
+	
+    ; enter unit test code here. you can jump to .pass or .fail
+    ; to signal success or failure
+    
+    ; unit tests will also fail after 1,000,000 cycles by default
+    
+
+#segment code
+.pass:
+    set a, UNIT_TEST_PASS
+    hwi [debugger_device]
+    
+.fail:
+	set a, UNIT_TEST_FAIL
+	hwi [debugger_device]
+
+.hang:
+    set pc, .hang
+
+; ========================================================================
+; unit test support code (debugger device interface)
+; ========================================================================
+#define NO_DEVICE 0xffff
+#define TRIGGER_BREAKPOINT 0
+#define OUTPUT_DIAG_WORD 1
+#define OUTPUT_DIAG_WORD_ZSTRING 2
+#define OUTPUT_DIAG_WORD_PSTRING 3
+#define UNIT_TEST_PASS 4
+#define UNIT_TEST_FAIL 5
+#define SET_PROCESSOR_SPEED 6
+#define GET_PROCESSOR_SPEED 7
+#define RESET_CYCLE_COUNTER 8
+#define GET_CYCLE_COUNTER 9
+
+#segment data
+:debugger_device
+    dat 0
+
+#segment boot
+    :detect_debugger
+        hwn z
+    .loop
+        sub z, 1
+        hwq z
+        ife b,0xdeb9
+            ife a,0x1111
+                set pc, .found
+        ifn z, 0
+            set pc, .loop
+    .notfound
+        set z, NO_DEVICE
+    .found
+        set [debugger_device], z
+        set pc, unit_test

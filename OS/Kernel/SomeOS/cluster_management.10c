@@ -24,6 +24,9 @@ set [ClusterMemory], A
 set a, pop
 set pc, pop
 
+:writeClusterToTemp			;TODO: NEEDS IMPLEMENTATION			<----
+set pc, pop
+
 :loadClusterToTemp ;A - cluster number, B- drive adress, reads data from a sector of a drive to temp memory
 set push, x
 set push, b
