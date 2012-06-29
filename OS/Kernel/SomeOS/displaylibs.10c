@@ -247,4 +247,4 @@
     set a, pop
     set pc, pop
      
-    :VRAM   dat 0x8000
+    ;:VRAM   dat 0x8000
