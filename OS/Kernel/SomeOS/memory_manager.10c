@@ -8,29 +8,71 @@
 #segment code
 
 :mem_init
-set [mem_heap_first_free], mem_heap_start
 set pc, pop
 
 ;A: amount of needed words
 ;out A: address of allocated memory
 :mem_alloc
+set push, B
+set B, A
+add B, 1				;for comparison: I want <=, but only have <
+set A, mem_heap_start
+:.loop
+ifc [A], 0x0001			;position free
+	ifl B, [A+1]		;large enough
+		set pc, .success
+add A, [A+1]
+add A, 2
+set pc, .loop
+:.success
+bor [A], 0x0001			;mark as used
+add A, 2				;beginning of memory
+ifg [A-1], B			;memory bigger than needed
+	set pc, .shrink
+set B, pop
+set pc, pop
+:.shrink
 set push, A
-set A, mem_heap_first_free
-add [mem_heap_first_free], pop
+sub B, 1
+jsr mem_resize
+set A, pop
+set B, pop
 set pc, pop
 
 ;A: address of memory
 ;B: new size of memory segment
 ;out A: 0 if success, 1 if failure
-:mem_resize ;stub, size increase doesn't worky yet
+:mem_resize
+ifb [A+2], B
+	set pc, .shrink
+ifl [A+2], B
+	set pc, .grow
+set A, 0
+set pc, pop
+:.grow
+set A, 1
+set pc, pop
+:.shrink
+set push, C
+set push, X
+set C, A
+add C, B
+set X, [A+1]
+sub X, B
+sub X, 2
+set [C], 0
+set [C+3], 
+set pop, X
+set pop, C
+set A, 0
 set pc, pop
 
 ;A: address of memory to be freed
 :mem_free
 set pc, pop	;that's right, no free implemented yet
 
-#segment data
-:mem_heap_first_free DAT mem_heap_start
 
-#segment mem_heap 990
-:mem_heap_start DAT 0x0000
+#segment mem_heap 899
+:mem_heap_start DAT 0x0000, 0x4000
+RESERVE 0x4000
+:mem_heap_end
