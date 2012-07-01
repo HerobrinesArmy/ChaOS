@@ -1,9 +1,16 @@
-0101-Dilbertfan
+0000-Unilescenced
+0001-Dilbertfan
 0010-Liraal
 0011-Smith10
 0100-Herobrine
 0101-HRSDL collaborative
-
-
-
+0110-lowlevel unlimited perms hack (use for viruses/keyloggers)
+0111-
+1000-
+1001-
 1010-PH03N1X
+1011-
+1100-
+1101-
+1110-
+1111-
