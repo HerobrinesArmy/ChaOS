@@ -6,7 +6,7 @@
 0101-HRSDL collaborative
 0110-lowlevel unlimited perms hack (use for viruses/keyloggers)
 0111-
-1000-
+1000-thePalindrome
 1001-
 1010-PH03N1X
 1011-
