@@ -9,6 +9,7 @@ For easy creation of Second RAM entry (for Win Vista/7 Users)
  click 'bin', and 'word'
  fill in the binary (don't worry about the screen)
  click 'hex'
+ You are done!
 
 
 
