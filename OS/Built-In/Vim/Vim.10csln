@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<solution>
+  <name>Vim</name>
+  <properties>
+    <property name="emuLoad.projectName">Vim</property>
+    <property name="emuLoadMode">project</property>
+    <property name="emuLoad.binaryFilename">E:\0x10c\HRSDL\OS\Kernel\SomeOS\SomeOS.bin</property>
+  </properties>
+  <projects>
+    <project path="Vim\Vim.10cproj" />
+  </projects>
+</solution>
