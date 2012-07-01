@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<solution>
+  <name>gameEnv</name>
+  <properties>
+    <property name="emuLoad.projectName">core</property>
+    <property name="emuLoadMode">project</property>
+  </properties>
+  <projects>
+    <project path="core\core.10cproj" />
+  </projects>
+</solution>

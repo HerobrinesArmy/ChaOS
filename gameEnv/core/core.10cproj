@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project version="1.7.5" type="code">
+  <name>core</name>
+  <properties>
+    <property name="code.generateBinaryOutput">true</property>
+    <property name="code.binaryOutputFilename">core.bin</property>
+    <property name="code.generateHexOutput">True</property>
+    <property name="code.hexOutputFilename">core.hex</property>
+    <property name="code.setFirstFile">True</property>
+    <property name="code.firstFile">main.asm</property>
+  </properties>
+  <references />
+  <files>
+    <file path="display.asm" />
+    <file path="keyboard.asm" />
+    <file path="interrupt.asm" />
+    <file path="clock.asm" />
+    <file path="main.asm" />
+    <file path="random.asm" />
+    <file path="map.asm" />
+    <file path="interface.asm" />
+    <file path="unit.asm" />
+    <file path="time.asm" />
+    <file path="city.asm" />
+    <file path="building.asm" />
+    <file path="combat.asm" />
+    <file path="recruit.asm" />
+  </files>
+</project>
