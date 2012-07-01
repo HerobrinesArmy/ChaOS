@@ -94,6 +94,9 @@ set pc, pop
 
 ;A: address of memory to be freed
 :mem_free
+ifb [A], 1
+	xor [A], 1
+;TODO: extend to check if next block is also free and merge them if possible
 set pc, pop	;that's right, no free implemented yet
 
 
