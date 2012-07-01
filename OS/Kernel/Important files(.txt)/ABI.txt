@@ -1,7 +1,7 @@
 CHA_OS Application Binary Interface
 This interface requires seven RAM entries per program
 1st, 2nd RAM entries are created partially by developer, partially by OS during install
-Install Wizard takes program from first sector of floopy, asks if you want to continue, then installs, giving it a 2nd RAM entry
+Install Wizard takes program from first sector of floppy, asks if you want to continue, then installs, giving it a 2nd RAM entry
 3-10 RAM entries are created by developer
 
 
