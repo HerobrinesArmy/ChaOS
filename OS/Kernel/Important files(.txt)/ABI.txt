@@ -41,7 +41,7 @@ Breakdown of RAM entries and what they mean
 0-''
 0-''
 0-''
-3-7 RAM entries- Name of the program, using 11 char into 5 word system
+3-7 RAM entries- Name of the program, using 10 char into 5 word system
 0
 0
 0
