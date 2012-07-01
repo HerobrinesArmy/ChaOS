@@ -107,9 +107,46 @@ ifb [B], 1		;if used
 add [A+1], [B+1]
 add [A+1], 2
 :.end
-set pop, B
+set B, pop
 set pc, pop	;that's right, no free implemented yet
 
+
+; memcpy - copies c words from memory at j to memory at i
+; i and j are advanced by c, other registers preserved
+; modified version of moonshadow's code from
+; http://www.0x10cforum.com/forum/m/4932880/viewthread/3099761-copy-memory-subroutine/post/17721638#p17721638
+:memcpy
+    set push, b     ; preserve b so we can use it for a temporary value
+    set push, c     ; save a copy of the count
+    and c, 15        ; c is now count % 16
+    set b, .loop+16   ; end of unrolled loop
+    sub b, c        ; b now points to correct position in loop
+    set c, [sp]     ; restore count
+    add c, j        ; c now holds final address
+    set pc, b       ; enter loop
+:.loop
+	sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    ifn j, c        ; done?
+        sub pc, (.loop_end-.loop)
+:.loop_end
+    set c, pop
+    set b, pop
+    set pc, pop
 
 #segment mem_heap 899
 :mem_heap_start DAT 0x0000, 0x4000
