@@ -1,4 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<solution name="Kernel" path="C:\Users\C4\hrsdl\OS\Kernel\Kernel.10csln" currentFile="">
-  <openFiles />
+<solution name="Kernel" path="E:\0x10c\HRSDL\OS\Kernel\Kernel.10csln" currentFile="SomeOS\ABIchecks.10c">
+  <openFiles>
+    <file path="SomeOS\ABIchecks.10c" />
+  </openFiles>
 </solution>
