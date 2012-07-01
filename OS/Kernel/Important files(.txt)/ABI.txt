@@ -1,9 +1,8 @@
 CHA_OS Application Binary Interface
-This interface requires three RAM entries per program
-Each program is assigned an 6-bit variable from witch it can be called
+This interface requires seven RAM entries per program
 1st, 2nd RAM entries are created partially by developer, partially by OS during install
-install wizard takes program from first sector of floopy, asks if you want to continue, then installs, giving it a UPAPN and 2nd RAM entry
-4-10 RAM entriesd are created
+Install Wizard takes program from first sector of floopy, asks if you want to continue, then installs, giving it a 2nd RAM entry
+3-10 RAM entries are created by developer
 
 
 
@@ -29,7 +28,7 @@ Breakdown of RAM entries and what they mean
 0-priority, 0 (background), through 7 (uses ALL cpu cycles)
 0-''
 0-''
-0-developer I.D. if false ID then kill prog immedietly, if 0 (unregisterd), then ask if you want to continue
+0-developer I.D. if false ID then kill prog immedietly, if 0 (unregistered), then ask if you want to continue
 0-''
 0-''
 0-''
