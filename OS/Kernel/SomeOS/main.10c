@@ -53,8 +53,6 @@ JSR mem_init
 :start
 SET [0x8000], 0xF048
 SET [0x8001], 0xF041
-set A, 10
-jsr mem_alloc
   
 SUB PC, 1
 
