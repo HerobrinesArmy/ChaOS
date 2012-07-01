@@ -13,17 +13,47 @@
 	set A, 1
 	jsr mem_alloc
 	ifn A, mem_heap_start+2
-		set pc, fail
+		set pc, .fail
+	jsr mem_size
+	ifn A, 1
+		set pc, .fail
+		
 	set A, 101
 	jsr mem_alloc
-	ifn A, mem_heap_start+5
-		set pc, fail
+	ifn A, mem_heap_start+3+2
+		set pc, .fail
+	jsr mem_size
+	ifn A, 101
+		set pc, .fail
 	
-	;set A, 0
-	;jsr mem_alloc
-	;ifn A, mem_h
+	set A, 10
+	jsr mem_alloc
+	ifn A, mem_heap_start+3+103+2
+		set pc, .fail
+	jsr mem_size
+	ifn A, 10
+		set pc, .fail
 
-	set pc, pass
+	set A, mem_heap_start+3+2		;second allocated memory area
+	jsr mem_free
+	
+	set A, 15
+	jsr mem_alloc
+	ifn A, mem_heap_start+3+2
+		set pc, .fail
+	jsr mem_size
+	ifn A, 15
+		set pc, .fail
+	
+	set A, 81
+	jsr mem_alloc
+	ifn A, mem_heap_start+3+17+2
+		set pc, .fail
+	jsr mem_size
+	;ifn A, 86
+	;	set pc, .fail
+		
+	set pc, .pass
     ; enter unit test code here. you can jump to .pass or .fail
     ; to signal success or failure
     
