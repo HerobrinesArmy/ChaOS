@@ -1,4 +1,4 @@
-#macro clrscr(){
+:clrscr
         set push, a
         set push, i
         set push, j
@@ -19,7 +19,7 @@
         set j, pop
         set i, pop
         set a, pop
-}
+		SET PC, POP
  
 #macro print(text) {
         set push, a
@@ -50,23 +50,21 @@
         set a, pop
 }
  
-#macro printc(ch){
+:printc ; Takes A as the character to print
         set push, a
         set push, j
-        set a, ch
         set j, [video_cur]
         bor a, 0x7000
         set [j], a
         add [video_cur], 1
-        set a, 0
-        set b, 0x8000
-        hwi [monitorID]
+        IFE [video_cur], 0x8180
+        	SUB [video_cur], 1
         set j, pop
         set a, pop
-}
+		SET PC, POP
  
  
-#macro getchar(){
+:getchar
         set push, a
         :getcharLoop
         set a, 1
@@ -74,9 +72,9 @@
         ife c, 0
                 set pc, getcharLoop
         set a, pop
-}
+		SET PC, POP
  
-#macro backspace(){
+:backspace
         set pc, backspaceStart
         set pc, backspaceEnd
         :backspaceStart
@@ -84,11 +82,10 @@
         printc(0x0020)
         sub [video_cur], 0x0001
         :backspaceEnd
-}
+        SET PC, POP
+
  
-#macro enter(){
-        set pc, enterStart
-        set pc, enterEnd
+:enter
         :enterStart
         set push, a
         set push, b
@@ -107,21 +104,26 @@
         set b, pop
         set a, pop
         :enterEnd
-}
+        SET PC, POP
  
-#macro read(){
+:read
+		SET PUSH, A
+		SET PUSH, C
         :readLoop
-        getchar()
+        JSR getChar
         ife c, 0x0010
-                backspace()
-                ife c, 0x0010
-                        set pc, readLoop
+                JSR backspace
+        ife c, 0x0010
+                set pc, readLoop
         ife c, 0x0011
                 set pc, readDone
-        printc(c)
+        SET A, C
+        JSR printc
         set pc, readLoop
         :readDone
-}
+        SET C, POP
+        SET A, POP
+        SET PC, POP
  
 :null   dat 0x0
 :screen dat 0x0
