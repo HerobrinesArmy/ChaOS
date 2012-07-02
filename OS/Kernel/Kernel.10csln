@@ -2,7 +2,7 @@
 <solution>
   <name>Kernel</name>
   <properties>
-    <property name="emuLoad.projectName">Main</property>
+    <property name="emuLoad.projectName">SomeOS</property>
     <property name="emuLoadMode">project</property>
   </properties>
   <projects>
