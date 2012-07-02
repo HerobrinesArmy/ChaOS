@@ -54,7 +54,7 @@ SET A, txt_Welcome
 JSR print
 
 :start
-JSR read
+JSR read	;THE OS CODE
   
 SET PC, start
 
@@ -66,5 +66,13 @@ SET PC, start
 :max_backspace dat 0x0000
 :txt_Welcome dat "Welcome to the CHAOS CLI", 0x0000
 :cmd_load dat "load", 0x0000
-
-
+:progs_running dat 0x0000
+:prog1 dat 0x0008	;multitasking shiz
+:prog2 dat 0x0008
+:prog3 dat 0x0008
+:prog4 dat 0x0008
+:prog5 dat 0x0008
+:prog6 dat 0x0008
+:prog7 dat 0x0008
+:prog8 dat 0x0008
+:prog9 dat 0x0008

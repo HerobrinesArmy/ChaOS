@@ -1,0 +1,24 @@
+:new_program
+ADD [progs_running], 1
+ife [progs_running], 1
+	SET [prog1], X
+ife [progs_running], 2
+	SET [prog2], X
+ife [progs_running], 3
+	SET [prog3], X
+ife [progs_running], 4	;sets the priority of a program to a space in RAM, returns x as the program's number
+	SET [prog4], X
+ife [progs_running], 5
+	SET [prog5], X
+ife [progs_running], 6
+	SET [prog6], X
+ife [progs_running], 7
+	SET [prog7], X
+ife [progs_running], 8
+	SET [prog8], X
+ife [progs_running], 9
+	SET [prog9], X
+SET X, [progs_running]
+SET PC, POP
+:kill_program
+ife	a, 12					;called when program ends, end program a
