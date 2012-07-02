@@ -52,9 +52,7 @@ SET [max_backspace], [video_cur]
 JSR mem_init
 
 :start
-SET [0x8000], 0xF048
-SET [0x8001], 0xF041
-read()
+JSR read
   
 SET PC, start
 
