@@ -1,24 +1,39 @@
-:new_program
-ADD [progs_running], 1
-ife [progs_running], 1
-	SET [prog1], X
-ife [progs_running], 2
-	SET [prog2], X
-ife [progs_running], 3
-	SET [prog3], X
-ife [progs_running], 4	;sets the priority of a program to a space in RAM, returns x as the program's number
-	SET [prog4], X
-ife [progs_running], 5
-	SET [prog5], X
-ife [progs_running], 6
-	SET [prog6], X
-ife [progs_running], 7
-	SET [prog7], X
-ife [progs_running], 8
-	SET [prog8], X
-ife [progs_running], 9
-	SET [prog9], X
-SET X, [progs_running]
-SET PC, POP
+:new_program		
+SET PUSH, Y
+SET Y, 1
+:progmakeloop
+ife [Y], 8
+	SET [Y], X
+ifn [Y], 8
+	SET PC, makeprog
+ADD Y, 1
+SET PC, progmakeloop
+:makeprog
+SET X, Y
+ADD Y, 10
+SET [Y], A					;makes a second entry in multitask library, giving the program a unique identifier (its 2nd ABI RAM ENTRY)
+SET Y, POP
+SET PC, POP 
+
+
+
 :kill_program
-ife	a, 12					;called when program ends, end program a
+ife	a, 12					;called when program ends, ends the program
+:1 dat 0x0008	;multitasking shiz
+:2 dat 0x0008
+:3 dat 0x0008
+:4 dat 0x0008
+:5 dat 0x0008
+:6 dat 0x0008
+:7 dat 0x0008
+:8 dat 0x0008
+:9 dat 0x0008
+:11 dat 0x0008	;multitasking shiz
+:12 dat 0x0008
+:13 dat 0x0008
+:14 dat 0x0008
+:15 dat 0x0008
+:16 dat 0x0008
+:17 dat 0x0008
+:18 dat 0x0008
+:19 dat 0x0008

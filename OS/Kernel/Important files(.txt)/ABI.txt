@@ -25,7 +25,7 @@ Breakdown of RAM entries and what they mean
 0-prog perms level- 0 (basic) to 3 (whatever the hell it wants), ask password for 3,2
 0-''
 0-starts at startup 
-0-RESERVED
+0-EVERY PROGRAM DEVELOPED BY ONE DEV. I.D. INCREASE THIS 6 DIGIT RESERVED AREA BY ONE
 0-''
 0-''
 0-''
