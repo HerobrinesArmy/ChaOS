@@ -50,6 +50,8 @@ SET B, 0x7120
 SET [video_cur], 0x8000
 SET [max_backspace], [video_cur]
 JSR mem_init
+SET A, txt_Welcome
+JSR print
 
 :start
 JSR read
@@ -62,5 +64,7 @@ SET PC, start
 :floppyID dat 0x0000
 :video_cur dat 0x0000
 :max_backspace dat 0x0000
+:txt_Welcome dat "Welcome to the CHAOS CLI", 0x0000
+:cmd_load dat "load", 0x0000
 
 

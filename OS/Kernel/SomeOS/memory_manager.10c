@@ -117,30 +117,6 @@ set B, 1
 set A, pop
 set pc, pop
 
-;tries relocating if resize fails. Especially useful for size increase
-;A: address of memory
-;B: new size of memory segment
-;out A: new address of memory
-;out B: 0 if success, 1 if failure
-:mem_resize_force
-set push, A
-jsr mem_resize
-ife A, 1
-	set pc, .relocate
-set B, 0
-set A, pop
-set pc, pop
-:.relocate
-set A, B
-jsr mem_alloc
-ife A, 0
-	set pc, .fail
-;TODO: insert memcpy from [peak] to [A], set return values
-:.fail
-set B, 1
-set A, pop
-set pc, pop
-
 ;A: address of memory to be freed
 :mem_free
 set push, B
