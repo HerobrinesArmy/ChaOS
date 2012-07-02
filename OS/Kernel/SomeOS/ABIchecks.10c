@@ -1,4 +1,30 @@
-:InterpretABI	;takes a as start of program in memory, returns b as runnable, with 1=run, 2=ask for continue 3=kill, 4=ask password, a = length of program, x = multitask level
-SET X, [a]
-ADD X, 1
-;AND [X], 
+:InterpretABI	;takes a as start of program in memory, returns b as runnable, with 1=run, 2=ask for continue 3=kill, 4=ask password, x = multitask level
+SET PUSH, I
+SET I, [a]
+ADD I, 1
+BOR [I], 0x1FFF
+XOR [I], 0x1FFF
+SHR [I], 13 ; At this point [I] is the priority
+SET X, [I]
+SET I, [A]  
+BOR [I], 0xE1FF
+XOR [I], 0xE1FF
+SHR [I], 9 ; At this point [I] has the developer ID
+IFN [I], 0
+	ADD PC, 2
+	SET B, 2
+	SET PC, devIDfinished
+SET B, 3
+IFN [I], 1
+	IFN [I], 2
+		IFN [I], 3
+			IFN [I], 4
+				IFN [I], 5
+					IFN [I], 6
+						IFN [I], 8
+							IFN [I], 10
+								ADD PC, 1
+SET B, 1
+:devIDfinished
+SET I, POP
+SET PC, POP
