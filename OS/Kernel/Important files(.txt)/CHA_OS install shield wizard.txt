@@ -1,0 +1,3 @@
+Install Wizard takes program from first sector of floppy, 
+asks if you want to continue, then installs
+Program then prompts where to install, then copies files

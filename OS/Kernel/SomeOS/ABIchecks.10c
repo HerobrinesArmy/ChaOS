@@ -1,6 +1,4 @@
-; --------------------------------------------
-; Title:   ABIchecks
-; Author: Dilbertfan
-; Date:    6/25/2012
-; For use within Herobrine's army
-; --------------------------------------------
+:InterpretABI	;takes a as start of program in memory, returns b as runnable, with 1=run, 2=ask for continue 3=kill, 4=ask password, a = length of program, x = multitask level
+SET X, [a]
+ADD X, 1
+;AND [X], 

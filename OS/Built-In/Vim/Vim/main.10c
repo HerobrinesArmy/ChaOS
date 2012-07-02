@@ -1,0 +1,15 @@
+; --------------------------------------------
+; Title:   main
+; Author:  Alex
+; Date:    7/1/2012
+; Version: 
+; --------------------------------------------
+
+SET PC, start
+
+dat 0x0000 
+dat 0xB080 ; Don't you dare touch this, took a while to get it going!
+dat 0x5669, 0x6D20, 0x4564, 0x6974, 0x6F72 ; Says "Vim Editor", compressed
+
+start:
+SUB PC, 1

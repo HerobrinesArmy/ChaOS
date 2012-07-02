@@ -47,14 +47,16 @@ SET PC, setScreen
 
 :init
 SET B, 0x7120
+SET [video_cur], 0x8000
 SET [max_backspace], [video_cur]
 JSR mem_init
 
 :start
 SET [0x8000], 0xF048
 SET [0x8001], 0xF041
+read()
   
-SUB PC, 1
+SET PC, start
 
 #segment data
 :monitorID dat 0x0000
