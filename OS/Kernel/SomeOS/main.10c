@@ -77,5 +77,6 @@ SET PC, start
 :cmd_version dat "version", 0x0000
 :cmd_help dat "help", 0x0000
 :cmd_load dat "load", 0x0000
+:cmd_format_datafloppy dat "format", 0x0000
 :cmd_avail_end dat 0x1234
 

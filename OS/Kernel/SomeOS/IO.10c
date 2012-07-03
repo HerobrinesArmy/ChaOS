@@ -128,6 +128,11 @@
 		JSR startswith
 		IFE Y, 1
 			JSR cmd_enter_version
+		SET A, [max_backspace]
+		SET B, cmd_format_datafloppy
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_format_datafloppy
 		JSR enter
 		IFE X, 0
 			JSR cmd_enter_badcmd	
@@ -172,6 +177,14 @@
 :cmd_enter_badcmd
 		SET A, txt_Badcmd
 		JSR print
+		SET PC, POP
+		
+:cmd_enter_format_datafloppy
+		;TODO: IMPLEMENT
+		;notes: needs a atoi function to read a drive number, a check if that number is a drive, then read the second argument,
+		;         which must be a string that is exactly 11 chars long (pad with spaces if longer)
+		;         then call fat16_format_data_HMU1440 with these two things
+		SET X, 1
 		SET PC, POP
  
 :read
