@@ -123,6 +123,11 @@
 		JSR startswith
 		IFE Y, 1
 			JSR cmd_enter_help
+		SET A, [max_backspace]
+		SEt B, cmd_version
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_version
 		JSR enter
 		IFE X, 0
 			JSR cmd_enter_badcmd	
@@ -139,7 +144,29 @@
 		SET PC, POP
 		
 :cmd_enter_help
+		SET PUSH, A
+		SET PUSH, Z
+		JSR enter
 		SET X, 1
+		SET Z, txt_Availcmds
+		SET A, [Z]
+	:cmd_enter_help_loop
+		IFE A, 0
+			SET A, 0x2C
+		JSR printc
+		ADD Z, 1
+		SET A, [Z]
+		IFN A, 0x1234
+			SET PC, cmd_enter_help_loop
+		SET Z, POP
+		SET A, POP
+		SET PC, POP
+		
+:cmd_enter_version
+		SET X, 1
+		JSR enter
+		SET A, txt_version
+		JSR print
 		SET PC, POP
 		
 :cmd_enter_badcmd
