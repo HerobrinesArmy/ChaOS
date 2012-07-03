@@ -184,6 +184,17 @@
 		;notes: needs a atoi function to read a drive number, a check if that number is a drive, then read the second argument,
 		;         which must be a string that is exactly 11 chars long (pad with spaces if longer)
 		;         then call fat16_format_data_HMU1440 with these two things
+		SET push, A
+		SET push, B
+		SET A, floppyID
+		SET B, max_backspace
+		ADD B, 7
+		jsr fat16_format_data_HMU1440
+		jsr enter
+		SET A, txt_done
+		jsr print
+		SET B, pop
+		SET A, pop
 		SET X, 1
 		SET PC, POP
  
