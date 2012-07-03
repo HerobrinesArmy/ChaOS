@@ -120,8 +120,21 @@ set c, pop
 set b, pop
 set pc, pop
 
-:writeClusterFromMemory ;TODO---------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+:writeClusterFromMemory ;A - memory adress, B - cluster number
+set push, b
+set push, c
+set push, x
+set push, a
+set a, 0x11
+add b, [ClusterOffset]
+set c, 0x1
+set x, peek
+hwi [OS_drive]
+set a, pop
+set x, pop
+set c, pop
+set b, pop
+set pc, pop
 
 :editFile	;A - file no., B - file length (clusters), C - 1. byte in memory
 jsr loadFAT
