@@ -57,7 +57,7 @@ JSR printc
 SET [max_backspace], [video_cur]
 
 :start
-JSR read
+JSR read	;THE OS CODE
   
 SET PC, start
 
@@ -69,5 +69,4 @@ SET PC, start
 :max_backspace dat 0x0000
 :txt_Welcome dat "Welcome to the CHAOS CLI", 0x0000
 :cmd_load dat "load", 0x0000
-
 
