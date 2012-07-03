@@ -5,7 +5,6 @@
 ; Version: 
 ; --------------------------------------------
 
-SET PC, start
 
 dat 0x0000 
 dat 0xB080 ; Don't you dare touch this, took a while to get it going!
