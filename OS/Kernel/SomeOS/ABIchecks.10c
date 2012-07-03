@@ -1,5 +1,5 @@
 :InterpretABI	;takes a as start of program in memory, returns b as runnable, with 1=run, 2=ask for continue 3=kill, 4=ask password, x = multitask level, then stores a program's multi level in library (using JSR new_program function)
-SET PUSH, I																	;abichecks MUST give back a as start of code
+SET PUSH, I		;abichecks MUST give back A as start of code AND return C as 2nd ABI RAM ENTRY
 ADD a, 1 		;first ABI entry is length, moves a to second entry
 SET I, [a]
 ADD I, 1
