@@ -113,18 +113,19 @@
 		SET PUSH, Y
 		SET PUSH, X
 		SET X, 0
-		JSR enter
-		SET A, max_backspace
+		SET A, [max_backspace]
 		SET B, cmd_load
 		JSR startswith
 		IFE Y, 1
 			JSR cmd_enter_load
-		SET A, max_backspace
+		SET A, [max_backspace]
 		SET B, cmd_help
+		JSR startswith
 		IFE Y, 1
 			JSR cmd_enter_help
+		JSR enter
 		IFE X, 0
-			JSR cmd_enter_badcmd
+			JSR cmd_enter_badcmd	
 		SET X, POP
 		SET Y, POP
 		SET B, POP
@@ -168,21 +169,32 @@
         SET PC, POP
         
 :startswith ; A is memory location of text, B is memory location of command, Y is return value
+	SET PUSH, Z
 	set y, 0
+	
+:startswithLoop
 
 	ife [b], 0
 	set pc, startswith_end_success
+	
+	SET Z, [A]
+	
+	XOR Z, 0x7000
 
-    ifn [a], [b]
-    set pc, pop
+    ifn z, [b]
+    	SET PC, startswith_end_fail
 
 	add a, 1
 	add b, 1
-	set pc, startswith
+	set pc, startswithLoop
 
 	:startswith_end_success
 		set y, 1
+		SET Z, POP
 		set pc, pop
+	:startswith_end_fail
+		SET Z, POP
+		SET PC, POP
 		
 ; Scrolls the screen one line (working)
 :scroll
