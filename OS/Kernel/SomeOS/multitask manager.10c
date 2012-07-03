@@ -12,20 +12,23 @@ SET PC, progmakeloop
 SET X, Y
 ADD Y, 10
 SET [Y], A					;makes a second entry in multitask library, giving the program a unique identifier (its 2nd ABI RAM ENTRY)
-SET Y, POP
+SET Y, POP					;returns X as ramspace stored, not acually usefull
 SET PC, POP 
 
-
-
 :kill_program
-							;called when program ends, ends the program
-
-
-
-
-
-
-
+SET PUSH, Y							;called when program ends, ends the program with unique ram identifier (2nd ABI RAM entry) a
+SET Y, 11
+:killloop							;finds which program it is in multitasking stack
+ife [y], a
+	SET PC, kill
+ADD Y, 1
+SET PC, killloop
+:kill
+SET [y], 0x0000
+SUB y, 10
+SET [y], 0x0008
+SET Y, POP
+SET PC, POP
 
 
 
@@ -39,6 +42,7 @@ SET PC, POP
 
 
 #segment data
+<<<<<<< HEAD
 :1 dat 0x0008	;multitasking shiz
 :2 dat 0x0008
 :3 dat 0x0008
@@ -48,12 +52,12 @@ SET PC, POP
 :7 dat 0x0008
 :8 dat 0x0008
 :9 dat 0x0008
-:11 dat 0x0008	;multitasking shiz
-:12 dat 0x0008
-:13 dat 0x0008
-:14 dat 0x0008
-:15 dat 0x0008
-:16 dat 0x0008
-:17 dat 0x0008
-:18 dat 0x0008
-:19 dat 0x0008
+:11 dat 0x0000	
+:12 dat 0x0000
+:13 dat 0x0000
+:14 dat 0x0000
+:15 dat 0x0000
+:16 dat 0x0000
+:17 dat 0x0000
+:18 dat 0x0000
+:19 dat 0x0000

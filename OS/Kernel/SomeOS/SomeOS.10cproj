@@ -20,6 +20,5 @@
     <file path="startup.10c" />
     <file path="ABIchecks.10c" />
     <file path="multitask manager.10c" />
-    <file path="..\..\..\..\Intel\multitask manager.10c" />
   </files>
 </project>
