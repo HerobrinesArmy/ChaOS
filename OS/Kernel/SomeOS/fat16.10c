@@ -53,24 +53,25 @@ jsr loadClusterToTemp
 set [ClusterMemory], 0			;not bootable
 
 set Y, pop
-set X, ClusterMemory
+set X, [ClusterMemory]
 add X, 1
 jsr fat16_7bitTo16bit			;media name
 
-set [ClusterMemory+6], 512		;words per sector
-set [ClusterMemory+7], 1		;sectors per cluster
-set [ClusterMemory+8], 1		;number of reserves sectors including boot sector
-set [ClusterMemory+9], 1		;number of FAT tables
-set [ClusterMemory+10], 0		;total number of sectors
-set [ClusterMemory+11], 1440	;  continued
-set [ClusterMemory+12], 3		;number of sectors per FAT
-set [ClusterMemory+13], 2		;number of Sides of media
-set [ClusterMemory+14], 40		;number of tracks per side
-set [ClusterMemory+15], 18		;number of sectors per track
-set [ClusterMemory+16], 0x736f	;Serial Number of media
-set [ClusterMemory+17], 0x7f6c	;  contunued
+set X, [ClusterMemory]
+set [X+6], 512		;words per sector
+set [X+7], 1		;sectors per cluster
+set [X+8], 1		;number of reserves sectors including boot sector
+set [X+9], 1		;number of FAT tables
+set [X+10], 0		;total number of sectors
+set [X+11], 1440	;  continued
+set [X+12], 3		;number of sectors per FAT
+set [X+13], 2		;number of Sides of media
+set [X+14], 40		;number of tracks per side
+set [X+15], 18		;number of sectors per track
+set [X+16], 0x736f	;Serial Number of media
+set [X+17], 0x7f6c	;  contunued
 
-set A, 0
+set A, -2
 set B, pop
 jsr writeClusterFromTemp
 
