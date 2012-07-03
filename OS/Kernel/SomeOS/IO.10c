@@ -29,9 +29,9 @@
         set j, [video_cur]
 :writeLoop
 		SET I, [A]
-        ife i, 0x0000
+        ife I, 0x0000
                 set pc, continue2
-        bor i, 0x7000
+        bor I, 0x7000
         set [j], i
         add a, 1
         add j, 1
@@ -44,6 +44,7 @@
         set j, pop
         set i, pop
         set a, pop
+        SET PC, POP
 
  
 :printc ; Takes A as the character to print
@@ -106,6 +107,26 @@
         :enterEnd
         SET PC, POP
  
+:cmd_enter
+		SET PUSH, A
+		SET PUSH, B
+		SET PUSH, Y
+		JSR enter
+		SET A, max_backspace
+		SET B, cmd_load
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_load
+		SET Y, POP
+		SET B, POP
+		SET A, POP
+		SET PC, POP
+		
+:cmd_enter_load
+		SET A, [video_cur]
+		ADD A, 5
+		SET PC, POP
+ 
 :read
 		SET PUSH, A
 		SET PUSH, C
@@ -121,12 +142,12 @@
         JSR printc
         set pc, readLoop
         :readDone
-        JSR enter
+        JSR cmd_enter
         SET C, POP
         SET A, POP
         SET PC, POP
         
-:startswith
+:startswith ; A is memory location of text, B is memory location of command, Y is return value
 	set y, 0
 
 	ife [b], 0

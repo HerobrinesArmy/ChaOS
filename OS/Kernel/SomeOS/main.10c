@@ -52,6 +52,9 @@ SET [max_backspace], [video_cur]
 JSR mem_init
 SET A, txt_Welcome
 JSR print
+SET A, 0x3E
+JSR printc
+SET [max_backspace], [video_cur]
 
 :start
 JSR read
