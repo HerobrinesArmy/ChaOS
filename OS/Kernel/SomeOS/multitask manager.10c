@@ -1,6 +1,6 @@
 :new_program		
 SET PUSH, Y
-SET Y, 1
+SET Y, prog1
 :progmakeloop
 ife [Y], 8
 	SET [Y], X
@@ -17,7 +17,7 @@ SET PC, POP
 
 :kill_program
 SET PUSH, Y							;called when program ends, ends the program with unique ram identifier (2nd ABI RAM entry) a
-SET Y, 11
+SET Y, prog11
 :killloop							;finds which program it is in multitasking stack
 ife [y], a
 	SET PC, kill
