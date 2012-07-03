@@ -58,6 +58,9 @@ SET [max_backspace], [video_cur]
 
 :start
 JSR read	;THE OS CODE
+SET A, 0x3E
+JSR printc
+SET [max_backspace], [video_cur]
   
 SET PC, start
 

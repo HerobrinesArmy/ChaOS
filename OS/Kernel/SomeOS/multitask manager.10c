@@ -42,22 +42,21 @@ SET PC, POP
 
 
 #segment data
-<<<<<<< HEAD
-:1 dat 0x0008	;multitasking shiz
-:2 dat 0x0008
-:3 dat 0x0008
-:4 dat 0x0008
-:5 dat 0x0008
-:6 dat 0x0008
-:7 dat 0x0008
-:8 dat 0x0008
-:9 dat 0x0008
-:11 dat 0x0000	
-:12 dat 0x0000
-:13 dat 0x0000
-:14 dat 0x0000
-:15 dat 0x0000
-:16 dat 0x0000
-:17 dat 0x0000
-:18 dat 0x0000
-:19 dat 0x0000
+:prog1 dat 0x0008	;multitasking shiz
+:prog2 dat 0x0008
+:prog3 dat 0x0008
+:prog4 dat 0x0008
+:prog5 dat 0x0008
+:prog6 dat 0x0008
+:prog7 dat 0x0008
+:prog8 dat 0x0008
+:prog9 dat 0x0008
+:prog11 dat 0x0000	
+:prog12 dat 0x0000
+:prog13 dat 0x0000
+:prog14 dat 0x0000
+:prog15 dat 0x0000
+:prog16 dat 0x0000
+:prog17 dat 0x0000
+:prog18 dat 0x0000
+:prog19 dat 0x0000

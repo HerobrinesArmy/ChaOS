@@ -135,8 +135,7 @@
         ife c, 0x0010
                 JSR backspace
         ife c, 0x0010
-                set pc, readLoopife [progs_running], 1
-	SET [prog1], X
+                set pc, readLoop   
 
         ife c, 0x0011
                 set pc, readDone
