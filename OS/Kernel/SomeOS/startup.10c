@@ -1,44 +1,4 @@
-jsr findDisplay
-jsr loadImage
-jsr printASCII
-sub pc, 1
- 
-:findDisplay
- set push, a
- set push, b
- set push, c
- set push, i
- set push, x
- set push, y
- hwq i             
- ife b, 0x7349
-  ife a, 0xf615
-   ife c, 0x1802
-    ife y, 0x1c6c
-     ife x, 0x8b36
-      add pc, 0x2
- add i, 1
- sub pc, 0xE
- set [LEM], i
- set y, pop
- set x, pop
- set i, pop
- set c, pop
- set b, pop
- set a, pop
-set pc, pop
-:LEM    dat 0x0
-:VRAM   dat 0x8000
- 
-:loadImage
-set push, a
-set push, b
-set a, 0x1
-set b, data
-hwi [LEM]
-set b, pop
-set a, pop
-set pc, pop
+
  
 :printASCII
 set push, a
