@@ -111,20 +111,39 @@
 		SET PUSH, A
 		SET PUSH, B
 		SET PUSH, Y
+		SET PUSH, X
+		SET X, 0
 		JSR enter
 		SET A, max_backspace
 		SET B, cmd_load
 		JSR startswith
 		IFE Y, 1
 			JSR cmd_enter_load
+		SET A, max_backspace
+		SET B, cmd_help
+		IFE Y, 1
+			JSR cmd_enter_help
+		IFE X, 0
+			JSR cmd_enter_badcmd
+		SET X, POP
 		SET Y, POP
 		SET B, POP
 		SET A, POP
 		SET PC, POP
 		
 :cmd_enter_load
+		SET X, 1
 		SET A, [video_cur]
 		ADD A, 5
+		SET PC, POP
+		
+:cmd_enter_help
+		SET X, 1
+		SET PC, POP
+		
+:cmd_enter_badcmd
+		SET A, txt_Badcmd
+		JSR print
 		SET PC, POP
  
 :read

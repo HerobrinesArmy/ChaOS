@@ -71,5 +71,7 @@ SET PC, start
 :video_cur dat 0x0000
 :max_backspace dat 0x0000
 :txt_Welcome dat "Welcome to the CHAOS CLI", 0x0000
+:txt_Badcmd dat "Unrecognized command", 0x0000
+:cmd_help dat "help", 0x0000
 :cmd_load dat "load", 0x0000
 
