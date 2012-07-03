@@ -9,14 +9,15 @@
 
 
 :fat16_init
-set a, 512
-jsr mem_alloc
+;set a, 512
+;jsr mem_alloc
 set [diskbufferaddress], a
 
 ;call when disk was inserted, rereads buffers
 :fat16_diskchange
 set pc, pop
 
+;TODO: NEEDS REWRITE TO USE CLUSTERMANAGER
 ;returns name of current disk
 ;A: address of 11 word of memory for return
 :fat16_diskname
@@ -35,6 +36,46 @@ set z, pop
 jsr fat16_7bitTo16bit
 set j, pop
 set i, pop
+set pc, pop
+
+;formats a not bootable floppy
+;A: ID of floppy drive
+;B: Media Name: pointer to 11 character long 16bit string
+:fat16_format_data_HMU1440
+set push, Y
+set push, Z
+set push, A
+set push, B
+set A, 0
+set B, [sp+1]
+jsr loadClusterToTemp
+
+set [ClusterMemory], 0			;not bootable
+
+set Y, pop
+set X, ClusterMemory
+add X, 1
+jsr fat16_7bitTo16bit			;media name
+
+set [ClusterMemory+6], 512		;words per sector
+set [ClusterMemory+7], 1		;sectors per cluster
+set [ClusterMemory+8], 1		;number of reserves sectors including boot sector
+set [ClusterMemory+9], 1		;number of FAT tables
+set [ClusterMemory+10], 0		;total number of sectors
+set [ClusterMemory+11], 1440	;  continued
+set [ClusterMemory+12], 3		;number of sectors per FAT
+set [ClusterMemory+13], 2		;number of Sides of media
+set [ClusterMemory+14], 40		;number of tracks per side
+set [ClusterMemory+15], 18		;number of sectors per track
+set [ClusterMemory+16], 0x736f	;Serial Number of media
+set [ClusterMemory+17], 0x7f6c	;  contunued
+
+set A, 0
+set B, pop
+jsr writeClusterFromTemp
+
+set Z, pop
+set Y, pop
 set pc, pop
 
 ;=============================================

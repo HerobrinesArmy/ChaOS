@@ -20,5 +20,6 @@
     <file path="startup.10c" />
     <file path="ABIchecks.10c" />
     <file path="multitask manager.10c" />
+    <file path="fat16.10c" />
   </files>
 </project>
