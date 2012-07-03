@@ -18,7 +18,7 @@ SET PC, POP
 
 
 :kill_program
-ife	a, 12					;called when program ends, ends the program
+							;called when program ends, ends the program
 
 
 
