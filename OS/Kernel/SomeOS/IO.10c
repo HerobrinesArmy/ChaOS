@@ -129,6 +129,11 @@
 		IFE Y, 1
 			JSR cmd_enter_version
 		SET A, [max_backspace]
+		SET B, cmd_diskname
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_diskname
+		SET A, [max_backspace]
 		SET B, cmd_format_datafloppy
 		JSR startswith
 		IFE Y, 1
@@ -197,6 +202,29 @@
 		SET A, pop
 		SET X, 1
 		SET PC, POP
+
+:cmd_enter_diskname
+		SET push, A
+		SET A, 11
+		jsr mem_alloc
+		ife A, 0
+			set pc, .oom
+		set push, A
+		jsr fat16_diskname
+		jsr enter
+		set A, [sp]
+		jsr print
+		set A, pop
+		jsr mem_free
+:.end	SET X, 1
+		SET A, pop
+		SET PC, POP
+:.oom	SET A, txt_error
+		jsr print
+		SET A, txt_oom
+		jsr print
+		set A, pop
+		set pc, end
 
 :read
 		SET PUSH, A
