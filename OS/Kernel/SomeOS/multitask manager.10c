@@ -10,9 +10,13 @@ ADD Y, 1
 SET PC, progmakeloop
 :makeprog
 SET X, Y
-ADD Y, 10
+ADD Y, 9
 SET [Y], A					;makes a second entry in multitask library, giving the program a unique identifier (its 2nd ABI RAM ENTRY)
-SET Y, POP					;returns X as ramspace stored, not acually usefull
+ADD Y, 9
+SET [Y], C
+
+
+SET Y, POP					
 SET PC, POP 
 
 :kill_program
@@ -25,7 +29,7 @@ ADD Y, 1
 SET PC, killloop
 :kill
 SET [y], 0x0000
-SUB y, 10
+SUB y, 9
 SET [y], 0x0008
 SET Y, POP
 SET PC, POP
