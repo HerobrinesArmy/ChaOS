@@ -50,6 +50,7 @@ SET B, 0x7120
 SET [video_cur], 0x8000
 SET [max_backspace], [video_cur]
 JSR mem_init
+JSR initClusterMemoryArea
 SET A, txt_Welcome
 JSR print
 SET A, 0x3E

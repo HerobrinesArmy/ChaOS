@@ -9,8 +9,8 @@
 
 
 :fat16_init
-;set a, 512
-;jsr mem_alloc
+set a, 512
+jsr mem_alloc
 set [diskbufferaddress], a
 
 ;call when disk was inserted, rereads buffers
@@ -42,41 +42,43 @@ set pc, pop
 ;A: ID of floppy drive
 ;B: Media Name: pointer to 11 character long 16bit string
 :fat16_format_data_HMU1440
-set push, Y
-set push, Z
+set push, I
+set push, J
 set push, A
 set push, B
-set A, 0
+
+set A, -2
 set B, [sp+1]
 jsr loadClusterToTemp
 
-set [ClusterMemory], 0			;not bootable
+set J, [ClusterMemory]
+set [J], 0			;not bootable
 
-set Y, pop
-set X, [ClusterMemory]
-add X, 1
-jsr fat16_7bitTo16bit			;media name
+set I, pop
+set J, [ClusterMemory]
+add J, 1
+jsr fat16_16bitTo7bit			;media name
 
-set X, [ClusterMemory]
-set [X+6], 512		;words per sector
-set [X+7], 1		;sectors per cluster
-set [X+8], 1		;number of reserves sectors including boot sector
-set [X+9], 1		;number of FAT tables
-set [X+10], 0		;total number of sectors
-set [X+11], 1440	;  continued
-set [X+12], 3		;number of sectors per FAT
-set [X+13], 2		;number of Sides of media
-set [X+14], 40		;number of tracks per side
-set [X+15], 18		;number of sectors per track
-set [X+16], 0x736f	;Serial Number of media
-set [X+17], 0x7f6c	;  contunued
+set J, [ClusterMemory]
+set [J+6], 512		;words per sector
+set [J+7], 1		;sectors per cluster
+set [J+8], 1		;number of reserves sectors including boot sector
+set [J+9], 1		;number of FAT tables
+set [J+10], 0		;total number of sectors
+set [J+11], 1440	;  continued
+set [J+12], 3		;number of sectors per FAT
+set [J+13], 2		;number of Sides of media
+set [J+14], 40		;number of tracks per side
+set [J+15], 18		;number of sectors per track
+set [J+16], 0x736f	;Serial Number of media
+set [J+17], 0x7f6c	;  contunued
 
 set A, -2
 set B, pop
 jsr writeClusterFromTemp
 
-set Z, pop
-set Y, pop
+set J, pop
+set I, pop
 set pc, pop
 
 ;=============================================

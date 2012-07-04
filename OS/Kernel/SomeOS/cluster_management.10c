@@ -6,6 +6,7 @@
 ; --------------------------------------------
 
 :ClusterMemory	DAT 0x0
+:FATMemory		DAT 0x0
 :ClusterOffset	DAT 0x2 ;clusters != sectors, they have different numbers
 :OS_drive		DAT 0x2 ; we need a routine for this
 :FAT_offset		DAT 0x1 ; where the FATs are placed
@@ -52,6 +53,32 @@ hwi pop
 set x, pop
 set pc, pop
 
+:loadClusterToTempFAT ;A - cluster number, B- drive adress, reads data from a sector of a drive to temp memory
+set push, x
+set push, b
+set push, a
+set a, 0x10
+set b, pop
+add b, 1
+set c, 0x1
+set x, [FATMemory]
+hwi pop
+set x, pop
+set pc, pop
+
+:writeClusterFromTempFAT ;A - cluster number, B - drive adress, writes data from temp memory to a sector of drive 
+set push, x
+set push, b
+set push, a
+set a, 0x11
+set b, pop
+add b, 1
+set c, 0x1
+set x, [FATMemory]
+hwi pop
+set x, pop
+set pc, pop
+
 :getFileSectors			;A - number of file, loads fiel to memory, output: A - adress of 1. byte of said file
 jsr loadFAT
 sub a, 1
@@ -84,7 +111,7 @@ set push, a
 set push, b
 set a, [FAT_offset]
 set b, [OS_drive]
-jsr loadClusterToTemp
+jsr loadClusterToTempFAT
 set b, pop
 set a, pop
 set pc, pop
@@ -94,7 +121,7 @@ set push, a
 set push, b
 set a, [FAT_offset]
 set b, [OS_drive]
-jsr writeClusterFromTemp
+jsr writeClusterFromTempFAT
 set b, pop
 set a, pop
 set pc, pop
