@@ -46,11 +46,13 @@ set push, Y
 set push, Z
 set push, A
 set push, B
-set A, 0
+
+set A, -2
 set B, [sp+1]
 jsr loadClusterToTemp
 
-set [ClusterMemory], 0			;not bootable
+set X, [ClusterMemory]
+set [X], 0			;not bootable
 
 set Y, pop
 set X, [ClusterMemory]
