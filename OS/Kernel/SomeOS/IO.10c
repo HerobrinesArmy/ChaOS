@@ -29,7 +29,7 @@
         set j, [video_cur]
 :writeLoop
 		SET I, [A]
-        ife I, 0x0000
+        ife I, 0x0000																																						
                 set pc, continue2
         bor I, 0x7000
         set [j], i
@@ -191,9 +191,9 @@
 		;         then call fat16_format_data_HMU1440 with these two things
 		SET push, A
 		SET push, B
-		SET A, [floppyID]
+		SET A, floppyID
 		SET B, [max_backspace]
-		ADD B, 18
+		ADD B, 7
 		jsr fat16_format_data_HMU1440
 		jsr enter
 		SET A, txt_done
