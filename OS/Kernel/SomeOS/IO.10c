@@ -138,9 +138,25 @@
 		JSR startswith
 		IFE Y, 1
 			JSR cmd_enter_format_datafloppy
+		SET A, [max_backspace]
+		SET B, cmd_clear
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_clear	
 		JSR enter
 		IFE X, 0
 			JSR cmd_enter_badcmd	
+		SET X, POP
+		SET Y, POP
+		SET B, POP
+		SET A, POP
+		SET PC, POP
+		
+:cmd_enter_clear
+		JSR clrscr
+		SET [max_backspace], 0x8000
+		SET [video_cur], 0x8000
+		SET X, POP
 		SET X, POP
 		SET Y, POP
 		SET B, POP

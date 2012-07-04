@@ -13,8 +13,8 @@ XOR [I], 0xE1FF
 SHR [I], 9 ; At this point [I] has the developer ID
 IFN [I], 0
 	ADD PC, 2
-	SET B, 2
-	SET PC, devIDfinished
+SET B, 2
+SET PC, devIDfinished
 SET B, 3
 IFN [I], 1
 	IFN [I], 2

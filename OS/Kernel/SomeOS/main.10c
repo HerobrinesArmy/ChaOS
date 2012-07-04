@@ -78,6 +78,7 @@ SET PC, start
 :txt_error dat "ERROR: "
 :txt_oom dat "Out of Memory", 0x0000
 :txt_Availcmds dat "Available commands: ", 0x0000
+:cmd_clear dat "clear", 0x0000
 :cmd_version dat "version", 0x0000
 :cmd_help dat "help", 0x0000
 :cmd_load dat "load", 0x0000
