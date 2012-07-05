@@ -20,6 +20,9 @@ ADD J, 1
 IFE I, J
 	SET PC, init
 HWQ J
+IFE A, 0xB402
+	IFE B, 0x12D0
+		SET PC, clock_found
 IFE B, 0x7349
 	IFE A, 0xF615
 		SET PC, monitor_found
@@ -29,6 +32,9 @@ IFE B, 0x30CF
 IFE B, 0x74FA
 	IFE A, 0x4CAE
 		SET PC, floppy_found
+SET PC, setScreen
+:clock_found
+SET [clockID], J
 SET PC, setScreen
 :monitor_found
 SET A, 0
@@ -51,7 +57,33 @@ SET [video_cur], 0x8000
 SET [max_backspace], [video_cur]
 JSR mem_init
 JSR initClusterMemoryArea
+
+SET A, 256
+JSR mem_alloc
+SET B, A
+SET I, B
+SET A, 4
+HWI [monitorID] 
+JSR logo_loadImage
+JSR logo_printASCII
+
+SET A, 0
+SET B, 6000
+HWI [clockID] ; the count has started!
+SET A, 1
+HWI [clockID]
+IFN C, 300
+	SUB PC, 5
+
+SET A, 1
+SET B, I
+HWI [monitorID]
+SET A, B
+JSR mem_free
+JSR clrscr
+
 SET A, txt_Welcome
+SET B, 0x7000
 JSR print
 SET A, 0x3E
 JSR printc
@@ -69,6 +101,7 @@ SET PC, start
 :monitorID dat 0x0000
 :keyboardID dat 0x0000
 :floppyID dat 0x0000
+:clockID dat 0x0000
 :video_cur dat 0x0000
 :max_backspace dat 0x0000
 :txt_Welcome dat "Welcome to the CHAOS CLI", 0x0000

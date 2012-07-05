@@ -12,16 +12,13 @@
                 set pc, clearEnd
         set pc, clearAll
 :clearEnd
-        set a, 0
-        set b, 0x8000
-        hwi [monitorID]
        
         set j, pop
         set i, pop
         set a, pop
 		SET PC, POP
  
-:print  ; takes A as the start of the text
+:print  ; takes A as the start of the text, and B is text color (0 == NONE)
         set push, a
         set push, i
         set push, j
@@ -31,7 +28,7 @@
 		SET I, [A]
         ife I, 0x0000																																						
                 set pc, continue2
-        bor I, 0x7000
+        BOR I, B
         set [j], i
         add a, 1
         add j, 1
@@ -197,6 +194,7 @@
 		
 :cmd_enter_badcmd
 		SET A, txt_Badcmd
+		SET B, 0x7000
 		JSR print
 		SET PC, POP
 		
