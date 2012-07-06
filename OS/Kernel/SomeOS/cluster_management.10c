@@ -79,7 +79,7 @@ hwi pop
 set x, pop
 set pc, pop
 
-:getFileSectors			;A - number of file, loads fiel to memory, output: A - adress of 1. byte of said file
+:getFileSectors			;A - number of file, loads file to memory, output: A - adress of 1. byte of said file
 jsr loadFAT
 sub a, 1
 set i, [ClusterMemory]
@@ -268,4 +268,105 @@ set pc, create_updateFAT
 :create_end
 jsr updateFAT
 set a, pop
+set pc, pop
+
+:folderAddEntry		;input: A - adress of correctly formatted folder entry, B -number of folder, output c - 0 if successful, 1 if not
+set push, a
+set push, b
+set push, i
+set push, j
+set push, x
+set c, a
+set a, b
+jsr getFileSectors
+set x, a
+set a, c
+set i, 0x0
+:folderAddEntry_loop
+ife i, 0x200
+	set pc, folderAddEntry_end
+add i, x
+set j, 0x0
+set c, 0x0
+:folderAddEntry_loop2
+ife j, 0x10
+	ife c, 0x0
+		set pc, folderAddEntry_add
+ife j, 0x10
+	set pc, folderAddEntry_end2
+ifn [i+j], 0x0
+	set c, 0x1
+add j, 1
+set pc, folderAddEntry_loop2
+:folderAddEntry_end2
+sub i, x
+add i, 1
+set pc, folderAddEntry_loop
+:folderAddEntry_end
+set a, b
+set b, 1
+set c, x
+jsr editFile
+set x, pop
+set j, pop
+set i, pop
+set b, pop
+set a, pop
+set pc, pop
+
+
+:folderAddEntry_add
+set j, 0x0
+:folderAddEntry_add_loop
+ife j, 0x10
+	set pc, folderAddEntry_end
+set [i+j], [a]
+add a, 1
+add j, 1
+set pc, folderAddEntry_add_loop
+
+:folderDeleteEntry	;A - entry number, B - folder number
+set push, a
+set push, b
+set push, i
+set push, j
+set push, x
+set c, a
+set a, b
+jsr getFileSectors
+set x, a
+set a, c
+set j, 0x0
+set i, a
+mul i, 0x10
+add i, x
+:folderDeleteEntry_loop
+ife j, 0x10
+	set pc, folderDeleteEntry_end
+sti [i], 0x0
+set pc, folderDeleteEntry_loop
+:folderDeleteEntry_end
+set a, b
+set b, 1
+set c, x
+jsr editFile
+set x, pop
+set j, pop
+set i, pop
+set b, pop
+set a, pop
+set pc, pop
+
+:folderGetEntry		;A - entry number, B -folder number, output: C - adress of the entry
+set push, c
+set push, x
+set c, a
+set a, b
+jsr getFileSectors
+set x, a
+set a, c
+set c, a
+mul c, 0x10
+add c, x
+set x, pop
 set pc, pop
