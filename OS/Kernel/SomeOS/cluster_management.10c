@@ -223,7 +223,7 @@ jsr updateFAT
 set a, pop
 set pc, pop
 
-:createFile		;A - file length in clusters, B - file 1. byte adress
+:createFile		;A - file length in clusters, B - file 1. byte adress, output: y - file number (hopefully)
 jsr loadFAT
 set i, [ClusterMemory]
 set j, 0
@@ -237,6 +237,7 @@ ifn [i], 0x0
 add i, 1
 set pc, create_searchFAT
 :create_fileEntryFound
+set y, i
 set push, a
 set push, c
 set push, x
