@@ -79,11 +79,13 @@ hwi pop
 set x, pop
 set pc, pop
 
-:getFileSectors			;A - number of file, loads file to memory, output: A - adress of 1. byte of said file
+:getFileSectors			;A - number of file, loads file to memory, output: A - adress of 1. byte of said file or 0xFFFF if no file found
 jsr loadFAT
 set i, [ClusterMemory]
 set j, 0
 :searchFAT
+ife j, 0xFFFF
+	set pc, noFileEntry
 ife a, j
 	set pc, fileEntryFound
 ife [i], 0xFFFF
@@ -104,6 +106,10 @@ set pc, loadingFile
 :fileEnd
 set a, pop
 set pc, pop
+
+:noFileEntry
+	set a, 0xffff
+	set pc, pop
 
 :loadFAT				;loads FAT table to temp memory. Temp memory only holds 1KB, so bigger ttables won't fit.
 set push, a
