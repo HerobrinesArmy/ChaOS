@@ -116,6 +116,16 @@
 		IFE Y, 1
 			JSR cmd_enter_load
 		SET A, [max_backspace]
+		SET B, cmd_ls
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_ls
+		SET A, [max_backspace]
+		SET B, cmd_mkdir
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_mkdir
+		SET A, [max_backspace]
 		SET B, cmd_help
 		JSR startswith
 		IFE Y, 1
@@ -160,6 +170,27 @@
 		SET A, POP
 		SET PC, POP
 		
+:cmd_enter_ls
+		SET B, [folder_cur]
+		SET A, 0
+		JSR folderGetEntry
+		SET X, 1
+		SET PC, POP
+		
+:cmd_enter_mkdir
+		SET A, [max_backspace]
+		ADD A, 6
+		SET PUSH, Z
+		SET PUSH, Y
+		SET Z, A
+		SET A, 16
+		JSR mem_alloc
+		SET Y, A
+		SET Y, POP
+		SET Z, POP
+		SET X, 1
+		SET PC, POP
+		
 :cmd_enter_load
 		SET X, 1
 		SET A, [video_cur]
@@ -189,6 +220,7 @@
 		SET X, 1
 		JSR enter
 		SET A, txt_version
+		SET B, 0x7000
 		JSR print
 		SET PC, POP
 		
@@ -211,6 +243,7 @@
 		jsr fat16_format_data_HMU1440
 		jsr enter
 		SET A, txt_done
+		SET B, 0x7000
 		jsr print
 		SET B, pop
 		SET A, pop
@@ -227,6 +260,7 @@
 		jsr fat16_diskname
 		jsr enter
 		set A, [sp]
+		SET B, 0x7000
 		jsr print
 		set A, pop
 		jsr mem_free
@@ -234,6 +268,7 @@
 		SET A, pop
 		SET PC, POP
 :.oom	SET A, txt_error
+		SET B, 0x7000
 		jsr print
 		SET A, txt_oom
 		jsr print

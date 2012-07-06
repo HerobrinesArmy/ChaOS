@@ -291,8 +291,12 @@ ife j, 0x10
 		set pc, folderAddEntry_add
 ife j, 0x10
 	set pc, folderAddEntry_end2
-ifn [i+j], 0x0
+SET PUSH, Z
+SET Z, J
+ADD Z, I
+ifn [Z], 0x0
 	set c, 0x1
+SET Z, POP
 add j, 1
 set pc, folderAddEntry_loop2
 :folderAddEntry_end2
@@ -317,7 +321,11 @@ set j, 0x0
 :folderAddEntry_add_loop
 ife j, 0x10
 	set pc, folderAddEntry_end
-set [i+j], [a]
+SET PUSH, Z
+SET Z, I
+ADD Z, J
+set [Z], [a]
+SET Z, POP
 add a, 1
 add j, 1
 set pc, folderAddEntry_add_loop
