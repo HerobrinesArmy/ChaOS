@@ -4,6 +4,10 @@
 ; Date:    2012-06-22
 ; Version: 0x1
 ; --------------------------------------------
+;to init:
+;initClusterMemoryArea
+;initFAT(unless wokring on formatted disks)
+;---------------------------------------------
 
 :ClusterMemory	DAT 0x0
 :FATMemory		DAT 0x0
@@ -22,6 +26,34 @@ set push, a
 set A, 0x200
 jsr mem_alloc
 set [ClusterMemory], A
+set a, pop
+set pc, pop
+
+:clearTempMemory
+set push, i
+set push, j
+set i, [ClusterMemory]
+set j, 0x0
+:clearTempMemoryLoop
+ife j, 0x200
+	set pc, clearTempMemoryEnd
+sti [i], 0x0
+set pc, clearTempMemoryLoop
+:clearTempMemoryEnd
+set j, pop
+set i, pop
+set pc, pop
+
+:initFAT
+set push, a
+set push, b
+jsr clearTempMemory
+set a, [ClusterMemory]
+set [a], 0xffff
+set a, [FAT_offset]
+set b, [OS_drive]
+jsr writeClusterFromTemp
+set b, pop
 set a, pop
 set pc, pop
 
