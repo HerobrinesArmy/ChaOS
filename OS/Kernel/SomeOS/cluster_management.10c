@@ -81,7 +81,6 @@ set pc, pop
 
 :getFileSectors			;A - number of file, loads file to memory, output: A - adress of 1. byte of said file
 jsr loadFAT
-sub a, 1
 set i, [ClusterMemory]
 set j, 0
 :searchFAT
@@ -165,7 +164,6 @@ set pc, pop
 
 :editFile	;A - file no., B - file length (clusters), C - 1. byte in memory
 jsr loadFAT
-sub a, 1
 set i, [ClusterMemory]
 set j, 0
 :edit_searchFAT
@@ -199,7 +197,6 @@ set pc, pop
 
 :deleteFile		;A - file number
 jsr loadFAT
-sub a, 1
 set i, [ClusterMemory]
 set j, 0
 :delete_searchFAT
@@ -228,7 +225,6 @@ set pc, pop
 
 :createFile		;A - file length in clusters, B - file 1. byte adress
 jsr loadFAT
-sub a, 1
 set i, [ClusterMemory]
 set j, 0
 :create_searchFAT
