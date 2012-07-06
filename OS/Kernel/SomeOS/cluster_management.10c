@@ -26,6 +26,8 @@ set push, a
 set A, 0x200
 jsr mem_alloc
 set [ClusterMemory], A
+jsr mem_alloc
+set [FATMemory], A
 set a, pop
 set pc, pop
 
@@ -54,6 +56,20 @@ set a, [FAT_offset]
 set b, [OS_drive]
 jsr writeClusterFromTemp
 set b, pop
+set a, pop
+set pc, pop
+
+:unloadClusterMemory
+set push, a
+set a, [ClusterMemory]
+jsr mem_free
+set a, pop
+set pc, pop
+
+:unloadFATMemory
+set push, a
+set a, [FATMemory]
+jsr mem_free
 set a, pop
 set pc, pop
 
@@ -255,7 +271,6 @@ ife [i], 0xFFFF
 	set pc, delete_fileEnd
 add i, 1
 set a, i
-jsr loadClusterToMemory
 set pc, deletingFile
 :delete_fileEnd
 set [i], 0x0
@@ -304,6 +319,8 @@ add j, 1
 set pc, create_updateFAT
 :create_end
 jsr updateFAT
+set a, b
+jsr mem_free
 set a, pop
 set pc, pop
 
