@@ -182,10 +182,49 @@
 		ADD A, 6
 		SET PUSH, Z
 		SET PUSH, Y
+		SET PUSH, I
+		SET I, 0
 		SET Z, A
-		SET A, 16
+		SET A, 15
 		JSR mem_alloc
 		SET Y, A
+		SET A, Z
+		:cmd_enter_mkdir_loop
+		SET Z, [A]
+		XOR Z, 0x7000
+		IFE Z, 0x11
+			SET PC, cmd_enter_mkdir_loop_end
+		SET [Y], Z
+		ADD A, 1
+		ADD Y, 1
+		ADD I, 1
+		IFN I, 0xC
+			SET PC, cmd_enter_mkdir_loop
+		:cmd_enter_mkdir_loop_end
+		SET [Y], 0x800
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 0
+		SUB Y, 15
+		SET A, Y
+		SET B, [folder_cur]
+		JSR folderAddEntry
+		SET I, POP
 		SET Y, POP
 		SET Z, POP
 		SET X, 1
