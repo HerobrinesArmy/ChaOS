@@ -97,6 +97,8 @@ set a, i
 jsr loadClusterToMemory
 set push, a
 :loadingFile
+ife i, 0xffff
+	set pc, noFileEntry
 ife [i], 0xFFFF
 	set pc, fileEnd
 add i, 1
