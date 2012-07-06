@@ -36,3 +36,31 @@ DIV [A], [B]
 ADD A, 1
 ADD B, 1
 SET PC, vector_DIV1
+:vector_POW
+ADD C, A
+:vector_POW1
+ife A, C
+	SET PC, POP
+set push, c			;POW math
+set push, x
+set x, 1
+ife a, 1
+	set pc, .end
+:.lbn0				;if b is not 0
+ife b, 0			;loop, mul a*a, then decrement b
+	SET PC, .end
+ifb b, 1
+	set pc, .odd
+DIV b, 2
+MUL a, a
+:.odd
+MUL x, a
+SUB b, 1
+set PC, lbn0
+:.end				;exit
+set a, x
+set x, pop
+set c, pop
+ADD A, 1
+ADD B, 1
+SET PC, vector_POW1
