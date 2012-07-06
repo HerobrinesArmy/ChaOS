@@ -104,6 +104,7 @@ SET PC, start
 :clockID dat 0x0000
 :video_cur dat 0x0000
 :max_backspace dat 0x0000
+:folder_cur dat 0x0000
 :txt_Welcome dat "Welcome to the CHAOS CLI", 0x0000
 :txt_Badcmd dat "Unrecognized command", 0x0000
 :txt_version dat "Version 0.1", 0x0000
@@ -111,6 +112,8 @@ SET PC, start
 :txt_error dat "ERROR: "
 :txt_oom dat "Out of Memory", 0x0000
 :txt_Availcmds dat "Available commands: ", 0x0000
+:cmd_ls dat "ls", 0x0000
+:cmd_mkdir dat "mkdir", 0x0000
 :cmd_clear dat "clear", 0x0000
 :cmd_version dat "version", 0x0000
 :cmd_help dat "help", 0x0000
