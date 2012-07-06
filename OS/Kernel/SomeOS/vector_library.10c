@@ -1,30 +1,38 @@
 ;takes a,b as start of vectors in ram
 ;takes c as length of array
 :vector_ADD
+ADD C, A
+:vector_ADD1
 ifg A, C
 	SET PC, POP
 ADD [A], [B]
 ADD A, 1
 ADD B, 1
-SET PC, vector_ADD
+SET PC, vector_ADD1
 :vector_SUB
+ADD C, A
+:vector_SUB1
 ifg A, C
 	SET PC, POP
 SUB [A], [B]
 ADD A, 1
 ADD B, 1
-SET PC, vector_SUB
+SET PC, vector_SUB1
 :vector_MUL
+ADD C, A
+:vector_MUL1
 ifg A, C
 	SET PC, POP
 MUL [A], [B]
 ADD A, 1
 ADD B, 1
-SET PC, vector_MUL
+SET PC, vector_MUL1
 :vector_DIV
+ADD C, A
+:vector_DIV1
 ifg A, C
 	SET PC, POP
 DIV [A], [B]
 ADD A, 1
 ADD B, 1
-SET PC, vector_DIV
+SET PC, vector_DIV1
