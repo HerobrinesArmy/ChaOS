@@ -22,5 +22,6 @@
     <file path="multitask manager.10c" />
     <file path="fat16.10c" />
     <file path="logo.10c" />
+    <file path="vector_library.10c" />
   </files>
 </project>
