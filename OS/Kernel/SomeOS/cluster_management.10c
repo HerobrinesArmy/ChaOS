@@ -466,7 +466,6 @@ set a, b
 jsr getFileSectors
 set x, a
 set a, c
-set c, a
 mul c, 0x10
 add c, x
 set push, i
@@ -476,6 +475,7 @@ ife i, 0x10
 	set pc, folderGetEntryEnd
 add i, [FolderEntryMemory]
 set [i], [c]
+sub i, [FolderEntryMemory]
 add i, 1
 add c, 1
 set pc, folderGetEntryLoop
