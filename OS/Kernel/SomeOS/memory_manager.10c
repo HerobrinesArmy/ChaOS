@@ -5,6 +5,8 @@
 ; Version: 
 ; --------------------------------------------
 
+;memory layout: new memory area is allocated as one word flags (bit0 = 0 if free), one word size and n words memory. Adress points to 3rd byte (memory)
+
 #segment code
 
 :mem_init
@@ -16,28 +18,45 @@ set pc, pop
 ;out A: address of allocated memory
 :mem_alloc
 set push, B
+set push, C
 set B, A
-add B, 1				;for comparison: I want <=, but only have <
+sub B, 1				;for comparison: I want <=, but only have <
 set A, mem_heap_start
 :.loop
 ifc [A], 0x0001			;position free
-	ifl B, [A+1]		;large enough
+	ifg [A+1], B		;large enough
 		set pc, .success
-add A, [A+1]
-add A, 2
+add A, [A+1]			;memory block size
+add A, 2				;header size
+
+set C, A
+add C, B
+ifg C, mem_heap_end
+	set pc, .oom
+ifl C, mem_heap-start
+	set pc, .oom
+
 set pc, .loop
 :.success
 bor [A], 0x0001			;mark as used
 add A, 2				;beginning of memory
-ifg [A-1], B			;memory bigger than needed
+add B, 3
+ifg [A-1], B			;memory bigger than needed (only if at least 1word+2word header free)
 	set pc, .shrink
+set C, pop
 set B, pop
 set pc, pop
 :.shrink
-set push, A
-sub B, 1
+set push, A				;conserve memory address for output
+sub B, 2				;size of needed memory (I did sub 1 and add 3 before)
 jsr mem_resize
 set A, pop
+set C, pop
+set B, pop
+set pc, pop
+:.oom
+set A, 0
+set C, pop
 set B, pop
 set pc, pop
 
@@ -56,9 +75,9 @@ set A, 1
 set pc, pop
 :.shrink
 set push, C
-set C, [A-1]
-add C, 2
-ifg C, B
+set C, [A-1]			;current size
+sub C, 1
+ifg C, B				;if at least 2 words will be freed
 	set pc, .really_shrink
 set C, pop
 set A, 0
@@ -66,13 +85,13 @@ set pc, pop
 :.really_shrink
 set push, X
 set C, A
-add C, B
-set X, [A-1]
-sub X, B
-sub X, 2
-set [C], 0
-set [C+1], X
-set [A-1], B
+add C, B		;start of header of new segment
+set X, [A-1]	;old size
+sub X, B		;total size of newly added block
+sub X, 2		;minus it's header
+set [C], 0		;mark as free
+set [C+1], X	;set size
+set [A-1], B	;shrink
 set X, pop
 set C, pop
 set A, 0
@@ -180,8 +199,6 @@ set pc, pop
     set pc, pop
 
 #segment mem_heap 899
-:mem_heap_start DAT 0x0000, 0x4000
-RESERVE 0x4000
-:mem_heap_end
-
-;new memory area is allocated as one word flags (bit0 = 0 if free), one word size and n words memory. Adress points to 3rd byte (memory)
+:mem_heap_start DAT 0x0000, 0x8000
+RESERVE 0x8000
+:mem_heap_end DAT 0x0000	;just to be sure
