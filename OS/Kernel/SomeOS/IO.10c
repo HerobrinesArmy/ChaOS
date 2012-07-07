@@ -220,8 +220,8 @@
 		SET [Y], 0
 		ADD Y, 1
 		SET [Y], 0
-		SUB Y, 15
-		SET A, Y
+		SET A, [max_backspace]
+		ADD A, 6
 		SET B, [folder_cur]
 		JSR folderAddEntry
 		SET I, POP
