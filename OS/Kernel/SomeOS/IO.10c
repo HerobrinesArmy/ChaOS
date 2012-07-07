@@ -174,6 +174,8 @@
 		SET B, [folder_cur]
 		SET A, 0
 		JSR folderGetEntry
+		SET A, [C]
+		JSR printc
 		SET X, 1
 		SET PC, POP
 		
@@ -224,6 +226,10 @@
 		ADD A, 6
 		SET B, [folder_cur]
 		JSR folderAddEntry
+		JSR clearTempMemory
+		SET B, [ClusterMemory]
+		SET A, 1
+		JSR createFile
 		SET I, POP
 		SET Y, POP
 		SET Z, POP
