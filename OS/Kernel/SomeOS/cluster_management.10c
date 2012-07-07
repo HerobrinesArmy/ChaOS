@@ -15,7 +15,7 @@
 :OS_drive		DAT 0x2 ; we need a routine for this
 :FAT_offset		DAT 0x1 ; where the FATs are placed
 :FAT_number		DAT 0x1 ;number of FATs
-:FAStack		DAT 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0		;stack that keeps the last 3 
+:FAStack		DAT 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0		;stack that keeps the last 10 allocated files
 :FolderEntryMemory	DAT 0x0
 :FATErrorCode		dat 0x0				; 0x1 is for OOM error
 
@@ -216,11 +216,15 @@ add i, 1
 set a, i
 jsr loadClusterToMemory
 ife [FATErrorCode], 0x1
-	set pc, pop
+	set pc, getFileSectorsOOM
 set pc, loadingFile
 :fileEnd
 set a, pop
 jsr fileStackPush
+set pc, pop
+
+:getFileSectorsOOM
+set a, pop
 set pc, pop
 
 :noFileEntry
