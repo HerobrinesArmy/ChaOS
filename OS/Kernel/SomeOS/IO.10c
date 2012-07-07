@@ -189,6 +189,7 @@
 		SET Z, A
 		SET A, 15
 		JSR mem_alloc
+		SET PUSH, A
 		IFN A, 0
 			ADD PC, 11
 		SET A, txt_error
@@ -240,6 +241,8 @@
 		SET B, [ClusterMemory]
 		SET A, 1
 		JSR createFile
+		SET A, POP
+		JSR mem_free
 		SET I, POP
 		SET Y, POP
 		SET Z, POP
