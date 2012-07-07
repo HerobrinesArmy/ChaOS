@@ -17,16 +17,38 @@
 :FAT_number		DAT 0x1 ;number of FATs
 :FAStack		DAT 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0		;stack that keeps the last 3 
 :FolderEntryMemory	DAT 0x0
+:FATErrorCode		dat 0x0				; 0x1 is for OOM error
+
+:FATOOM
+set [FATErrorCode], 0x1
+set a, pop
+set pc, pop
+
+:FATOOM2
+set [FATErrorCode], 0x1
+set a, pop
+set x, pop
+set i, pop
+set c, pop
+set b, pop
+set pc, pop
 
 :initClusterMemoryArea		;inits temp memory for cluster operations.
+set [FATErrorCode], 0x0
 set push, a
 set A, 0x200
 jsr mem_alloc
+ife a, 0x0
+	set pc, FATOOM
 set [ClusterMemory], A
 jsr mem_alloc
+ife a, 0x0
+	set pc, FATOOM
 set [FATMemory], A
 set a, 0x10
 jsr mem_alloc
+ife a, 0x0
+	set pc, FATOOM
 set [FolderEntryMemory], a
 set a, pop
 set pc, pop
@@ -182,6 +204,8 @@ set pc, searchFAT
 :fileEntryFound
 set a, i
 jsr loadClusterToMemory
+ife [FATErrorCode], 0x1
+	set pc, pop
 set push, a
 :loadingFile
 ife i, 0xffff
@@ -191,6 +215,8 @@ ife [i], 0xFFFF
 add i, 1
 set a, i
 jsr loadClusterToMemory
+ife [FATErrorCode], 0x1
+	set pc, pop
 set pc, loadingFile
 :fileEnd
 set a, pop
@@ -222,6 +248,7 @@ set a, pop
 set pc, pop
 
 :loadClusterToMemory ;A - cluster number, loads a cluster to memory, output: A - adress of said cluster
+set [FATErrorCode], 0x0
 set push, b
 set push, c
 set push, i
@@ -229,6 +256,8 @@ set push, x
 set push, a
 set A, 0x200
 jsr mem_alloc
+ife a, 0x0
+	set pc, FATOOM2
 set i, a
 set a, 0x10
 set b, pop
