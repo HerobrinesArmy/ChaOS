@@ -189,6 +189,16 @@
 		SET Z, A
 		SET A, 15
 		JSR mem_alloc
+		IFN A, 0
+			ADD PC, 11
+		SET A, txt_error
+		SET B, 0x7000
+		JSR print
+		SET I, POP
+		SET Y, POP
+		SET Z, POP
+		SET X, 1
+		SET PC, POP
 		SET Y, A
 		SET A, Z
 		:cmd_enter_mkdir_loop
