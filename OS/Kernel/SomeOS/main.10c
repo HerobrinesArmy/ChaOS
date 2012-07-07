@@ -75,6 +75,7 @@ HWI [clockID]
 IFN C, 300
 	SUB PC, 5
 
+JSR initFAT
 SET A, 1
 SET B, I
 HWI [monitorID]

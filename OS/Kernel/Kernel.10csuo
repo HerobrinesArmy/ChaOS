@@ -4,5 +4,7 @@
     <file path="SomeOS\main.10c" />
     <file path="SomeOS\IO.10c" />
     <file path="SomeOS\ABIchecks.10c" />
+    <file path="SomeOS\cluster_management.10c" />
+    <file path="SomeOS\memory_manager.10c" />
   </openFiles>
 </solution>
