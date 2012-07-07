@@ -33,7 +33,7 @@ set C, A
 add C, B
 ifg C, mem_heap_end
 	set pc, .oom
-ifl C, mem_heap-start
+ifl C, mem_heap_start
 	set pc, .oom
 
 set pc, .loop
