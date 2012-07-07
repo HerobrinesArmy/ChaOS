@@ -276,7 +276,7 @@
 		;         then call fat16_format_data_HMU1440 with these two things
 		SET push, A
 		SET push, B
-		SET A, floppyID
+		SET A, [floppyID]
 		SET B, [max_backspace]
 		ADD B, 18
 		jsr fat16_format_data_HMU1440
