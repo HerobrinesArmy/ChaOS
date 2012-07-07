@@ -15,7 +15,7 @@
 :OS_drive		DAT 0x2 ; we need a routine for this
 :FAT_offset		DAT 0x1 ; where the FATs are placed
 :FAT_number		DAT 0x1 ;number of FATs
-:FAStack		DAT 0x0,0x0,0x0,0x0,0x0,0x0		;stack that keeps the last 3 
+:FAStack		DAT 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0		;stack that keeps the last 3 
 :FolderEntryMemory	DAT 0x0
 
 :initClusterMemoryArea		;inits temp memory for cluster operations.
