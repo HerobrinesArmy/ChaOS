@@ -15,11 +15,8 @@
 :OS_drive		DAT 0x2 ; we need a routine for this
 :FAT_offset		DAT 0x1 ; where the FATs are placed
 :FAT_number		DAT 0x1 ;number of FATs
-
-:testBootCode
-jsr initClusterMemoryArea
-jsr loadRoot
-sub pc, 1
+:FAStack		DAT 0x0,0x0,0x0,0x0,0x0,0x0		;stack that keeps the last 3 
+:FolderEntryMemory	DAT 0x0
 
 :initClusterMemoryArea		;inits temp memory for cluster operations.
 set push, a
@@ -28,6 +25,9 @@ jsr mem_alloc
 set [ClusterMemory], A
 jsr mem_alloc
 set [FATMemory], A
+set a, 0x10
+jsr mem_alloc
+set [FolderEntryMemory], a
 set a, pop
 set pc, pop
 
@@ -63,14 +63,53 @@ set pc, pop
 set push, a
 set a, [ClusterMemory]
 jsr mem_free
+set a, [FATMemory]
+jsr mem_free
+set a, [FolderEntryMemory]
+jsr mem_free
 set a, pop
 set pc, pop
 
-:unloadFATMemory
-set push, a
-set a, [FATMemory]
-jsr mem_free
-set a, pop
+:fileStackPush
+set push, i
+set i, FAStack
+add i, 0xA
+:fileStackPushLoop
+ifl i, FAStack
+	set pc, fileStackPushOverflow
+ife [i], 0x0
+	set pc, fileStackPushEnd
+sub i, 0x1
+set pc, fileStackPushLoop
+:fileStackPushOverflow
+set i, FAStack
+add i, 0xA
+:fileStackPushEnd
+set [i], a
+set i, pop
+set pc, pop
+
+:fileStackPop
+set push, i
+set push, j
+set i, FAStack
+set j, i
+add j, 0x9
+:fileStackPopLoop
+ifg i, j
+	set pc, fileStackPopEmpty
+ifn [i], 0x0
+	set pc, fileStackPopEnd
+add i, 0x1
+set pc, fileStackPopLoop
+:fileStackPopEmpty
+set i, FAStack
+add i, 0xA
+:fileStackPopEnd
+set a, [i]
+set [i], 0x0
+set j, pop
+set i, pop
 set pc, pop
 
 :writeClusterToTemp			;TODO: NEEDS IMPLEMENTATION			<----
@@ -155,6 +194,7 @@ jsr loadClusterToMemory
 set pc, loadingFile
 :fileEnd
 set a, pop
+jsr fileStackPush
 set pc, pop
 
 :noFileEntry
@@ -244,11 +284,6 @@ set b, c
 set c, x
 set x, pop
 set a, pop
-set pc, pop
-
-:loadRoot		;Loads root directory, no params, output: A - adress of the first byte of root
-set a, 0x0
-jsr getFileSectors
 set pc, pop
 
 :deleteFile		;A - file number
@@ -369,6 +404,8 @@ set x, pop
 set j, pop
 set i, pop
 set b, pop
+jsr fileStackPop
+jsr mem_free
 set a, pop
 set pc, pop
 
@@ -416,11 +453,13 @@ set x, pop
 set j, pop
 set i, pop
 set b, pop
+jsr fileStackPop
+jsr mem_free
 set a, pop
 set pc, pop
 
 :folderGetEntry		;A - entry number, B -folder number, output: C - adress of the entry
-set push, c
+set push, a
 set push, x
 set c, a
 set a, b
@@ -430,5 +469,21 @@ set a, c
 set c, a
 mul c, 0x10
 add c, x
+set push, i
+set i, 0x0
+:folderGetEntryLoop
+ife i, 0x10
+	set pc, folderGetEntryEnd
+add i, [FolderEntryMemory]
+set [i], [c]
+add i, 1
+add c, 1
+set pc, folderGetEntryLoop
+:folderGetEntryEnd
+set i, pop
 set x, pop
+jsr fileStackPop
+jsr mem_free
+set a, pop
+set c, [FolderEntryMemory]
 set pc, pop
