@@ -436,15 +436,19 @@ set x, pop
 set j, pop
 set i, pop
 set b, pop
+jsr filePop
+set a, pop
+set pc, pop
+
+:filePop
 :filePopAll
 jsr fileStackPop
 ife a, 0x0
 	set pc, fileAllPopped
 jsr mem_free
 set pc, filePopAll
-set a, pop
+:fileAllPopped
 set pc, pop
-
 
 :folderAddEntry_add
 set j, 0x0
@@ -489,12 +493,7 @@ set x, pop
 set j, pop
 set i, pop
 set b, pop
-:filePopAll
-jsr fileStackPop
-ife a, 0x0
-	set pc, fileAllPopped
-jsr mem_free
-set pc, filePopAll
+jsr filePop
 set a, pop
 set pc, pop
 
@@ -522,12 +521,7 @@ set pc, folderGetEntryLoop
 :folderGetEntryEnd
 set i, pop
 set x, pop
-:filePopAll
-jsr fileStackPop
-ife a, 0x0
-	set pc, fileAllPopped
-jsr mem_free
-set pc, filePopAll
+jsr filePop
 set a, pop
 set c, [FolderEntryMemory]
 set pc, pop
