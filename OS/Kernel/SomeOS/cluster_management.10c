@@ -220,14 +220,13 @@ ife [FATErrorCode], 0x1
 set pc, loadingFile
 :fileEnd
 set a, pop
-jsr fileStackPush
 set pc, pop
 
-:getFileSectorsOOM
+:getFileSectorsOOM ;dat 0x0
 set a, pop
 set pc, pop
 
-:noFileEntry
+:noFileEntry dat 0x0
 	set a, 0xffff
 	set pc, pop
 
@@ -273,6 +272,7 @@ set x, pop
 set i, pop
 set c, pop
 set b, pop
+jsr fileStackPush
 set pc, pop
 
 :writeClusterFromMemory ;A - memory adress, B - cluster number
@@ -387,6 +387,11 @@ sub i, j
 add j, 1
 set pc, create_updateFAT
 :create_end
+sub j, 0x1
+add i, j
+set [i], 0xffff
+sub i, j
+add j, 0x1
 jsr updateFAT
 set a, pop
 set pc, pop
