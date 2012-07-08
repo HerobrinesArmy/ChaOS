@@ -105,7 +105,7 @@ sub i, 0x1
 set pc, fileStackPushLoop
 :fileStackPushOverflow
 set i, FAStack
-add i, 0xA
+add i, 0x9
 :fileStackPushEnd
 set [i], a
 set i, pop
@@ -126,7 +126,7 @@ add i, 0x1
 set pc, fileStackPopLoop
 :fileStackPopEmpty
 set i, FAStack
-add i, 0xA
+add i, 0x9
 :fileStackPopEnd
 set a, [i]
 set [i], 0x0
