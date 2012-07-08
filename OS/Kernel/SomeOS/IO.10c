@@ -172,10 +172,34 @@
 		
 :cmd_enter_ls
 		SET B, [folder_cur]
-		SET A, 0
+		SET I, 0
+	:cmd_enter_ls_loop
+		SET A, I
+		JSR enter
 		JSR folderGetEntry
-		SET A, [C]
+		IFE [C], 0x000
+			SET PC, cmd_enter_ls_loop_end
+		IFE C, 0
+			SET PC, cmd_enter_ls_loop_end
+		SET Y, C
+		JSR fat16_7bitTo16bit
+		SET A, Z
+		SET J, 0
+	:cmd_enter_ls_loop2
+		IFE [A], 0
+			ADD PC, 8
+		BOR [A], 0x7000
 		JSR printc
+		ADD A, 1
+		ADD J, 1
+		IFN J, 0xC
+			SUB PC, 10
+			
+		ADD I, 1
+		SET PC, cmd_enter_ls_loop
+		
+		:cmd_enter_ls_loop_end
+		
 		SET X, 1
 		SET PC, POP
 		
@@ -214,6 +238,24 @@
 		IFN I, 0xC
 			SET PC, cmd_enter_mkdir_loop
 		:cmd_enter_mkdir_loop_end
+		SET I, PEEK
+		SET Y, I
+		JSR fat16_16bitTo7bit
+		SET [Y], [J]
+		ADD Y, 1
+		ADD J, 1
+		SET [Y], [J]
+		ADD Y, 1
+		ADD J, 1
+		SET [Y], [J]
+		ADD Y, 1
+		ADD J, 1
+		SET [Y], [J]
+		ADD Y, 1
+		ADD J, 1
+		SET [Y], [J]
+		ADD Y, 1
+		ADD J, 1
 		SET [Y], 0x800
 		ADD Y, 1
 		SET [Y], 0
