@@ -83,6 +83,10 @@ SET A, B
 JSR mem_free
 JSR clrscr
 
+SET A, 1
+JSR clearTempMemory
+SET B, [ClusterMemory]
+
 SET A, txt_Welcome
 SET B, 0x7000
 JSR print

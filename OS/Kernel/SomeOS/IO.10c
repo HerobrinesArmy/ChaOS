@@ -194,7 +194,6 @@
 		
 		SET Z, A
 		JSR fat16_7bitTo16bit
-		SET A, Z
 		SET J, 0
 	:cmd_enter_ls_loop2
 		IFE [A], 0
