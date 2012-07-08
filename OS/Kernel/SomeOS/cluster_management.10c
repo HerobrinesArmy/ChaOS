@@ -34,6 +34,7 @@ set b, pop
 set pc, pop
 
 :initClusterMemoryArea		;inits temp memory for cluster operations.
+set [OS_drive], [floppyID]
 set [FATErrorCode], 0x0
 set push, a
 set A, 0x200
@@ -168,7 +169,6 @@ set push, b
 set push, a
 set a, 0x10
 set b, pop
-add b, 1
 set c, 0x1
 set x, [FATMemory]
 hwi pop
@@ -181,7 +181,6 @@ set push, b
 set push, a
 set a, 0x11
 set b, pop
-add b, 1
 set c, 0x1
 set x, [FATMemory]
 hwi pop
@@ -222,7 +221,7 @@ set pc, loadingFile
 set a, pop
 set pc, pop
 
-:getFileSectorsOOM ;dat 0x0
+:getFileSectorsOOM dat 0x0
 set a, pop
 set pc, pop
 
