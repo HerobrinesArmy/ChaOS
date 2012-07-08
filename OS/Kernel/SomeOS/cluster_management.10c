@@ -34,7 +34,7 @@ set b, pop
 set pc, pop
 
 :initClusterMemoryArea		;inits temp memory for cluster operations.
-set [OS_drive], [floppyID]
+;set [OS_drive], [floppyID]
 set [FATErrorCode], 0x0
 set push, a
 set A, 0x200
