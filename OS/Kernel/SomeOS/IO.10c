@@ -182,6 +182,17 @@
 		IFE C, 0
 			SET PC, cmd_enter_ls_loop_end
 		SET Y, C
+		SET A, 11
+		JSR mem_alloc
+		IFN A, 0
+			ADD PC, 8
+		SET A, txt_error
+		SET B, 0x7000
+		JSR print
+		SET X, 1
+		SET PC, POP
+		
+		SET Z, A
 		JSR fat16_7bitTo16bit
 		SET A, Z
 		SET J, 0
@@ -196,6 +207,8 @@
 			SUB PC, 10
 			
 		ADD I, 1
+		SET A, Z
+		JSR mem_free
 		SET PC, cmd_enter_ls_loop
 		
 		:cmd_enter_ls_loop_end
