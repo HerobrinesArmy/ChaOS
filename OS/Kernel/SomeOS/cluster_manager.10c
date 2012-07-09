@@ -224,7 +224,7 @@ set J, pop
 set C, pop
 set pc, pop
 
-:fs_create_file
+:fs_create_file_oom
 set [fs_error_code], 0x1
 set A, pop
 set Y, pop
