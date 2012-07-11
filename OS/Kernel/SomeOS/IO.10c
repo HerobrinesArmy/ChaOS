@@ -17,7 +17,21 @@
         set i, pop
         set a, pop
 		SET PC, POP
- 
+		
+:draw_cell ;takes X as X-coordinate, Y as Y-coordinate, and C for the character to draw
+set push, x
+set push, y
+set push, c
+
+mul y, 32
+add y, x
+set [0x8000 + y], c
+
+set c, pop
+set y, pop
+set x, pop
+set pc, pop
+
 :print  ; takes A as the start of the text, and B is text color (0 == NONE)
         set push, a
         set push, i
