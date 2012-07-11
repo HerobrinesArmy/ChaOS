@@ -23,5 +23,6 @@
     <file path="fat16.10c" />
     <file path="logo.10c" />
     <file path="vector_library.10c" />
+    <file path="cluster_manager.10c" />
   </files>
 </project>

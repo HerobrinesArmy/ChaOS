@@ -196,7 +196,7 @@ set pc, pop
 		IFE C, 0
 			SET PC, cmd_enter_ls_loop_end
 		SET Y, C
-		SET A, 11
+		SET A, 15
 		JSR mem_alloc
 		IFN A, 0
 			ADD PC, 8
@@ -208,7 +208,6 @@ set pc, pop
 		
 		SET Z, A
 		JSR fat16_7bitTo16bit
-		SET A, Z
 		SET J, 0
 	:cmd_enter_ls_loop2
 		IFE [A], 0
@@ -242,10 +241,11 @@ set pc, pop
 		JSR mem_alloc
 		SET PUSH, A
 		IFN A, 0
-			ADD PC, 11
+			ADD PC, 12
 		SET A, txt_error
 		SET B, 0x7000
 		JSR print
+		SET A, POP
 		SET I, POP
 		SET Y, POP
 		SET Z, POP

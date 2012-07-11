@@ -48,6 +48,8 @@ SET [keyboardID], J
 HWI J
 SET PC, setScreen
 :floppy_found
+ife [OS_drive], 0x0
+	set [OS_drive], J
 SET [floppyID], J
 SET PC, setScreen
 
@@ -82,6 +84,10 @@ HWI [monitorID]
 SET A, B
 JSR mem_free
 JSR clrscr
+
+SET A, 1
+JSR clearTempMemory
+SET B, [ClusterMemory]
 
 SET A, txt_Welcome
 SET B, 0x7000

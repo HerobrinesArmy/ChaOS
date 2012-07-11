@@ -34,6 +34,7 @@ set b, pop
 set pc, pop
 
 :initClusterMemoryArea		;inits temp memory for cluster operations.
+;set [OS_drive], [floppyID]
 set [FATErrorCode], 0x0
 set push, a
 set A, 0x200
@@ -168,7 +169,6 @@ set push, b
 set push, a
 set a, 0x10
 set b, pop
-add b, 1
 set c, 0x1
 set x, [FATMemory]
 hwi pop
@@ -181,7 +181,6 @@ set push, b
 set push, a
 set a, 0x11
 set b, pop
-add b, 1
 set c, 0x1
 set x, [FATMemory]
 hwi pop
@@ -220,14 +219,13 @@ ife [FATErrorCode], 0x1
 set pc, loadingFile
 :fileEnd
 set a, pop
-jsr fileStackPush
 set pc, pop
 
-:getFileSectorsOOM
+:getFileSectorsOOM dat 0x0
 set a, pop
 set pc, pop
 
-:noFileEntry
+:noFileEntry dat 0x0
 	set a, 0xffff
 	set pc, pop
 
@@ -273,6 +271,7 @@ set x, pop
 set i, pop
 set c, pop
 set b, pop
+jsr fileStackPush
 set pc, pop
 
 :writeClusterFromMemory ;A - memory adress, B - cluster number
@@ -387,6 +386,11 @@ sub i, j
 add j, 1
 set pc, create_updateFAT
 :create_end
+sub j, 0x1
+add i, j
+set [i], 0xffff
+sub i, j
+add j, 0x1
 jsr updateFAT
 set a, pop
 set pc, pop
