@@ -23,6 +23,11 @@ set push, x
 set push, y
 set push, c
 
+ifg y, 11
+	set pc, pop
+ifg x, 31
+	set pc, pop
+
 mul y, 32
 add y, x
 set [0x8000 + y], c
