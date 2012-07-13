@@ -190,18 +190,25 @@ set pc, pop
 		SET PC, POP
 		
 :cmd_enter_ls
-		SET B, [folder_cur]
-		SET I, 0
+		SET PUSH, A
+		SET PUSH, B
+		SET PUSH, C
+		SET PUSH, I
+		SET PUSH, Y
+		SET PUSH, Z
+		SET PUSH, J
+		SET A, [folder_cur]
+		SET I, 1
 	:cmd_enter_ls_loop
-		SET A, I
+		SET B, I
 		JSR enter
-		JSR folderGetEntry
-		IFE [C], 0x000
+		JSR fs_get_dir_entry
+		IFE [A], 0x000
 			SET PC, cmd_enter_ls_loop_end
-		IFE C, 0
+		IFE A, 0
 			SET PC, cmd_enter_ls_loop_end
-		SET Y, C
-		SET A, 15
+		SET B, A
+		SET A, 16
 		JSR mem_alloc
 		IFN A, 0
 			ADD PC, 8
@@ -211,26 +218,49 @@ set pc, pop
 		SET X, 1
 		SET PC, POP
 		
-		SET Z, A
+		SET [A], [B]
+		ADD A, 1
+		ADD B, 1
+		SET [A], [B]
+		ADD A, 1
+		ADD B, 1
+		SET [A], [B]
+		ADD A, 1
+		ADD B, 1
+		SET [A], [B]
+		ADD A, 1
+		ADD B, 1
+		SET [A], [B]
+		SUB A, 4
+		SET Y, A
 		JSR fat16_7bitTo16bit
 		SET J, 0
 	:cmd_enter_ls_loop2
-		IFE [A], 0
-			ADD PC, 8
-		BOR [A], 0x7000
+		IFE [Z], 0
+			ADD PC, 0
+		BOR [Z], 0x7000
+		SET A, [Z]
 		JSR printc
-		ADD A, 1
+		ADD Z, 1
 		ADD J, 1
 		IFN J, 0xC
 			SUB PC, 10
 			
 		ADD I, 1
-		SET A, Z
+		SET A, Y
 		JSR mem_free
+		SET A, [folder_cur]
 		SET PC, cmd_enter_ls_loop
 		
 		:cmd_enter_ls_loop_end
 		
+		SET J, POP
+		SET Z, POP
+		SET Y, POP
+		SET I, POP
+		SET C, POP
+		SET B, POP
+		SET A, POP
 		SET X, 1
 		SET PC, POP
 		
