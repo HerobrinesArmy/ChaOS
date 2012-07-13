@@ -242,7 +242,7 @@ set pc, pop
 		SET PUSH, I
 		SET I, 0
 		SET Z, A
-		SET A, 15
+		SET A, 16
 		JSR mem_alloc
 		SET PUSH, A
 		IFN A, 0
@@ -302,30 +302,16 @@ set pc, pop
 		ADD Y, 1
 		SET [Y], 0
 		ADD Y, 1
-		SET [Y], 0
-		ADD Y, 1
-		SET [Y], 0
-		ADD Y, 1
-		SET [Y], 0
-		SET A, [max_backspace]
-		ADD A, 6
-		SET B, [folder_cur]
-		JSR folderAddEntry
-		IFE C, 0
-			ADD PC, 12
-		SET A, txt_error
-		SET B, 0x7000
-		JSR print
-		SET A, POP
-		SET I, POP
-		SET Y, POP
-		SET Z, POP
-		SET X, 1
-		SET PC, POP
-		JSR clearTempMemory
-		SET B, [ClusterMemory]
 		SET A, 1
-		JSR createFile
+		JSR fs_create_file
+		SET [Y], A
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 1
+		SET B, PEEK
+		SET A, [folder_cur]
+		JSR fs_add_dir_entry
 		SET A, POP
 		JSR mem_free
 		SET I, POP

@@ -77,6 +77,10 @@ HWI [clockID]
 IFN C, 100
 	SUB PC, 5
 
+SET A, 0x11
+SET B, 201
+SET C, 1
+SET X, fs_root
 JSR initFAT
 SET A, 1
 SET B, I
@@ -109,6 +113,7 @@ SET PC, start
 :keyboardID dat 0x0000
 :floppyID dat 0x0000
 :clockID dat 0x0000
+:fs_root	dat 0xffff
 :video_cur dat 0x0000
 :max_backspace dat 0x0000
 :folder_cur dat 0x0000
