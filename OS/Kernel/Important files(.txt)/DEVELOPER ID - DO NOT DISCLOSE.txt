@@ -4,7 +4,7 @@
 0011-Smith10
 0100-Herobrine
 0101-HRSDL collaborative
-0110-lowlevel unlimited perms hack (use for viruses/keyloggers)
+0110-
 0111-FuturizeHandgun
 1000-thePalindrome
 1001-
