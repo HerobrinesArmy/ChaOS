@@ -20,6 +20,10 @@ SET A, 0
 HWI J
 IFE B, 0
 	SUB PC, 4
+SET A, 0x11
+SET B, 201
+SET C, 1
+SET X, fs_root
 SET A, 0x10
 SET B, 0
 SET C, 1
@@ -29,3 +33,5 @@ SET PC, 0
 SET [0x9000], 0x1E40
 SET [0x9001], 0x7F81
 SET PC, 0x9000
+
+:fs_root	dat 0xffff
