@@ -81,6 +81,7 @@ SET A, 0x11
 SET B, 201
 SET C, 1
 SET X, fs_root
+HWI [floppyID]
 JSR initFAT
 SET A, 1
 SET B, I
