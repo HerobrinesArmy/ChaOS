@@ -1,1 +1,0 @@
-exponents computes a^b- dilbertfan
