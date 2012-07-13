@@ -292,6 +292,17 @@
 		ADD A, 6
 		SET B, [folder_cur]
 		JSR folderAddEntry
+		IFE C, 0
+			ADD PC, 12
+		SET A, txt_error
+		SET B, 0x7000
+		JSR print
+		SET A, POP
+		SET I, POP
+		SET Y, POP
+		SET Z, POP
+		SET X, 1
+		SET PC, POP
 		JSR clearTempMemory
 		SET B, [ClusterMemory]
 		SET A, 1
