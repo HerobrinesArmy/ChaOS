@@ -118,6 +118,7 @@ set pc, pop
 
 :fs_get_FAT_entry_oom
 set [fs_error_code], 0x1
+set Y, pop
 set X, pop
 set C, pop
 set B, pop
