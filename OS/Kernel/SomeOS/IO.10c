@@ -309,6 +309,11 @@ set pc, pop
 		SET [Y], 0
 		ADD Y, 1
 		SET [Y], 1
+		SET PUSH, C
+		JSR fs_get_FAT_entry
+		ADD Y, 1
+		SET [Y], C
+		SET C, POP
 		SET B, PEEK
 		SET A, [folder_cur]
 		JSR fs_add_dir_entry
