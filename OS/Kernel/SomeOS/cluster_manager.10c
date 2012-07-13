@@ -403,6 +403,7 @@ set X, pop
 set J, pop
 set I, pop
 set C, pop
+set B, pop
 set pc, pop
 
 
