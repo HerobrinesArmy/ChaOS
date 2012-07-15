@@ -1,6 +1,6 @@
 Features-
-Mail
+Mail -thePalindrome & Dilbertfan
 Money
 Rank
 Chat
-Notifications
+Notifications -thePalindrome
