@@ -1,0 +1,18 @@
+0x10c Central Bank oversight paper
+RFC 0x00000001
+
+RFC on establishment of central bank to manage 0x10c currency and set borrowing rates for other guilds, fleets and monentary markets.
+
+The 0x10c Central Bank is reffered to in this document as the bank.
+
+
+
+
+Founding principles of the bank:
+Provide easy acces to cash for Guilds and other groups
+Set universal intrest and exchange rates
+Allow for large market transactions in a secure manner
+Keep stable rates beetween large groups
+Establish a fair and universal currency, and manage this currency
+
+The bank will be adminsitered by a team of bankers from the major and minor guilds, who, while maintaining membership in said guilds will act as an independent group, and will be uninfluenced by their parent groups in their duties at the bank.
