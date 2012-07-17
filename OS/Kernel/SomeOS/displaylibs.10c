@@ -1,0 +1,250 @@
+; --------------------------------------------
+    ; Title:   displayLib
+    ; Author:  Liraal
+    ; Date:    2012-06-16
+    ; Version: 0x1
+    ; --------------------------------------------
+    :displayLib
+     
+    ;libraries------------------------------------
+    :findDisplay
+     set push, a
+     set push, b
+     set push, c
+     set push, i
+     set push, x
+     set push, y
+     hwq i                         
+     ife b, 0x7349
+      ife a, 0xf615
+       ife c, 0x1802
+        ife y, 0x1c6c
+         ife x, 0x8b36
+          add pc, 0x2
+     add i, 1
+     sub pc, 0xE
+     set [LEM], i
+     set y, pop
+     set x, pop
+     set i, pop
+     set c, pop
+     set b, pop
+     set a, pop
+    set pc, pop
+    :LEM    dat 0x0
+    :VRAM   dat 0x8000
+    :LP             dat 0x0
+     
+    :refresh
+    set push, a
+    set push, b
+    set a, 0x0
+    set b, [VRAM]
+    hwi [LEM]
+    set b, pop
+    set a, pop
+    set pc, pop
+     
+    :fastClear
+     set [VRAM], 0x8180
+    set pc, pop
+     
+    :clear
+     set push, i
+     set push, j
+     set push, x
+     set i, [VRAM]
+     set j, i
+     add j, 0xC0
+     set x, j
+     add x, 0xC0
+     ife j, x
+            add pc, 3
+     set [j], 0x0
+     sti [i], 0x0
+     sub pc, 6
+     set x, pop
+     set j, pop
+     set i, pop
+    set pc, pop
+     
+    :printASCII
+    set push, a
+    set push, b
+    set push, i
+    set push, j
+    set i, 0x7000
+    set j, [VRAM]
+    ife i, 0x7080
+            add pc, 0x4
+    set [j], i
+    add j, 0x1
+    add i, 0x1
+    sub pc, 0x7
+    set a, 0x0
+    set b, [VRAM]
+    hwi [LEM]
+    set j, pop
+    set i, pop
+    set b, pop
+    set a, pop
+    set pc, pop
+     
+    :setChar
+     set push, x
+     set x, b
+     sub x, 1
+     mul x, 0x20
+     add x, a
+     add x, [VRAM]
+     set [x], c
+     set x, pop
+    set pc, pop
+     
+    :write
+     set push, a
+     set push, b
+     set push, i
+     set push, j
+     set i, [VRAM]
+     set j, i
+     add j, 0x17C
+     ife [i], 0x0
+            add pc, 0x6
+     ife i, 0x817C
+            add pc, 0x2
+     add i, 0x1
+     sub pc, 0x7
+     set i, [VRAM]
+     set [i], a
+     set a, 0x0
+     set b, [VRAM]
+     hwi [LEM]
+     set j, pop
+     set i, pop
+     set b, pop
+     set a, pop
+    set pc, pop
+     
+    :write8 ;write 8-char (16-byte) or less word, beginning from address in A register, offset in VRAM defined in B register, x - color code
+    set push, c
+    set push, i
+    set push, j
+    set i, 0x0
+    set j, [VRAM]
+    add j, b
+    :write8loop
+    ife i, 0x8
+            set pc, write8cont
+    set c, [a]
+    bor c, x
+    sti [j], c
+    add a, 0x1
+    set pc, write8loop
+    :write8cont
+    jsr refresh
+    set j, pop
+    set i, pop
+    set c, pop
+    set pc, pop
+     
+    :horizontalLine         ;param: j - line number
+    set push, i
+    set push, j
+    sub j, 1
+    mul j, 0x20
+    add j, [VRAM]
+    set i, 0
+    :horizontalLineLoop
+    ife i, 0x1F
+            set pc, horizontalLineEnd
+    sti [j], 0x7007
+    set pc, horizontalLineLoop
+    :horizontalLineEnd
+    jsr refresh
+    set j, pop
+    set i, pop
+    set pc, pop
+     
+    :verticalLine           ;param: j - line number
+    set push, i
+    set push, j
+    sub j, 1
+    add j, [VRAM]
+    set i, 0
+    :verticalLineLoop
+    ife i, 0xC
+            set pc, verticalLineEnd
+    set [j], 0x701D
+    add i, 1
+    add j, 0x20
+    set pc, verticalLineLoop
+    :verticalLineEnd
+    jsr refresh
+    set j, pop
+    set i, pop
+    set pc, pop
+     
+    :menu
+    set push, a
+    set push, c
+    set push, i
+    set push, j
+    set push, x
+    set j, 0
+    set i, 0
+    :menuLoop
+    ife i, 0xC
+            set pc, menuEnd
+    set push, a
+    set push, b
+    set x, 0x7000
+    ife i, b
+            set x, 0x8000
+    set b, j
+    jsr write8
+    set b, pop
+    set a, pop
+    add a, 0x8
+    add i, 1
+    add j, 0x20
+    set pc, menuLoop
+    :menuEnd
+    set j, 9
+    jsr verticalLine
+    jsr refresh
+    set x, pop
+    set j, pop
+    set i, pop
+    set c, pop
+    set a, pop
+    set pc, pop
+     
+    :menuContent            ;A - starting adress
+    set push, a
+    set push, c
+    set push, i
+    set push, j
+    set j, [VRAM]
+    set i, 0
+    :menuContentLoop
+    ife i, 0x16
+            set i, 0x0
+    ife i, 0x0
+            add j, 0x9
+    ife [a], 0x0
+            set pc, menuContentLoopEnd
+    set c, [a]
+    bor c, 0x7000
+    sti [j], c
+    add a, 1
+    set pc, menuContentLoop
+    :menuContentLoopEnd
+    jsr refresh
+    set j, pop
+    set i, pop
+    set c, pop
+    set a, pop
+    set pc, pop
+     
+    ;:VRAM   dat 0x8000

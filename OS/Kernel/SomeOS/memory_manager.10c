@@ -1,0 +1,204 @@
+; --------------------------------------------
+; Title:   memory_manager
+; Author:  smith10
+; Date:    2012-06-15
+; Version: 
+; --------------------------------------------
+
+;memory layout: new memory area is allocated as one word flags (bit0 = 0 if free), one word size and n words memory. Adress points to 3rd byte (memory)
+
+#segment code
+
+:mem_init
+set pc, pop
+
+;Output of 0 means error (Out of Ram)!
+;Check for this, or you may overwrite crucial code!!!
+;A: amount of needed words
+;out A: address of allocated memory
+:mem_alloc
+set push, B
+set push, C
+set B, A
+sub B, 1				;for comparison: I want <=, but only have <
+set A, mem_heap_start
+:.loop
+ifc [A], 0x0001			;position free
+	ifg [A+1], B		;large enough
+		set pc, .success
+add A, [A+1]			;memory block size
+add A, 2				;header size
+
+set C, A
+add C, B
+ifg C, mem_heap_end
+	set pc, .oom
+ifl C, mem_heap_start
+	set pc, .oom
+
+set pc, .loop
+:.success
+bor [A], 0x0001			;mark as used
+add A, 2				;beginning of memory
+add B, 3
+ifg [A-1], B			;memory bigger than needed (only if at least 1word+2word header free)
+	set pc, .shrink
+set C, pop
+set B, pop
+set pc, pop
+:.shrink
+set push, A				;conserve memory address for output
+sub B, 2				;size of needed memory (I did sub 1 and add 3 before)
+jsr mem_resize
+set A, pop
+set C, pop
+set B, pop
+set pc, pop
+:.oom
+set A, 0
+set C, pop
+set B, pop
+set pc, pop
+
+;A: address of memory
+;B: new size of memory segment
+;out A: 0 if success, 1 if failure
+:mem_resize
+ifg [A-1], B
+	set pc, .shrink
+ifl [A-1], B
+	set pc, .grow
+set A, 0
+set pc, pop
+:.grow
+set A, 1
+set pc, pop
+:.shrink
+set push, C
+set C, [A-1]			;current size
+sub C, 1
+ifg C, B				;if at least 2 words will be freed
+	set pc, .really_shrink
+set C, pop
+set A, 0
+set pc, pop
+:.really_shrink
+set push, X
+set C, A
+add C, B		;start of header of new segment
+set X, [A-1]	;old size
+sub X, B		;total size of newly added block
+sub X, 2		;minus it's header
+set [C], 0		;mark as free
+set [C+1], X	;set size
+set [A-1], B	;shrink
+set X, pop
+set C, pop
+set A, 0
+set pc, pop
+
+;tries relocating if resize fails. Especially useful for size increase
+;A: address of memory
+;B: new size of memory segment
+;out A: new address of memory
+;out B: 0 if success, 1 if failure
+:mem_resize_force
+set push, A
+jsr mem_resize
+ife A, 1
+	set pc, .relocate
+set B, 0
+set A, pop
+set pc, pop
+:.relocate
+set A, B
+jsr mem_alloc
+ife A, 0
+	set pc, .fail
+set push, I
+set push, J
+set push, C
+set J, [SP]		;source
+set I, [A]		;target
+set C, [J-1]	;size of source
+jsr mem_copy
+set C, pop
+set J, pop
+set I, pop
+set B, A
+set A, pop
+jsr mem_free
+set A, B
+set B, 0
+set pc, pop
+:.fail
+set B, 1
+set A, pop
+set pc, pop
+
+;A: address of memory to be freed
+:mem_free
+set push, B
+ifb [A-2], 1		;if used
+	xor [A-2], 1	;free
+
+	;merge with following memory block if possible
+set B, A
+add B, [A-1]
+ifb [B], 1		;if used
+	set pc, .end
+add [A-1], [B+1]
+add [A-1], 2
+:.end
+set B, pop
+set pc, pop	;that's right, no free implemented yet
+
+;A: address of memory
+;out A: size of this allocated area, result undefined if unallocated area
+:mem_size
+set A, [A-1]
+set pc, pop
+
+
+; memcpy - copies c words from memory at j to memory at i
+; i and j are advanced by c, other registers preserved
+; modified version of moonshadow's code from
+; http://www.0x10cforum.com/forum/m/4932880/viewthread/3099761-copy-memory-subroutine/post/17721638#p17721638
+:mem_copy
+:memcpy
+    set push, b     ; preserve b so we can use it for a temporary value
+    set push, c     ; save a copy of the count
+    and c, 15        ; c is now count % 16
+    set b, .loop+16   ; end of unrolled loop
+    sub b, c        ; b now points to correct position in loop
+    set c, [sp]     ; restore count
+    add c, j        ; c now holds final address
+    set pc, b       ; enter loop
+:.loop
+	sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    sti [i], [j]
+    ifn j, c        ; done?
+        sub pc, (.loop_end-.loop)
+:.loop_end
+    set c, pop
+    set b, pop
+    set pc, pop
+
+#segment mem_heap 899
+:mem_heap_start DAT 0x0000, 0x8000
+RESERVE 0x8000
+:mem_heap_end DAT 0x0000	;just to be sure

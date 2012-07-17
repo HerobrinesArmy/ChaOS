@@ -1,0 +1,66 @@
+;takes a,b as start of vectors in ram
+;takes c as length of array
+:vector_ADD
+ADD C, A
+:vector_ADD1
+ife A, C
+	SET PC, POP
+ADD [A], [B]
+ADD A, 1
+ADD B, 1
+SET PC, vector_ADD1
+:vector_SUB
+ADD C, A
+:vector_SUB1
+ife A, C
+	SET PC, POP
+SUB [A], [B]
+ADD A, 1
+ADD B, 1
+SET PC, vector_SUB1
+:vector_MUL
+ADD C, A
+:vector_MUL1
+ife A, C
+	SET PC, POP
+MUL [A], [B]
+ADD A, 1
+ADD B, 1
+SET PC, vector_MUL1
+:vector_DIV
+ADD C, A
+:vector_DIV1
+ife A, C
+	SET PC, POP
+DIV [A], [B]
+ADD A, 1
+ADD B, 1
+SET PC, vector_DIV1
+:vector_POW
+ADD C, A
+:vector_POW1
+ife A, C
+	SET PC, POP
+set push, c			;POW math
+set push, x
+set x, 1
+ife a, 1
+	set pc, .end
+:.lbn0				;if b is not 0
+ife b, 0			;loop, mul a*a, then decrement b
+	SET PC, .end
+ifb b, 1
+	set pc, .odd
+DIV b, 2
+MUL a, a
+:.odd
+MUL x, a
+SUB b, 1
+set PC, lbn0
+:.end				;exit
+set a, x
+set x, pop
+set c, pop
+ADD A, 1
+ADD B, 1
+SET PC, vector_POW1

@@ -1,0 +1,146 @@
+; --------------------------------------------
+    ; Title:   TEA (16-bit)
+    ; Author:  Liraal
+    ; Date:    2012-06-25
+    ; Version: 0x1 (Working)
+    ; For use within Herobrine's Army
+    ;--------------------------------------------
+     
+    ;EXEC CODE===================================
+    set [v0], 0x0000
+    set [v1], 0x0000
+    jsr encrypt
+    jsr decrypt
+    set i, [v0]
+    set j, [v1]
+    sub pc, 1
+     
+    ;ROUTINES====================================
+    :encrypt        ;params: v0, v1
+    set push, a
+    set push, i
+    set [sum], 0x0
+    set i, 0x0
+    :encryptForLoop
+    ife i, 0x20
+            set pc, encryptEnd
+    ;----------------
+    add [sum], [delta]
+    ;setting v0------
+    set a, [v1]
+    shl a, 0x4
+    add a, [k0]
+    set [t0], a
+     
+    set a, [v1]
+    add a, [sum]
+    set [t1], a
+     
+    set a, [v1]
+    shr a, 0x5
+    add a, [k1]
+    set [t2], a
+     
+    xor [t0], [t1]
+    xor [t0], [t2]
+     
+    add [v0], [t0]
+    ;setting v1---------
+    set a, [v0]
+    shl a, 0x4
+    add a, [k2]
+    set [t0], a
+     
+    set a, [v0]
+    add a, [sum]
+    set [t1], a
+     
+    set a, [v0]
+    shr a, 0x5
+    add a, [k3]
+    set [t2], a
+     
+    xor [t0], [t1]
+    xor [t0], [t2]
+     
+    add [v1], [t0]
+     
+    add i, 1
+    set pc, encryptForLoop
+    :encryptEnd
+    set i, pop
+    set a, pop
+    set pc, pop
+     
+     
+     
+    :decrypt        ;params: v0, v1
+    set push, a
+    set push, i
+    set [sum], 0x3720
+    set i, 0x0
+    :decryptForLoop
+    ife i, 0x20
+            set pc, decryptEnd
+     
+    ;setting v1------
+    set a, [v0]
+    shl a, 0x4
+    add a, [k2]
+    set [t0], a
+     
+    set a, [v0]
+    add a, [sum]
+    set [t1], a
+     
+    set a, [v0]
+    shr a, 0x5
+    add a, [k3]
+    set [t2], a
+     
+    xor [t0], [t1]
+    xor [t0], [t2]
+     
+    sub [v1], [t0]
+    ;setting v0------
+    set a, [v1]
+    shl a, 0x4
+    add a, [k0]
+    set [t0], a
+     
+    set a, [v1]
+    add a, [sum]
+    set [t1], a
+     
+    set a, [v1]
+    shr a, 0x5
+    add a, [k1]
+    set [t2], a
+     
+    xor [t0], [t1]
+    xor [t0], [t2]
+     
+    sub [v0], [t0]
+    ;-----------------
+    sub [sum], [delta]
+     
+    add i, 1
+    set pc, decryptForLoop
+    :decryptEnd
+    set i, pop
+    set a, pop
+    set pc, pop
+     
+    ;DATA===========================================
+    :delta  dat 0x79b9      ;const
+    :v0             dat 0x0 ;input
+    :v1             dat 0x0 ;input
+    :k0             dat 0x0 ;key0
+    :k1             dat 0x0 ;key1
+    :k2             dat 0x0 ;key2
+    :k3             dat 0x0 ;key3
+    :sum    dat 0x0
+    ;TEMP variables
+    :t0             dat 0x0
+    :t1             dat 0x0
+    :t2             dat 0x0
