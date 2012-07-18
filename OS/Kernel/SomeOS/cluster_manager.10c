@@ -1,21 +1,22 @@
 ; --------------------------------------------
 ; Title:   cluster_manager
 ; Author:  Liraal
-; Date:    2012-07-09
-; Version: 0x1
+; Date:    2012-07-13
+; Version: 0x2
 ; --------------------------------------------
-;This is a complete rewrite of FAT16 code
-;Designed for better work with memory manager
+;This is another rewrite of FAT16 code
+;New features:
+; - fragmented files
+; - easier resizing
 ;---------------------------------------------
 
-:fs_FAT_number		dat 0x0
-:fs_reserved_number	dat 0x0
-:fs_FAT_offset		dat 0x1
-:fs_root_offset		dat 0x1
-:fs_temp_memory		dat 0x0
+:fs_FAT_number		dat 0x3
+:fs_reserved_number	dat 0xC8
+:fs_FAT_offset		dat 0xC8
+:fs_root_offset		dat 0xCB
 :fs_FAT_memory		dat 0x0
 :fs_drive			dat 0x0
-:fs_error_code		dat 0x0 ;0x1 is OOM
+:fs_error_code		dat 0x0 ;0x1 is OOM, 0x2 Not Enough Space, 0xffff No Idea What's Wrong
 :fs_dir_entry		dat 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0
 
 :fs_init		;initializes the filesystem: allocates memory areas, reads the bootsector
@@ -23,32 +24,38 @@ set [fs_error_code], 0x0
 set push, A
 set push, C
 set push, X
+set push, Y
 set A, 0x200
 jsr mem_alloc
 ife A, 0x0
 	set pc, fs_init_oom
-set [fs_temp_memory], A
+set Y, A
 set A, 0x0
 set C, 0x1
-set X, [fs_temp_memory]
+set X, Y
 jsr fs_load_to_mem
-set A, [fs_temp_memory]
+set A, Y
 add A, 0x8
-set [fs_reserved_number], [A]
+;set [fs_reserved_number], [A]
 add A, 0x1
-set [fs_FAT_number], [A]
+;set [fs_FAT_number], [A]
 add A, 0x3
-mul [fs_FAT_number], [A]
-add [fs_FAT_offset], [fs_reserved_number]
-add [fs_root_offset], [fs_reserved_number]
-add [fs_root_offset], [fs_FAT_number]
+;mul [fs_FAT_number], [A] 
+;dat 0x0
+;add [fs_FAT_offset], [fs_reserved_number]
+;add [fs_root_offset], [fs_reserved_number]
+;add [fs_root_offset], [fs_FAT_number]
+set A, Y
+jsr mem_free
+set Y, pop
 set X, pop
 set C, pop
 set A, pop
 set pc, pop
 
-:fs_init_oom
+:fs_init_oom dat 0x0
 set [fs_error_code], 0x1
+set Y, pop
 set X, pop
 set C, pop
 set A, pop
@@ -80,7 +87,7 @@ set B, pop
 set A, pop
 set pc, pop
 
-:fs_get_FAT_entry	;A - starting cluster, output: C - length in clusters
+:fs_get_FAT_entry	;A - starting cluster, output: C - next cluster or 0xffff if EOF
 set [fs_error_code], 0x0
 set push, A
 set push, B
@@ -98,15 +105,7 @@ set C, [fs_FAT_number]
 set A, [fs_FAT_offset]
 jsr	fs_load_to_mem
 add B, X
-set C, 0x0
-:fs_get_FAT_entry_loop
-set Y, B
-add Y, C
-ife [Y], 0xffff
-	set pc, fs_get_FAT_entry_end
-add C, 0x1
-set pc, fs_get_FAT_entry_loop
-:fs_get_FAT_entry_end
+set C, [Y]
 set A, X
 jsr mem_free
 set Y, pop
@@ -116,7 +115,7 @@ set B, pop
 set A, pop
 set pc, pop
 
-:fs_get_FAT_entry_oom
+:fs_get_FAT_entry_oom dat 0x0
 set [fs_error_code], 0x1
 set Y, pop
 set X, pop
@@ -125,7 +124,7 @@ set B, pop
 set A, pop
 set pc, pop
 
-:fs_get_free_FAT	;A - length of file in clusters, output: A - starting cluster or 0x0 if none found
+:fs_get_free_cluster	;output: A - cluster number or 0x0 if none found
 set [fs_error_code], 0x0
 set push, C
 set push, I
@@ -136,21 +135,21 @@ set A, [fs_FAT_number]	;loading FAT to mem
 mul A, 0x200
 jsr mem_alloc
 ife A, 0x0
-	set pc, fs_get_free_FAT_oom
+	set pc, fs_get_free_cluster_oom
 set X, A
 set A, [fs_FAT_offset]
 set C, [fs_FAT_number]
 jsr	fs_load_to_mem
-set A, pop
+set A, 0x1
 set C, 0x0
 set J, 0x0
 set I, [fs_FAT_number]
 mul I, 0x200
-:fs_get_free_FAT_loop	;searching FAT
+:fs_get_free_cluster_loop	;searching FAT
 ife C, A
-	set pc, fs_get_free_FAT_end
+	set pc, fs_get_free_cluster_end
 ife J, I
-	set pc, fs_get_free_FAT_none
+	set pc, fs_get_free_cluster_none
 add J, X
 ife [J], 0x0
 	add C, 0x1
@@ -158,11 +157,11 @@ ifn [J], 0x0
 	set C, 0x0
 sub J, X
 add J, 0x1
-set pc, fs_get_free_FAT_loop
-:fs_get_free_FAT_none	;no free space found
+set pc, fs_get_free_cluster_loop
+:fs_get_free_cluster_none	;no free space found
 set J, C
 sub J, 0x1
-:fs_get_free_FAT_end	;end
+:fs_get_free_cluster_end	;end
 sub J, C
 add J, 0x1
 set A, X
@@ -174,7 +173,7 @@ set I, pop
 set C, pop
 set pc, pop
 
-:fs_get_free_FAT_oom
+:fs_get_free_cluster_oom dat 0x0
 set [fs_error_code], 0x1
 set A, J
 set X, pop
@@ -186,11 +185,13 @@ set pc, pop
 :fs_create_file		;A - length in clusters, output: A - starting cluster
 set [fs_error_code], 0x0
 set push, C
+set push, I
 set push, J
 set push, X
 set push, Y
 set Y, A
-set push, A
+jsr fs_get_free_cluster
+set I, A
 set A, [fs_FAT_number]
 mul A, 0x200
 jsr mem_alloc
@@ -200,23 +201,23 @@ set X, A
 set A, [fs_FAT_offset]
 set C, [fs_FAT_number]
 jsr	fs_load_to_mem
-set A, pop
-jsr fs_get_free_FAT
-sub Y, 0x1
 set J, 0x0
+set push, A
+sub Y, 0x1
 :fs_create_file_loop
 ife J, Y
 	set pc, fs_create_file_end
-add J, A
-add J, X
-set [J], J
-sub J, X
-sub J, A
+add I, X
+jsr fs_get_free_cluster
+ife A, 0x0
+	set pc, fs_create_file_nes
+set [I], A
+set I, A
+sub I, X
 add J, 0x1
 set pc, fs_create_file_loop
 :fs_create_file_end
 set [J], 0xffff
-set push, A
 set A, [fs_FAT_offset]
 set C, [fs_FAT_number]
 jsr fs_write_from_mem
@@ -226,15 +227,26 @@ set A, pop
 set Y, pop
 set X, pop
 set J, pop
+set I, pop
 set C, pop
 set pc, pop
 
-:fs_create_file_oom
+:fs_create_file_oom dat 0x0
 set [fs_error_code], 0x1
+set Y, pop
+set X, pop
+set J, pop
+set I, pop
+set C, pop
+set pc, pop
+
+:fs_create_file_nes dat 0x0
+set [fs_error_code], 0x2
 set A, pop
 set Y, pop
 set X, pop
 set J, pop
+set I, pop
 set C, pop
 set pc, pop
 
@@ -291,47 +303,120 @@ set C, pop
 set pc, pop
 
 :fs_load_file			;A - starting cluster, output: A - adress in memory of the file loaded
-set [fs_error_code], 0x0
 set push, B
 set push, C
+set push, I
 set push, X
+set I, 0x0
 set push, A
-jsr fs_get_FAT_entry
 set C, A
+:fs_load_file_count_sectors
+jsr fs_get_FAT_entry
+add I, 0x1
+ife C, 0xffff
+	set pc, fs_load_file_load
+ifg I, 0x5A0
+	set pc, fs_load_file_err
+set A, C
+set pc, fs_load_file_count_sectors
+:fs_load_file_load
+set A, I
 mul A, 0x200
 jsr mem_alloc
 ife A, 0x0
 	set pc, fs_load_file_oom
 set X, A
-set B, pop
-set A, 0x10
-hwi [fs_drive]
+set I, 0x0
+set A, pop
+set C, A
+:fs_load_file_load_sectors
+jsr fs_get_FAT_entry
+set push, C
+set C, 0x1
+jsr fs_load_to_mem
+set C, pop
+add X, 0x200
+add I, 0x1
+ife C, 0xffff
+	set pc, fs_load_file_end
+ifg I, 0x5A0
+	set pc, fs_load_file_err
+set A, C
+set pc, fs_load_file_load_sectors
+:fs_load_file_end
 set A, X
 set X, pop
+set I, pop
 set C, pop
 set B, pop
 set pc, pop
 
-:fs_load_file_oom
+:fs_load_file_oom dat 0x0
 set [fs_error_code], 0x1
 set A, pop
 set X, pop
+set I, pop
+set C, pop
+set B, pop
+set pc, pop
+
+:fs_load_file_err dat 0x0
+set [fs_error_code], 0xffff
+set X, pop
+set I, pop
 set C, pop
 set B, pop
 set pc, pop
 
 :fs_edit_file			;A - starting cluster, X - memory adress
+set push, A
 set push, B
 set push, C
+set push, I
 set push, X
+set I, 0x0
 set push, A
-jsr fs_get_FAT_entry
 set C, A
-set B, pop
-set A, 0x11
-hwi [fs_drive]
-set A, B
+:fs_edit_file_count_sectors
+jsr fs_get_FAT_entry
+add I, 0x1
+ife C, 0xffff
+	set pc, fs_edit_file_load
+ifg I, 0x5A0
+	set pc, fs_edit_file_err
+set A, C
+set pc, fs_edit_file_count_sectors
+:fs_edit_file_load
+set I, 0x0
+set A, pop
+set C, A
+:fs_edit_file_load_sectors
+jsr fs_get_FAT_entry
+set push, C
+set C, 0x1
+jsr fs_write_from_mem
+set C, pop
+add X, 0x200
+add I, 0x1
+ife C, 0xffff
+	set pc, fs_edit_file_end
+ifg I, 0x5A0
+	set pc, fs_edit_file_err
+set A, C
+set pc, fs_edit_file_load_sectors
+:fs_edit_file_end
 set X, pop
+set I, pop
+set C, pop
+set B, pop
+set A, pop
+set pc, pop
+
+:fs_edit_file_err dat 0x0
+set [fs_error_code], 0xffff
+set A, pop
+set X, pop
+set I, pop
 set C, pop
 set B, pop
 set pc, pop
@@ -360,7 +445,7 @@ jsr mem_free
 set A, fs_dir_entry
 set pc, pop
 
-:fs_get_dir_entry_oom
+:fs_get_dir_entry_oom dat 0x0
 set B, pop
 set pc, pop
 
