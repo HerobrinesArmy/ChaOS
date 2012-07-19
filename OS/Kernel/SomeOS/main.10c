@@ -49,7 +49,7 @@ HWI J
 SET PC, setScreen
 :floppy_found
 ife [fs_drive], 0x0
-	set [OS_drive], J
+	set [fs_drive], J
 SET [floppyID], J
 SET PC, setScreen
 
@@ -58,7 +58,7 @@ SET B, 0x7120
 SET [video_cur], 0x8000
 SET [max_backspace], [video_cur]
 JSR mem_init
-JSR initClusterMemoryArea
+;JSR initClusterMemoryArea
 
 SET A, 256
 JSR mem_alloc
@@ -82,7 +82,7 @@ SET B, 201
 SET C, 1
 SET X, fs_root
 HWI [floppyID]
-JSR initFAT
+;JSR initFAT
 SET A, 1
 SET B, I
 HWI [monitorID]
@@ -90,9 +90,9 @@ SET A, B
 JSR mem_free
 JSR clrscr
 
-SET A, 1
-JSR clearTempMemory
-SET B, [ClusterMemory]
+;SET A, 1
+;JSR clearTempMemory
+;SET B, [ClusterMemory]
 
 SET A, txt_Welcome
 SET B, 0x7000
@@ -118,6 +118,7 @@ SET PC, start
 :video_cur dat 0x0000
 :max_backspace dat 0x0000
 :folder_cur dat 0x0000
+:folder_tree dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
 :txt_Welcome dat "Welcome to the CHAOS CLI", 0x0000
 :txt_Badcmd dat "Unrecognized command", 0x0000
 :txt_version dat "Version 0.1", 0x0000

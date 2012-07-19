@@ -113,6 +113,9 @@ set X, pop
 set C, pop
 set B, pop
 set A, pop
+ife A, 0x0
+	ife C, 0x0
+		set C, 0xffff
 set pc, pop
 
 :fs_get_FAT_entry_oom dat 0x0
