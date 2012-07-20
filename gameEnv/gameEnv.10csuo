@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<solution name="gameEnv" path="C:\Users\C4\Documents\0x10c Devkit\gameEnv\gameEnv.10csln" currentFile="core\display.asm">
+  <openFiles>
+    <file path="core\display.asm" />
+    <file path="core\keyboard.asm" />
+    <file path="core\interrupt.asm" />
+    <file path="core\clock.asm" />
+    <file path="core\main.asm" />
+    <file path="core\map.asm" />
+    <file path="core\interface.asm" />
+    <file path="core\unit.asm" />
+    <file path="core\time.asm" />
+    <file path="core\city.asm" />
+    <file path="core\random.asm" />
+  </openFiles>
+</solution>

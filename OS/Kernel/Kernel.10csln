@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<solution>
+  <name>Kernel</name>
+  <properties>
+    <property name="emuLoad.projectName">SomeOS</property>
+    <property name="emuLoadMode">project</property>
+  </properties>
+  <projects>
+    <project path="Main\Main.10cproj" />
+    <project path="TempOS\TempOS.10cproj" />
+    <project path="SomeOS\SomeOS.10cproj" />
+    <project path="TestDisk2\TestDisk.10cproj" />
+    <project path="SomeTests\SomeTests.10cproj" />
+  </projects>
+</solution>

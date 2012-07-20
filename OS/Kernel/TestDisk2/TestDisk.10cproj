@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project version="1.7.5" type="disk">
+  <name>TestDisk</name>
+  <properties>
+    <property name="outputFilename">TestDisk.bief</property>
+    <property name="compress">true</property>
+    <property name="filesystem.enabled">true</property>
+    <property name="filesystem.type">Structureless</property>
+    <property name="versionIncrement">10</property>
+    <property name="autoLoad.enabled">True</property>
+    <property name="autoLoad.drive">1</property>
+  </properties>
+  <references />
+  <files>
+    <file path="..\TestDisk\MBR.10c">
+      <property name="disk.index">0</property>
+      <property name="disk.entryTypeName">sector</property>
+    </file>
+    <file path="..\TestDisk\FAT.10c">
+      <property name="disk.index">1</property>
+      <property name="disk.entryTypeName">sector</property>
+    </file>
+    <file path="..\TestDisk\Root.10c">
+      <property name="disk.index">2</property>
+      <property name="disk.entryTypeName">sector</property>
+    </file>
+  </files>
+</project>

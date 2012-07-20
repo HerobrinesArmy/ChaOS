@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project version="1.7.5" type="test">
+  <name>SomeTests</name>
+  <properties />
+  <references>
+    <project>SomeOS</project>
+  </references>
+  <files>
+    <file path="TEA.10ctest" />
+    <file path="memory_manager.10ctest" />
+  </files>
+</project>

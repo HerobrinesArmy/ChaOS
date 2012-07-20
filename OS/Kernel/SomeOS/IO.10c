@@ -1,0 +1,526 @@
+:clrscr
+        set push, a
+        set push, i
+        set push, j
+       
+        set j, 0x8000
+:clearAll
+        set a, 0x0000
+        set [j], a
+        add j, 1
+        ife j, 0x8200
+                set pc, clearEnd
+        set pc, clearAll
+:clearEnd
+       
+        set j, pop
+        set i, pop
+        set a, pop
+		SET PC, POP
+		
+:draw_cell ;takes X as X-coordinate, Y as Y-coordinate, and C for the character to draw
+set push, x
+set push, y
+set push, c
+
+ifg y, 11
+	set pc, pop
+ifg x, 31
+	set pc, pop
+
+mul y, 32
+add y, x
+set [0x8000 + y], c
+
+set c, pop
+set y, pop
+set x, pop
+set pc, pop
+
+:print  ; takes A as the start of the text, and B is text color (0 == NONE)
+        set push, a
+        set push, i
+        set push, j
+       
+        set j, [video_cur]
+:writeLoop
+		SET I, [A]
+        ife I, 0x0000																																						
+                set pc, continue2
+        BOR I, B
+        set [j], i
+        add a, 1
+        add j, 1
+        set pc, writeLoop
+ 
+:continue2
+        SET [video_cur], J
+        JSR enter
+       
+        set j, pop
+        set i, pop
+        set a, pop
+        SET PC, POP
+
+ 
+:printc ; Takes A as the character to print
+        set push, a
+        set push, j
+        set j, [video_cur]
+        bor a, 0x7000
+        set [j], a
+        add [video_cur], 1
+        IFE [video_cur], 0x8180
+        	JSR scroll
+        set j, pop
+        set a, pop
+		SET PC, POP
+ 
+ 
+:getchar
+        set push, a
+        :getcharLoop
+        set a, 1
+        hwi [keyboardID]
+        ife c, 0
+                set pc, getcharLoop
+        set a, pop
+		SET PC, POP
+ 
+:backspace
+		IFE [max_backspace], [video_cur]
+			SET PC, POP
+        sub [video_cur], 0x0001
+        SET PUSH, A
+        SET A, 0x20
+        JSR printc
+        SET A, POP
+        sub [video_cur], 0x0001
+        SET PC, POP
+
+ 
+:enter
+        :enterStart
+        set push, a
+        set push, b
+        set push, j
+       
+        set a, [video_cur]
+        set b, 0x0020
+        set j, a
+        mod j, b
+        sub a, j
+        add a, 0x0020
+        ifg a, 0x81ff
+                set a, 0x8000
+        set [video_cur], a
+        SET [max_backspace], A
+        IFG [video_cur], 0x8160
+        	JSR scroll
+        set j, pop
+        set b, pop
+        set a, pop
+        :enterEnd
+        SET PC, POP
+ 
+:cmd_enter
+		SET PUSH, A
+		SET PUSH, B
+		SET PUSH, Y
+		SET PUSH, X
+		SET X, 0
+		SET A, [max_backspace]
+		SET B, cmd_load
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_load
+		SET A, [max_backspace]
+		SET B, cmd_ls
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_ls
+		SET A, [max_backspace]
+		SET B, cmd_mkdir
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_mkdir
+		SET A, [max_backspace]
+		SET B, cmd_help
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_help
+		SET A, [max_backspace]
+		SEt B, cmd_version
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_version
+		SET A, [max_backspace]
+		SET B, cmd_diskname
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_diskname
+		SET A, [max_backspace]
+		SET B, cmd_format_datafloppy
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_format_datafloppy
+		SET A, [max_backspace]
+		SET B, cmd_clear
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_clear	
+		JSR enter
+		IFE X, 0
+			JSR cmd_enter_badcmd	
+		SET X, POP
+		SET Y, POP
+		SET B, POP
+		SET A, POP
+		SET PC, POP
+		
+:cmd_enter_clear
+		JSR clrscr
+		SET [max_backspace], 0x8000
+		SET [video_cur], 0x8000
+		SET X, POP
+		SET X, POP
+		SET Y, POP
+		SET B, POP
+		SET A, POP
+		SET PC, POP
+		
+:cmd_enter_ls
+		SET PUSH, A
+		SET PUSH, B
+		SET PUSH, C
+		SET PUSH, I
+		SET PUSH, Y
+		SET PUSH, Z
+		SET PUSH, J
+		SET A, [folder_cur]
+		SET I, 1
+	:cmd_enter_ls_loop
+		SET B, I
+		JSR enter
+		JSR fs_get_dir_entry
+		IFE [A], 0x000
+			SET PC, cmd_enter_ls_loop_end
+		IFE A, 0
+			SET PC, cmd_enter_ls_loop_end
+		SET B, A
+		SET A, 16
+		JSR mem_alloc
+		IFN A, 0
+			ADD PC, 8
+		SET A, txt_error
+		SET B, 0x7000
+		JSR print
+		SET X, 1
+		SET PC, POP
+		
+		SET [A], [B]
+		ADD A, 1
+		ADD B, 1
+		SET [A], [B]
+		ADD A, 1
+		ADD B, 1
+		SET [A], [B]
+		ADD A, 1
+		ADD B, 1
+		SET [A], [B]
+		ADD A, 1
+		ADD B, 1
+		SET [A], [B]
+		SUB A, 4
+		SET Y, A
+		JSR fat16_7bitTo16bit
+		SET J, 0
+	:cmd_enter_ls_loop2
+		IFE [Z], 0
+			ADD PC, 0
+		BOR [Z], 0x7000
+		SET A, [Z]
+		JSR printc
+		ADD Z, 1
+		ADD J, 1
+		IFN J, 0xC
+			SUB PC, 10
+			
+		ADD I, 1
+		SET A, Y
+		JSR mem_free
+		SET A, [folder_cur]
+		SET PC, cmd_enter_ls_loop
+		
+		:cmd_enter_ls_loop_end
+		
+		SET J, POP
+		SET Z, POP
+		SET Y, POP
+		SET I, POP
+		SET C, POP
+		SET B, POP
+		SET A, POP
+		SET X, 1
+		SET PC, POP
+		
+:cmd_enter_mkdir
+		SET A, [max_backspace]
+		ADD A, 6
+		SET PUSH, Z
+		SET PUSH, Y
+		SET PUSH, I
+		SET I, 0
+		SET Z, A
+		SET A, 16
+		JSR mem_alloc
+		SET PUSH, A
+		IFN A, 0
+			ADD PC, 12
+		SET A, txt_error
+		SET B, 0x7000
+		JSR print
+		SET A, POP
+		SET I, POP
+		SET Y, POP
+		SET Z, POP
+		SET X, 1
+		SET PC, POP
+		SET Y, A
+		SET A, Z
+		:cmd_enter_mkdir_loop
+		SET Z, [A]
+		XOR Z, 0x7000
+		IFE Z, 0x11
+			SET PC, cmd_enter_mkdir_loop_end
+		SET [Y], Z
+		ADD A, 1
+		ADD Y, 1
+		ADD I, 1
+		IFN I, 0xC
+			SET PC, cmd_enter_mkdir_loop
+		:cmd_enter_mkdir_loop_end
+		SET I, PEEK
+		SET Y, I
+		JSR fat16_16bitTo7bit
+		SET [Y], [J]
+		ADD Y, 1
+		ADD J, 1
+		SET [Y], [J]
+		ADD Y, 1
+		ADD J, 1
+		SET [Y], [J]
+		ADD Y, 1
+		ADD J, 1
+		SET [Y], [J]
+		ADD Y, 1
+		ADD J, 1
+		SET [Y], [J]
+		ADD Y, 1
+		ADD J, 1
+		SET [Y], 0x800
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET A, 1
+		JSR fs_create_file
+		SET [Y], A
+		ADD Y, 1
+		SET [Y], 0
+		ADD Y, 1
+		SET [Y], 1
+		SET PUSH, C
+		JSR fs_get_FAT_entry
+		ADD Y, 1
+		SET [Y], C
+		SET C, POP
+		SET B, PEEK
+		SET A, [folder_cur]
+		JSR fs_add_dir_entry
+		SET A, POP
+		JSR mem_free
+		SET I, POP
+		SET Y, POP
+		SET Z, POP
+		SET X, 1
+		SET PC, POP
+		
+:cmd_enter_load
+		SET X, 1
+		SET A, [video_cur]
+		ADD A, 5
+		SET PC, POP
+		
+:cmd_enter_help
+		SET PUSH, A
+		SET PUSH, Z
+		JSR enter
+		SET X, 1
+		SET Z, txt_Availcmds
+		SET A, [Z]
+	:cmd_enter_help_loop
+		IFE A, 0
+			SET A, 0x2C
+		JSR printc
+		ADD Z, 1
+		SET A, [Z]
+		IFN A, 0x1234
+			SET PC, cmd_enter_help_loop
+		SET Z, POP
+		SET A, POP
+		SET PC, POP
+		
+:cmd_enter_version
+		SET X, 1
+		JSR enter
+		SET A, txt_version
+		SET B, 0x7000
+		JSR print
+		SET PC, POP
+		
+:cmd_enter_badcmd
+		SET A, txt_Badcmd
+		SET B, 0x7000
+		JSR print
+		SET PC, POP
+		
+:cmd_enter_format_datafloppy
+		;TODO: IMPLEMENT
+		;notes: needs a atoi function to read a drive number, a check if that number is a drive, then read the second argument,
+		;         which must be a string that is exactly 11 chars long (pad with spaces if longer)
+		;         then call fat16_format_data_HMU1440 with these two things
+		SET push, A
+		SET push, B
+		SET A, [floppyID]
+		SET B, [max_backspace]
+		ADD B, 18
+		jsr fat16_format_data_HMU1440
+		jsr enter
+		SET A, txt_done
+		SET B, 0x7000
+		jsr print
+		SET B, pop
+		SET A, pop
+		SET X, 1
+		SET PC, POP
+
+:cmd_enter_diskname
+		SET push, A
+		SET A, 11
+		jsr mem_alloc
+		ife A, 0
+			set pc, .oom
+		set push, A
+		jsr fat16_diskname
+		jsr enter
+		set A, [sp]
+		SET B, 0x7000
+		jsr print
+		set A, pop
+		jsr mem_free
+:.end	SET X, 1
+		SET A, pop
+		SET PC, POP
+:.oom	SET A, txt_error
+		SET B, 0x7000
+		jsr print
+		SET A, txt_oom
+		jsr print
+		set A, pop
+		set pc, end
+
+:read
+		SET PUSH, A
+		SET PUSH, C
+        :readLoop
+        JSR getChar
+        ife c, 0x0010
+                JSR backspace
+        ife c, 0x0010
+                set pc, readLoop   
+
+        ife c, 0x0011
+                set pc, readDone
+        SET A, C
+        JSR printc
+        set pc, readLoop
+        :readDone
+        JSR cmd_enter
+        SET C, POP
+        SET A, POP
+        SET PC, POP
+        
+:startswith ; A is memory location of text, B is memory location of command, Y is return value
+	SET PUSH, Z
+	set y, 0
+	
+:startswithLoop
+
+	ife [b], 0
+	set pc, startswith_end_success
+	
+	SET Z, [A]
+	
+	XOR Z, 0x7000
+
+    ifn z, [b]
+    	SET PC, startswith_end_fail
+
+	add a, 1
+	add b, 1
+	set pc, startswithLoop
+
+	:startswith_end_success
+		set y, 1
+		SET Z, POP
+		set pc, pop
+	:startswith_end_fail
+		SET Z, POP
+		SET PC, POP
+		
+; Scrolls the screen one line (working)
+:scroll
+      SET PUSH, X
+      SET PUSH, Y
+      SET PUSH, A
+
+      SET X, 0x8000 ; Set X to the video memory
+      SET Y, 0x8020 ; Set Y to the second line in the video memory
+
+:scroll_loop1
+      SET [X], [Y]
+      ADD X, 1
+      ADD Y, 1
+      IFE Y, 0x8180
+          SET PC, scroll_loop2
+      SET PC, scroll_loop1
+
+:scroll_loop2
+	  SET A, 0x7020
+      SET [X], A
+      ADD X, 1
+      IFE X, 0x8180
+          SET PC, scroll_end
+      SET PC, scroll_loop2
+
+:scroll_end
+      SUB [video_cur], 0x20
+      SUB [max_backspace], 0x20
+      SET A, POP
+      SET Y, POP
+      SET X, POP
+      SET PC, POP
+ 
+:null   dat 0x0
+:screen dat 0x0
+:line   dat 0x8000

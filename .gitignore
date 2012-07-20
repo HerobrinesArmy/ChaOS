@@ -1,0 +1,4 @@
+#ignore binary files
+*.bin
+#ignore compiled filesystem images
+*.bief

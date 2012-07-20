@@ -1,0 +1,7 @@
+List of tasks for HRSDL
+1- Finish FAT- writing, defragmentation, one special feature, maybe formatting, creation of subfolders
+2- Begin to integrate the seperate pieces of CHA_OS into one whole
+3- All other OS tasks (make terminal window,etc.)
+4- Establish program compatility with the OS
+5- program CS if possible at the time
+6- other programs- text editor, graphics, networking 

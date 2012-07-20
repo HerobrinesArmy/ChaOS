@@ -1,0 +1,137 @@
+; --------------------------------------------
+; Title:   main
+; Author:  Alex, smith10
+; Date:    2012-06-15
+; Version: 
+; For use within Herobrine's army
+;--------------------------------------------
+
+#segment boot
+;fat header, makes disk valid fat16
+DAT 0xCB82 ;add pc, 0x11 - also magic word for bootable disk
+DAT 0x9105, 0x042D, 0xFBDD, 0x2269, 0xE7AC ;media name, with some luck that means "HA BootDisk"
+DAT 0x200, 0x0001, 0x00C8, 0x0000, 0x05A0, 0x0000, 0x0003, 0x0002, 0x0028, 0x0012 ;200 reserved sectors for the OS, 3 sectors for the FAT tables, rest for data
+DAT 0x736f, 0x7f6c ;serial number
+:codestart
+HWN I
+SET J, 0
+:setScreen
+ADD J, 1
+IFE I, J
+	SET PC, init
+HWQ J
+IFE A, 0xB402
+	IFE B, 0x12D0
+		SET PC, clock_found
+IFE B, 0x7349
+	IFE A, 0xF615
+		SET PC, monitor_found
+IFE B, 0x30CF
+	IFE A, 0x7406
+		SET PC, keyboard_found
+IFE B, 0x74FA
+	IFE A, 0x4CAE
+		SET PC, floppy_found
+SET PC, setScreen
+:clock_found
+SET [clockID], J
+SET PC, setScreen
+:monitor_found
+SET A, 0
+SET B, 0x8000
+SET [monitorID], J
+HWI J
+SET PC,setScreen
+:keyboard_found
+SET A, 0
+SET [keyboardID], J
+HWI J
+SET PC, setScreen
+:floppy_found
+ife [fs_drive], 0x0
+	set [OS_drive], J
+SET [floppyID], J
+SET PC, setScreen
+
+:init
+SET B, 0x7120
+SET [video_cur], 0x8000
+SET [max_backspace], [video_cur]
+JSR mem_init
+JSR initClusterMemoryArea
+
+SET A, 256
+JSR mem_alloc
+SET B, A
+SET I, B
+SET A, 4
+HWI [monitorID] 
+JSR logo_loadImage
+JSR logo_printASCII
+
+SET A, 0
+SET B, 6000
+HWI [clockID] ; the count has started!
+SET A, 1
+HWI [clockID]
+IFN C, 100
+	SUB PC, 5
+
+SET A, 0x11
+SET B, 201
+SET C, 1
+SET X, fs_root
+HWI [floppyID]
+JSR initFAT
+SET A, 1
+SET B, I
+HWI [monitorID]
+SET A, B
+JSR mem_free
+JSR clrscr
+
+SET A, 1
+JSR clearTempMemory
+SET B, [ClusterMemory]
+
+SET A, txt_Welcome
+SET B, 0x7000
+JSR print
+SET A, 0x3E
+JSR printc
+SET [max_backspace], [video_cur]
+
+:start
+JSR read	;THE OS CODE
+SET A, 0x3E
+JSR printc
+SET [max_backspace], [video_cur]
+  
+SET PC, start
+
+#segment data
+:monitorID dat 0x0000
+:keyboardID dat 0x0000
+:floppyID dat 0x0000
+:clockID dat 0x0000
+:fs_root	dat 0xffff
+:video_cur dat 0x0000
+:max_backspace dat 0x0000
+:folder_cur dat 0x0000
+:txt_Welcome dat "Welcome to the CHAOS CLI", 0x0000
+:txt_Badcmd dat "Unrecognized command", 0x0000
+:txt_version dat "Version 0.1", 0x0000
+:txt_done dat "done", 0x0000
+:txt_error dat "ERROR: "
+:txt_oom dat "Out of Memory", 0x0000
+:txt_Availcmds dat "Available commands: ", 0x0000
+:cmd_ls dat "ls", 0x0000
+:cmd_mkdir dat "mkdir", 0x0000
+:cmd_clear dat "clear", 0x0000
+:cmd_version dat "version", 0x0000
+:cmd_help dat "help", 0x0000
+:cmd_load dat "load", 0x0000
+:cmd_diskname dat "diskname", 0x0000
+:cmd_format_datafloppy dat "format_datafloppy", 0x0000
+:cmd_avail_end dat 0x1234
+
