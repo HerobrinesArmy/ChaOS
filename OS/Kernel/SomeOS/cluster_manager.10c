@@ -133,7 +133,7 @@ set push, C
 set push, I
 set push, J
 set push, X
-set push, A
+;set push, A
 set A, [fs_FAT_number]	;loading FAT to mem
 mul A, 0x200
 jsr mem_alloc
@@ -169,6 +169,7 @@ sub J, C
 add J, 0x1
 set A, X
 jsr mem_free			;free the memory
+;dat 0x0
 set A, J
 set X, pop
 set J, pop
