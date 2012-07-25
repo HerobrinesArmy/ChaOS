@@ -3,12 +3,12 @@
         set push, i
         set push, j
        
-        set j, 0x8000
+        set j, [VRAM]
 :clearAll
         set a, 0x0000
         set [j], a
         add j, 1
-        ife j, 0x8200
+        ifg j, [VRAM_end]
                 set pc, clearEnd
         set pc, clearAll
 :clearEnd
@@ -30,7 +30,11 @@ ifg x, 31
 
 mul y, 32
 add y, x
-set [0x8000 + y], c
+set push, A
+set A, [VRAM]
+add A, Y
+set [A], c
+set A, pop
 
 set c, pop
 set y, pop
@@ -70,8 +74,12 @@ set pc, pop
         bor a, 0x7000
         set [j], a
         add [video_cur], 1
-        IFE [video_cur], 0x8180
+        set push, B
+        set B, [VRAM]
+        add B, 0x180
+        IFE [video_cur], B
         	JSR scroll
+        set B, pop
         set j, pop
         set a, pop
 		SET PC, POP
@@ -103,21 +111,25 @@ set pc, pop
         :enterStart
         set push, a
         set push, b
+        set push, C
         set push, j
        
         set a, [video_cur]
         set b, 0x0020
+        set C, [VRAM]
+        add C, 0x160
         set j, a
         mod j, b
         sub a, j
         add a, 0x0020
-        ifg a, 0x81ff
-                set a, 0x8000
+        ifg a, [VRAM_end]
+                set a, [VRAM]
         set [video_cur], a
         SET [max_backspace], A
-        IFG [video_cur], 0x8160
+        IFG [video_cur], C
         	JSR scroll
         set j, pop
+        set C, pop
         set b, pop
         set a, pop
         :enterEnd
@@ -180,8 +192,8 @@ set pc, pop
 		
 :cmd_enter_clear
 		JSR clrscr
-		SET [max_backspace], 0x8000
-		SET [video_cur], 0x8000
+		SET [max_backspace], [VRAM]
+		SET [video_cur], [VRAM]
 		SET X, POP
 		SET X, POP
 		SET Y, POP
@@ -494,14 +506,15 @@ set pc, pop
       SET PUSH, Y
       SET PUSH, A
 
-      SET X, 0x8000 ; Set X to the video memory
-      SET Y, 0x8020 ; Set Y to the second line in the video memory
+      SET X, [VRAM] ; Set X to the video memory
+      SET Y, 0x20 ; Set Y to the second line in the video memory
+	  ADD Y, X
 
 :scroll_loop1
       SET [X], [Y]
       ADD X, 1
       ADD Y, 1
-      IFE Y, 0x8180
+      IFG Y, [VRAM_end]
           SET PC, scroll_loop2
       SET PC, scroll_loop1
 
@@ -509,7 +522,7 @@ set pc, pop
 	  SET A, 0x7020
       SET [X], A
       ADD X, 1
-      IFE X, 0x8180
+      IFG X, [VRAM_end]
           SET PC, scroll_end
       SET PC, scroll_loop2
 
@@ -523,4 +536,4 @@ set pc, pop
  
 :null   dat 0x0
 :screen dat 0x0
-:line   dat 0x8000
+:line   dat 0x0

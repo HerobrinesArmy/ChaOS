@@ -38,7 +38,7 @@ SET [clockID], J
 SET PC, setScreen
 :monitor_found
 SET A, 0
-SET B, 0x8000
+SET B, [VRAM]
 SET [monitorID], J
 HWI J
 SET PC,setScreen
@@ -48,17 +48,19 @@ SET [keyboardID], J
 HWI J
 SET PC, setScreen
 :floppy_found
-ife [fs_drive], 0x0
+;ife [fs_drive], 0x0
 	set [fs_drive], J
 SET [floppyID], J
 SET PC, setScreen
 
 :init
 SET B, 0x7120
-SET [video_cur], 0x8000
+SET [video_cur], [VRAM]
+SET [line], [VRAM]
+set [VRAM_end], [VRAM]
+add [VRAM_end], 0x1ff
 SET [max_backspace], [video_cur]
 JSR mem_init
-;JSR initClusterMemoryArea
 
 SET A, 256
 JSR mem_alloc
@@ -82,17 +84,12 @@ SET B, 201
 SET C, 1
 SET X, fs_root
 HWI [floppyID]
-;JSR initFAT
 SET A, 1
 SET B, I
 HWI [monitorID]
 SET A, B
 JSR mem_free
 JSR clrscr
-
-;SET A, 1
-;JSR clearTempMemory
-;SET B, [ClusterMemory]
 
 SET A, txt_Welcome
 SET B, 0x7000
@@ -116,6 +113,8 @@ SET PC, start
 :clockID dat 0x0000
 :fs_root	dat 0xffff
 :video_cur dat 0x0000
+:VRAM     dat 0x9000
+:VRAM_end dat 0x0
 :max_backspace dat 0x0000
 :folder_cur dat 0x0000
 :folder_tree dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0

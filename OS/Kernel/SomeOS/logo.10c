@@ -9,8 +9,6 @@ jsr logo_loadImage
 jsr logo_printASCII
 sub pc, 1
  
-:VRAM   dat 0x8000
- 
 :logo_loadImage
 set push, a
 set push, b
@@ -43,6 +41,9 @@ ife x, 0
 sti [j], i
 set pc, logo_printLoop
 :logo_printLoopEnd
+set A, 0x0
+set B, [VRAM]
+hwi [monitorID]
 set x, pop
 set j, pop
 set i, pop

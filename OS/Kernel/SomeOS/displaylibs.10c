@@ -31,22 +31,21 @@
      set b, pop
      set a, pop
     set pc, pop
-    :LEM    dat 0x0
-    :VRAM   dat 0x8000
-    :LP             dat 0x0
+    :LEM      dat 0x0
+    :LP       dat 0x0
      
     :refresh
     set push, a
     set push, b
     set a, 0x0
     set b, [VRAM]
-    hwi [LEM]
+    hwi [monitorID]
     set b, pop
     set a, pop
     set pc, pop
      
     :fastClear
-     set [VRAM], 0x8180
+     add [VRAM], 0x180
     set pc, pop
      
     :clear
@@ -73,9 +72,9 @@
     set push, b
     set push, i
     set push, j
-    set i, 0x7000
+    set i, 0xF000
     set j, [VRAM]
-    ife i, 0x7080
+    ife i, 0xF080
             add pc, 0x4
     set [j], i
     add j, 0x1
@@ -83,7 +82,7 @@
     sub pc, 0x7
     set a, 0x0
     set b, [VRAM]
-    hwi [LEM]
+    hwi [monitorID]
     set j, pop
     set i, pop
     set b, pop
@@ -119,7 +118,7 @@
      set [i], a
      set a, 0x0
      set b, [VRAM]
-     hwi [LEM]
+     hwi [monitorID]
      set j, pop
      set i, pop
      set b, pop
@@ -200,7 +199,7 @@
     set push, b
     set x, 0x7000
     ife i, b
-            set x, 0x8000
+            set x, [VRAM]
     set b, j
     jsr write8
     set b, pop
@@ -246,5 +245,3 @@
     set c, pop
     set a, pop
     set pc, pop
-     
-    ;:VRAM   dat 0x8000

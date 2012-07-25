@@ -65,10 +65,15 @@ set pc, pop
 set push, A
 set push, B
 set push, X
+set push, Y
 add A, [fs_root_offset]
 set B, A
 set A, 0x10
-hwi [fs_drive]
+;dat 0x0
+set Y, [fs_drive]
+hwi Y
+dat 0
+set Y, pop
 set X, pop
 set B, pop
 set A, pop
@@ -103,6 +108,7 @@ ife A, 0x0
 set X, A
 set C, [fs_FAT_number]
 set A, [fs_FAT_offset]
+sub A, [fs_root_offset]
 jsr	fs_load_to_mem
 add B, X
 set C, [Y]
@@ -141,6 +147,7 @@ ife A, 0x0
 	set pc, fs_get_free_cluster_oom
 set X, A
 set A, [fs_FAT_offset]
+sub A, [fs_root_offset]
 set C, [fs_FAT_number]
 jsr	fs_load_to_mem
 set A, 0x1
