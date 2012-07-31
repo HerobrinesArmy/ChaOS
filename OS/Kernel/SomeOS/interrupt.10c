@@ -1,0 +1,58 @@
+;------------------------------
+;Interrupt handler for ChaOS
+;Created: 26-07-12
+;Author:  Liraal
+;Version: 0x1
+;------------------------------
+;Interrupt messages: 0x1 clock, 0x2 keyboard, 0x3+ software
+;------------------------------
+
+;interrupt_init
+ias interrupt_handler
+set push, A
+set push, B
+;set clock interrupt here
+set A, 0x3
+set B, 0x1
+hwi [clockID]
+;set keyboard interrupt here
+set A, 0x2
+set B, 0x2
+hwi [keyboardID]
+;floppy interrupt here
+
+set B, pop
+set A, pop
+set pc, pop
+
+:interrupt_handler
+ife A, 0x1
+	jsr clock_interrupt
+ife A, 0x2
+	jsr keyboard_interrupt
+ife A, 0x3
+	jsr floppy_interrupt
+ifg A, 0x4
+	jsr interrupt_other
+rfi a
+
+:interrupt_other
+;//TODO
+;inster other interrupt handlers here
+set pc, pop
+
+:clock_interrupt
+;//TODO
+; - Timers
+; - Watchdog
+set pc, pop
+
+:keyboard_interrupt
+;//TODO
+;keyboard interrupt here
+set pc, pop
+
+:floppy_interrupt
+;//TODO
+;floppy interrupt here
+set pc, pop

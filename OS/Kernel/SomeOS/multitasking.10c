@@ -1,0 +1,319 @@
+;--------------------
+;multitask manager
+;author: Liraal
+;version: 0x1
+;--------------------
+
+;multitask memory space ; pc, sp, A, B, C, I, J, X, Y, Z, allocated stack location, event waited for, in that order
+:multitask_mem
+dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 ;thread 0 
+dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 ;thread 7
+
+:thread_cur dat 0x0 ; current thread
+
+:event_stack	dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+
+:event_cur		dat 0x0
+
+:master_stack_pointer dat 0xffff
+
+:transfer_cell dat 0x0, 0x0
+
+:stack_new ; generates a virtual stack for current thread to use, input: A -stack length, if 0x0, defaults to 0x20
+set push, A
+set push, B
+ife A, 0x0
+	set A, 0x20
+jsr mem_alloc
+set B, thread_cur
+sub B, 0x1
+mul B, 0xC
+add B, 0xA
+add B, multitask_mem
+set [B], A
+set B, pop
+set A, pop
+set pc, pop
+
+:stack_terminate
+set push, A
+set push, B
+set B, [thread_cur]
+sub B, 0x1
+mul B, 0xC
+add B, 0xA
+add B, multitask_mem
+set A, [B]
+set [B], 0x0
+jsr mem_free
+set B, pop
+set A, pop
+set pc, pop
+
+:thread_switch
+set push, A
+set A, [thread_cur]
+sub A, 0x1
+mul A, 0xC
+set [A], [sp-1]
+add A, 0x1
+set [A], sp
+add A, 0x1
+set [A], pop
+set ex, pop
+add A, 0x1
+set [A], B
+add A, 0x1
+set [A], C
+add A, 0x1
+set [A], I
+add A, 0x1
+set [A], J
+add A, 0x1
+set [A], X
+add A, 0x1
+set [A], Y
+add A, 0x1
+set [A], Z
+set A, [thread_cur]
+ife [thread_cur], 0x7
+	set [thread_cur], 0xffff
+add [thread_cur], 0x1
+set B, [thread_cur]
+ifn B, 0x0
+	sub B, 0x1
+mul B, 0xC
+set C, B
+:thread_switch_loop
+ife A, [thread_cur]
+	jsr thread_wait_for_event
+ifn [B], 0x0
+	set pc, thread_switch_end
+add [thread_cur], 0x1
+add B, 0xC
+ife [thread_cur], 0x8
+	set [thread_cur], 0x0
+ife [thread_cur], 0x8
+	set B, C
+set pc, thread_switch_loop
+:thread_switch_end
+set A, B
+add A, 0x1
+set sp, [A]
+add A, 0x1
+set push, [A]
+add A, 0x1
+set B, [A]
+add A, 0x1
+set C, [A]
+add A, 0x1
+set I, [A]
+add A, 0x1
+set J, [A]
+add A, 0x1
+set X, [A]
+add A, 0x1
+set Y, [A]
+add A, 0x1
+set Z, [A]
+add A, 0x2
+set [transfer_cell], [A]
+sub A, 0xB
+set [transfer_cell+1], [A]
+set A, [transfer_cell]
+set pc, [transfer_cell+1]
+
+:event_pull
+set pc, thread_switch
+
+:event_push
+set push, A
+set A, event_stack
+add A, 0x7
+:event_push_loop
+ifn [A], 0x0
+	sub A, 0x1
+ife A, event_stack
+	set pc, event_push_end
+ife [A], 0x0
+	set pc, event_push_end
+set pc, event_push_loop
+:event_push_end
+set [A], peek
+set A, pop
+set pc, pop
+
+:event_get
+set push, B
+set B, 0x7
+set A, event_stack
+add B, A
+:event_get_loop
+ife [A], 0x0
+	add A, 0x1
+ifn [A], 0x0
+	set pc, event_get_end
+ife A, B
+	ife [A], 0x0
+		set pc, event_get_none
+set pc, event_get_loop
+:event_get_none
+set [A], 0xffff
+:event_get_end
+set B, [A]
+set [A], 0x0
+set A, B
+set B, pop
+set pc, pop
+
+:thread_get_empty ; 0xffff if none
+set push, B
+set B, [thread_cur]
+:thread_get_empty_loop
+ife B, 0x8
+	set pc, thread_get_empty_none
+set A, B
+mul A, 0xC
+add A, multitask_mem
+ife [A], 0x0
+	set pc, thread_get_empty_end
+add B, 0x1
+set pc, thread_get_empty_loop
+:thread_get_empty_none
+set A, 0xffff
+:thread_get_empty_end
+set B, pop
+set pc, pop
+
+:thread_create
+set push, A
+jsr thread_get_empty
+ifn A, 0xffff
+	set pc, thread_create_cont
+set ex, pop
+set pc, pop
+:thread_create_cont
+set [thread_cur], A
+mul A, 0xC
+add A, multitask_mem
+set [A], [sp-1]
+add A, 0x1
+set push, A
+set A, 0x20
+jsr stack_new
+set A, pop
+set [A], [A+6]
+add A, 0x1
+set [A], pop
+add A, 0x1
+set [A], B
+add A, 0x1
+set [A], C
+add A, 0x1
+set [A], I
+add A, 0x1
+set [A], J
+add A, 0x1
+set [A], X
+add A, 0x1
+set [A], Y
+add A, 0x1
+set [A], Z
+set pc, thread_resume
+
+:thread_terminate
+set push, J
+set J, [thread_cur]
+mul J, 0xC
+add J, multitask_mem
+set push, I
+set I, 0x0
+:thread_terminate_loop
+ife I, 0xC
+	set pc, thread_terminate_end
+sti [J], 0x0
+set pc, thread_terminate_loop
+:thread_terminate_end
+set I, pop
+set J, pop
+set push, A
+jsr thread_get
+set [thread_cur], A
+set A, pop
+set pc, thread_resume
+
+:thread_get
+set push, B
+set push, I
+set I, 0x0
+set B, [thread_cur]
+set A, B
+mul A, 0xC
+add A, multitask_mem
+:thread_get_loop
+ife I, 0x8
+	set pc, thread_get_none
+ife B, 0x8
+	set B, 0x0
+ife [A], 0x0
+	set pc, thread_get_end
+add B, 0x1
+add I, 0x1
+add A, 0xC
+set pc, thread_get_loop
+:thread_get_none
+set B, 0xffff
+:thread_get_end
+set A, B
+set I, pop
+set B, pop
+set pc, pop
+
+:thread_resume
+set A, [thread_cur]
+mul A, 0xC
+add A, multitask_mem
+add A, 0x1
+set sp, [A]
+add A, 0x1
+set push, [A]
+add A, 0x1
+set B, [A]
+add A, 0x1
+set C, [A]
+add A, 0x1
+set I, [A]
+add A, 0x1
+set J, [A]
+add A, 0x1
+set X, [A]
+add A, 0x1
+set Y, [A]
+add A, 0x1
+set Z, [A]
+add A, 0x2
+set [transfer_cell], [A]
+sub A, 0xB
+set [transfer_cell+1], [A]
+set A, [transfer_cell]
+set pc, [transfer_cell+1]
+
+:thread_wait_for_event
+set push, A
+:thread_wait_for_event_loop
+jsr event_get
+ifn A, 0xffff
+	set pc, thread_wait_for_event_end
+set pc, thread_wait_for_event_loop
+:thread_wait_for_event_end
+jsr event_push
+set pc, thread_resume
+
+;//TODO:
+;EVENT_REFRESH

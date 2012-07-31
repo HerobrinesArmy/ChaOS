@@ -20,36 +20,18 @@
 :fs_dir_entry		dat 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0
 
 :fs_init		;initializes the filesystem: allocates memory areas, reads the bootsector
-set [fs_error_code], 0x0
 set push, A
-set push, C
-set push, X
-set push, Y
-set A, 0x200
-jsr mem_alloc
-ife A, 0x0
-	set pc, fs_init_oom
-set Y, A
 set A, 0x0
-set C, 0x1
-set X, Y
-jsr fs_load_to_mem
-set A, Y
 add A, 0x8
-;set [fs_reserved_number], [A]
-add A, 0x1
-;set [fs_FAT_number], [A]
-add A, 0x3
-;mul [fs_FAT_number], [A] 
+set [fs_reserved_number], [A]
+sub A, 0x1
+set [fs_FAT_number], [A]
+add A, 0x5
+mul [fs_FAT_number], [A] 
 ;dat 0x0
-;add [fs_FAT_offset], [fs_reserved_number]
-;add [fs_root_offset], [fs_reserved_number]
-;add [fs_root_offset], [fs_FAT_number]
-set A, Y
-jsr mem_free
-set Y, pop
-set X, pop
-set C, pop
+add [fs_FAT_offset], [fs_reserved_number]
+add [fs_root_offset], [fs_reserved_number]
+add [fs_root_offset], [fs_FAT_number]
 set A, pop
 set pc, pop
 
@@ -65,15 +47,13 @@ set pc, pop
 set push, A
 set push, B
 set push, X
-set push, Y
 add A, [fs_root_offset]
 set B, A
 set A, 0x10
+;set X, 0x7000
 ;dat 0x0
-set Y, [fs_drive]
-hwi Y
-dat 0
-set Y, pop
+hwi [fs_drive]
+;dat 0
 set X, pop
 set B, pop
 set A, pop
@@ -149,6 +129,7 @@ set X, A
 set A, [fs_FAT_offset]
 sub A, [fs_root_offset]
 set C, [fs_FAT_number]
+;dat 0x0
 jsr	fs_load_to_mem
 set A, 0x1
 set C, 0x0
@@ -209,6 +190,7 @@ jsr mem_alloc
 ife A, 0x0
 	set pc, fs_create_file_oom
 set X, A
+dat 0x0
 set A, [fs_FAT_offset]
 set C, [fs_FAT_number]
 jsr	fs_load_to_mem

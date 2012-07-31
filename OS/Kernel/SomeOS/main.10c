@@ -9,7 +9,7 @@
 #segment boot
 ;fat header, makes disk valid fat16
 DAT 0xCB82 ;add pc, 0x11 - also magic word for bootable disk
-DAT 0x9105, 0x042D, 0xFBDD, 0x2269, 0xE7AC ;media name, with some luck that means "HA BootDisk"
+DAT 0x9105, 0x042D, 0xFBFA, 0x44D3, 0xCF58 ;media name, with some luck that means "HA BootDisk" 0xFBDD, 0x2269, 0xE7AC 
 DAT 0x200, 0x0001, 0x00C8, 0x0000, 0x05A0, 0x0000, 0x0003, 0x0002, 0x0028, 0x0012 ;200 reserved sectors for the OS, 3 sectors for the FAT tables, rest for data
 DAT 0x736f, 0x7f6c ;serial number
 :codestart
@@ -79,6 +79,7 @@ HWI [clockID]
 IFN C, 100
 	SUB PC, 5
 
+jsr fs_init
 SET A, 0x11
 SET B, 201
 SET C, 1
@@ -134,4 +135,3 @@ SET PC, start
 :cmd_diskname dat "diskname", 0x0000
 :cmd_format_datafloppy dat "format_datafloppy", 0x0000
 :cmd_avail_end dat 0x1234
-

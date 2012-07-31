@@ -23,5 +23,7 @@
     <file path="logo.10c" />
     <file path="vector_library.10c" />
     <file path="cluster_manager.10c" />
+    <file path="multitasking.10c" />
+    <file path="interrupt.10c" />
   </files>
 </project>
