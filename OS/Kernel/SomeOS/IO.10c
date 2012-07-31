@@ -357,7 +357,7 @@ set pc, pop
 		SET [Y], C
 		SET C, POP
 		SET B, PEEK
-		SET A, [folder_cur]
+		SET A, PEEK
 		JSR fs_add_dir_entry
 		SET A, POP
 		JSR mem_free
