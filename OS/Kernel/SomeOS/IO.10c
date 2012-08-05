@@ -134,13 +134,45 @@ set pc, pop
         set a, pop
         :enterEnd
         SET PC, POP
+        
+:cmd_get_args
+	set push, A
+	set push, B
+	set A, [max_backspace]
+	:cmd_get_args_loop
+	set B, [A]
+	and B, 0x7F
+	ife B, 0x0
+		set pc, cmd_get_args_end
+	ife B, 0x20
+		set pc, cmd_get_args_assign
+	add A, 0x1
+	set pc, cmd_get_args_loop
+	:cmd_get_args_assign
+	set [cmd_args_start], A
+	add [cmd_args_start], 0x1
+	:cmd_get_args_loop2
+	set B, [A]
+	and B, 0x7F
+	ife B, 0x0
+		set pc, cmd_get_args_end
+	add A, 0x1
+	set pc, cmd_get_args_loop2
+	:cmd_get_args_end
+	set [cmd_args_end], A
+	sub [cmd_args_end], 0x1
+	set B, pop
+	set A, pop
+	set pc, pop
  
 :cmd_enter
 		SET PUSH, A
 		SET PUSH, B
+		SET PUSH, C
 		SET PUSH, Y
 		SET PUSH, X
 		SET X, 0
+		JSR cmd_get_args
 		SET A, [max_backspace]
 		SET B, cmd_load
 		JSR startswith
@@ -180,15 +212,45 @@ set pc, pop
 		SET B, cmd_clear
 		JSR startswith
 		IFE Y, 1
-			JSR cmd_enter_clear	
+			JSR cmd_enter_clear
+		SET A, [max_backspace]
+		SET B, cmd_ping
+		JSR startswith
+		IFE Y, 1
+			JSR cmd_enter_ping			
 		JSR enter
 		IFE X, 0
 			JSR cmd_enter_badcmd	
 		SET X, POP
 		SET Y, POP
+		SET C, POP
 		SET B, POP
 		SET A, POP
 		SET PC, POP
+		
+:cmd_enter_ping
+		set push, A
+		set push, B
+		set push, C
+		jsr enter
+		set X, 0x1
+		set A, txt_pong
+		set B, 0x7000
+		jsr print
+		set A, [cmd_args_start]
+		set B, [cmd_args_end]
+		add B, 0x1
+		set C, [B]
+		set [B], 0x0
+		set push, B
+		set B, 0x7000
+		jsr print
+		set B, pop
+		set [B], C
+		set C, pop
+		set B, pop
+		set A, pop
+		set pc, pop
 		
 :cmd_enter_clear
 		JSR clrscr
@@ -245,6 +307,7 @@ set pc, pop
 		SET [A], [B]
 		SUB A, 4
 		SET Y, A
+		SET Z, Y
 		JSR fat16_7bitTo16bit
 		SET J, 0
 	:cmd_enter_ls_loop2
