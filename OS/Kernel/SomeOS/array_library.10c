@@ -8,7 +8,7 @@
 set push, x
 set push, y
 set push, z
-set x, c
+set x, b
 mul x, c			;gets size of array in words
 add x, 3			;adds space for array length indicator word at beginning of memory, used to delete the array and 'remember' its dimensions
 set push, a			;puts real a in stack
