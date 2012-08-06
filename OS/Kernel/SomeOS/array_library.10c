@@ -1,0 +1,37 @@
+; --------------------------------------------
+; Title:   array_library
+; Author:  Dilbertfan
+; Date:    8/6/2012
+; Version: 
+; --------------------------------------------
+:array_create			;takes a as 'filler', b and c as size of array, returns a as start of array in memory
+set push, x
+set push, y
+set push, z
+set x, c
+mul x, c			;gets size of array in words
+add x, 3			;adds space for array length indicator word at beginning of memory, used to delete the array and 'remember' its dimensions
+set push, a			;puts real a in stack
+set a, x
+JSR mem_alloc
+set y, a
+set a, pop			;gets a back from stack, sets y as place in memory to store the array
+set [y], x			;sets first word in memory to length of whole block, includes itself in word count
+set [y+1], b		;puts dimensions of array in memory
+set [y+2], c
+sub x, 3			;sets x to real length of acuall array data
+set z, y
+add y, 3			;sets y to start of array in memory
+:array_create_start
+ife x, 0
+	set pc, array_create_end
+set [y], a
+add y, 1
+sub x, 1
+set pc, array_create_start
+:array_create_end
+set a, z
+set push, z
+set push, y
+set push, x
+set pc, pop
