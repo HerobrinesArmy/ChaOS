@@ -68,20 +68,14 @@ set pc, pop
 
  
 :printc ; Takes A as the character to print
-        set push, a
-        set push, j
-        set j, [video_cur]
+		SET PUSH, J
+		SET J, [video_cur]
         bor a, 0x7000
-        set [j], a
+        set [J], a
         add [video_cur], 1
-        set push, B
-        set B, [VRAM]
-        add B, 0x180
-        IFE [video_cur], B
+        IFE [video_cur], 0x9180
         	JSR scroll
-        set B, pop
-        set j, pop
-        set a, pop
+        SET J, POP
 		SET PC, POP
  
  
@@ -139,6 +133,7 @@ set pc, pop
 	set push, A
 	set push, B
 	set A, [max_backspace]
+	SET [cmd_args_start], 0
 	:cmd_get_args_loop
 	set B, [A]
 	and B, 0x7F
@@ -161,6 +156,8 @@ set pc, pop
 	:cmd_get_args_end
 	set [cmd_args_end], A
 	sub [cmd_args_end], 0x1
+	IFE [cmd_args_start], 0
+		SET [cmd_args_start], [cmd_args_end]
 	set B, pop
 	set A, pop
 	set pc, pop
@@ -231,7 +228,6 @@ set pc, pop
 :cmd_enter_ping
 		set push, A
 		set push, B
-		set push, C
 		jsr enter
 		set X, 0x1
 		set A, txt_pong
@@ -239,15 +235,10 @@ set pc, pop
 		jsr print
 		set A, [cmd_args_start]
 		set B, [cmd_args_end]
-		add B, 0x1
-		set C, [B]
-		set [B], 0x0
-		set push, B
+		IFE B, A
+			ADD PC, 4
 		set B, 0x7000
 		jsr print
-		set B, pop
-		set [B], C
-		set C, pop
 		set B, pop
 		set A, pop
 		set pc, pop
@@ -256,11 +247,7 @@ set pc, pop
 		JSR clrscr
 		SET [max_backspace], [VRAM]
 		SET [video_cur], [VRAM]
-		SET X, POP
-		SET X, POP
-		SET Y, POP
-		SET B, POP
-		SET A, POP
+		SET X, 1
 		SET PC, POP
 		
 :cmd_enter_ls
@@ -312,14 +299,14 @@ set pc, pop
 		SET J, 0
 	:cmd_enter_ls_loop2
 		IFE [Z], 0
-			ADD PC, 0
+			ADD PC, 9
 		BOR [Z], 0x7000
 		SET A, [Z]
 		JSR printc
 		ADD Z, 1
 		ADD J, 1
 		IFN J, 0xC
-			SUB PC, 10
+			SUB PC, 11
 			
 		ADD I, 1
 		SET A, Y
@@ -340,8 +327,7 @@ set pc, pop
 		SET PC, POP
 		
 :cmd_enter_mkdir
-		SET A, [max_backspace]
-		ADD A, 6
+		SET A, [cmd_args_start]
 		SET PUSH, Z
 		SET PUSH, Y
 		SET PUSH, I
