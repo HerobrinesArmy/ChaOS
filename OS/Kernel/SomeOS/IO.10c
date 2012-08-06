@@ -230,17 +230,29 @@ set pc, pop
 :cmd_enter_ping
 		set push, A
 		set push, B
+		SET PUSH, Z
+		SET B, [cmd_args_start]
+		SUB B, 1
+		SET Z, 0
+		set A, [cmd_args_end]
+		SET PUSH, [A]
+		SUB A, 1
+		ADD Z, 1
+		IFN B, A
+			SUB PC, 6
 		jsr enter
 		set X, 0x1
 		set A, txt_pong
 		set B, 0x7000
 		jsr print
-		set A, [cmd_args_start]
-		set B, [cmd_args_end]
-		IFE B, A
-			ADD PC, 4
-		set B, 0x7000
-		jsr print
+		IFE [cmd_args_end], [cmd_args_start]
+			ADD PC, 6
+		SET A, POP
+		jsr printc
+		SUB Z, 1
+		IFN Z, 0
+			SUB PC, 6
+		SET Z, POP
 		set B, pop
 		set A, pop
 		set pc, pop
