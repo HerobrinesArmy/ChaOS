@@ -86,7 +86,7 @@ SET B, 6000
 HWI [clockID] ; the count has started!
 SET A, 1
 HWI [clockID]
-IFN C, 500
+IFN C, 100
 	SUB PC, 5
 
 jsr fs_init

@@ -1,0 +1,98 @@
+; --------------------------------------------
+; Title:   floppy test
+; Author:  Liraal
+; Date:    2012-08-06
+; Version: 0x1
+; --------------------------------------------
+#segment data
+	:floppyID 
+		dat 0x0
+
+#segment code
+; ========================================================================
+; user unit test code function
+; ========================================================================
+  :detect_floppy
+        hwn z
+    .loop
+        sub z, 1
+        hwq z
+        ife b,0x74FA
+            ife a,0x4CAE
+                set pc, .found
+        ifn z, 0
+            set pc, .loop
+    .notfound
+        set z, NO_DEVICE
+    .found
+        set [floppyID], z
+        set pc, unit_test
+
+:unit_test
+
+    ; enter unit test code here. you can jump to .pass or .fail
+    ; to signal success or failure
+    
+    ; unit tests will also fail after 1,000,000 cycles by default
+    
+		set [0x200], 0xffff    
+    	set A, 0x11
+    	set B, 0x0
+    	set C, 0x1
+    	set X, 0x2000
+    	hwi [floppyID]
+    	set A, 0x10
+    	set B, 0x0
+    	set C, 0x1
+    	set X, 0x2200
+    	hwi [floppyID]
+    	ife [0x2200], 0xffff
+    		set pc, .pass
+    	set pc, .fail
+    	
+.pass:
+    set a, UNIT_TEST_PASS
+    hwi [debugger_device]
+    
+.fail:
+	set a, UNIT_TEST_FAIL
+	hwi [debugger_device]
+
+.hang:
+    set pc, .hang
+
+; ========================================================================
+; unit test support code (debugger device interface)
+; ========================================================================
+#define NO_DEVICE 0xffff
+#define TRIGGER_BREAKPOINT 0
+#define OUTPUT_DIAG_WORD 1
+#define OUTPUT_DIAG_WORD_ZSTRING 2
+#define OUTPUT_DIAG_WORD_PSTRING 3
+#define UNIT_TEST_PASS 4
+#define UNIT_TEST_FAIL 5
+#define SET_PROCESSOR_SPEED 6
+#define GET_PROCESSOR_SPEED 7
+#define RESET_CYCLE_COUNTER 8
+#define GET_CYCLE_COUNTER 9
+
+#segment data
+:debugger_device
+    dat 0
+
+#segment boot
+    :detect_debugger
+        hwn z
+    .loop
+        sub z, 1
+        hwq z
+        ife b,0xdeb9
+            ife a,0x1111
+                set pc, .found
+        ifn z, 0
+            set pc, .loop
+    .notfound
+        set z, NO_DEVICE
+    .found
+        set [debugger_device], z
+        set pc, unit_test

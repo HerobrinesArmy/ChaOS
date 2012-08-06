@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project version="1.7.5" type="test">
+  <name>floppyTest</name>
+  <properties />
+  <references />
+  <files>
+    <file path="floppy.10ctest" />
+  </files>
+</project>
