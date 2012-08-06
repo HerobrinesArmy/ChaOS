@@ -80,11 +80,15 @@ IFN C, 100
 	SUB PC, 5
 
 jsr fs_init
+SET [fs_root], 0xA000
+SET push, [0xA000]
+SET [0xA000], 0xffff
 SET A, 0x11
 SET B, 201
 SET C, 1
-SET X, fs_root
+SET X, 0xA000
 HWI [floppyID]
+SET [0xA000], pop
 SET A, 1
 SET B, I
 HWI [monitorID]

@@ -190,7 +190,7 @@ jsr mem_alloc
 ife A, 0x0
 	set pc, fs_create_file_oom
 set X, A
-dat 0x0
+;dat 0x0
 set A, [fs_FAT_offset]
 set C, [fs_FAT_number]
 jsr	fs_load_to_mem

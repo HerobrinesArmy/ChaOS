@@ -1,0 +1,37 @@
+; --------------------------------------------
+; Title:   string_lib
+; Author:  Liraal
+; Date:    2012-08-05
+; Version: 0x1
+; --------------------------------------------
+
+:str_find_char	;returns the char's number or 0xffff if not found
+				;input: A - start of string, B - char code, output: C
+set push, A
+set C, 0x0
+.loop
+ife [A], B
+	set pc, .found
+ife [A], 0x0
+	set pc, .end
+add A, 0x1
+set pc, .loop
+.found
+set C, A
+.end
+set A, pop
+set pc, pop
+
+:str_count_char	;input: A - start of string, B - char code, output: C - number of iterations of char in the string
+set push, A
+set C, 0x0
+.loop
+ife [A], B
+	add C, 0x1
+ife [A], 0x0
+	set pc, .end
+add A, 0x1
+set pc, .loop
+.end
+set A, pop
+set pc, pop

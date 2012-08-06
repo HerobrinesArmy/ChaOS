@@ -25,5 +25,6 @@
     <file path="cluster_manager.10c" />
     <file path="multitasking.10c" />
     <file path="interrupt.10c" />
+    <file path="string_lib.10c" />
   </files>
 </project>
