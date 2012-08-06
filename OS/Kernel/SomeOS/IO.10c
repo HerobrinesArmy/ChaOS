@@ -55,6 +55,8 @@ set pc, pop
         set [j], i
         add a, 1
         add j, 1
+        IFE J, 0x9180
+        	JSR scroll
         set pc, writeLoop
  
 :continue2
@@ -563,15 +565,15 @@ set pc, pop
       SET [X], [Y]
       ADD X, 1
       ADD Y, 1
-      IFG Y, [VRAM_end]
+      IFG Y, 0x9180
           SET PC, scroll_loop2
       SET PC, scroll_loop1
 
 :scroll_loop2
-	  SET A, 0x7020
+	  SET A, 0x0
       SET [X], A
       ADD X, 1
-      IFG X, [VRAM_end]
+      IFG X, 0x9180
           SET PC, scroll_end
       SET PC, scroll_loop2
 
