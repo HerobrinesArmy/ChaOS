@@ -256,11 +256,7 @@ set pc, pop
 		JSR clrscr
 		SET [max_backspace], [VRAM]
 		SET [video_cur], [VRAM]
-		SET X, POP
-		SET X, POP
-		SET Y, POP
-		SET B, POP
-		SET A, POP
+		SET X, 1
 		SET PC, POP
 		
 :cmd_enter_ls
@@ -340,8 +336,7 @@ set pc, pop
 		SET PC, POP
 		
 :cmd_enter_mkdir
-		SET A, [max_backspace]
-		ADD A, 6
+		SET A, [cmd_args_start]
 		SET PUSH, Z
 		SET PUSH, Y
 		SET PUSH, I
