@@ -137,5 +137,5 @@ SET PC, start
 :cmd_diskname dat "diskname", 0x0000
 :cmd_format_datafloppy dat "format_datafloppy", 0x0000
 :cmd_ping dat "ping", 0x0
-:txt_pong dat "pong", 0x0
 :cmd_avail_end dat 0x1234
+:txt_pong dat "pong", 0x0
