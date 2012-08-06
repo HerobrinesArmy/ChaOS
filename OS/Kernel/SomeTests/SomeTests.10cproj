@@ -8,5 +8,6 @@
   <files>
     <file path="TEA.10ctest" />
     <file path="memory_manager.10ctest" />
+    <file path="floppy.10ctest" />
   </files>
 </project>

@@ -54,6 +54,16 @@ SET [floppyID], J
 SET PC, setScreen
 
 :init
+;root dir fix...
+SET [fs_root], 0xA000
+SET push, [0xA000]
+SET [0xA000], 0xffff
+SET A, 0x11
+SET B, 201
+SET C, 1
+SET X, 0x0
+HWI [floppyID]
+SET [0xA000], pop
 SET B, 0x7120
 SET [video_cur], [VRAM]
 SET [line], [VRAM]
@@ -76,19 +86,10 @@ SET B, 6000
 HWI [clockID] ; the count has started!
 SET A, 1
 HWI [clockID]
-IFN C, 100
+IFN C, 500
 	SUB PC, 5
 
 jsr fs_init
-SET [fs_root], 0xA000
-SET push, [0xA000]
-SET [0xA000], 0xffff
-SET A, 0x11
-SET B, 201
-SET C, 1
-SET X, 0xA000
-HWI [floppyID]
-SET [0xA000], pop
 SET A, 1
 SET B, I
 HWI [monitorID]
