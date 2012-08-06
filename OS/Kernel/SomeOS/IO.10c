@@ -312,14 +312,14 @@ set pc, pop
 		SET J, 0
 	:cmd_enter_ls_loop2
 		IFE [Z], 0
-			ADD PC, 0
+			ADD PC, 9
 		BOR [Z], 0x7000
 		SET A, [Z]
 		JSR printc
 		ADD Z, 1
 		ADD J, 1
 		IFN J, 0xC
-			SUB PC, 10
+			SUB PC, 11
 			
 		ADD I, 1
 		SET A, Y

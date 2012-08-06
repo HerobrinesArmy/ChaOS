@@ -1,11 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<solution name="Kernel" path="E:\0x10c\HRSDL\OS\Kernel\Kernel.10csln" currentFile="SomeOS\memory_manager.10c">
+<solution name="Kernel" path="E:\0x10c\HRSDL\ChaOS\OS\Kernel\Kernel.10csln" currentFile="SomeOS\IO.10c">
   <openFiles>
     <file path="SomeOS\main.10c" />
     <file path="SomeOS\IO.10c" />
     <file path="SomeOS\ABIchecks.10c" />
     <file path="SomeOS\memory_manager.10c" />
     <file path="SomeOS\cluster_manager.10c" />
-    <file path="SomeOS\cluster_management.10c" />
   </openFiles>
 </solution>
