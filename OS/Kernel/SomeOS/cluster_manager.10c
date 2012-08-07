@@ -494,6 +494,7 @@ set push, J
 set push, X
 set push, A
 jsr fs_load_file
+dat 0
 set X, A
 set A, peek
 jsr fs_get_free_dir_entry
