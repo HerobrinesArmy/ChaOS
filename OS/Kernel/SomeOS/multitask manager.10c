@@ -1,4 +1,4 @@
-:new_program		
+:new_program				;DEPRECATED, WILL REMOVE SOON AS LIRAAL FINISHES OTHER MULTITASK IMPLEMENTATION
 SET PUSH, Y
 SET Y, prog1
 :progmakeloop

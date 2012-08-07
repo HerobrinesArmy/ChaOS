@@ -35,3 +35,5 @@ set push, z
 set push, y
 set push, x
 set pc, pop
+
+:array_read
