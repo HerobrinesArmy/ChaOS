@@ -125,6 +125,7 @@ SET PC, start
 :txt_error dat "ERROR: "
 :txt_oom dat "Out of Memory", 0x0000
 :txt_noDsk dat "No Disk Inserted", 0x0
+:txt_bootDsk dat "OS disk detected, aborting", 0
 :txt_Availcmds dat "Available commands: ", 0x0000
 :cmd_ls dat "ls", 0x0000
 :cmd_mkdir dat "mkdir", 0x0000

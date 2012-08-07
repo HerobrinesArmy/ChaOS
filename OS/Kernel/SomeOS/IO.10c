@@ -361,8 +361,7 @@ set pc, pop
 		SET A, Z
 		:cmd_enter_mkdir_loop
 		SET Z, [A]
-		XOR Z, 0x7000
-		IFE Z, 0x11
+		IFE A, [cmd_args_end]
 			SET PC, cmd_enter_mkdir_loop_end
 		SET [Y], Z
 		ADD A, 1
@@ -442,8 +441,6 @@ set pc, pop
 		JSR print
 		SET PC, cmd_enter_load_exit
 		
-		SET A, 2
-		HWI [floppyID]
 		SET A, 1
 		HWI [floppyID]
 		SET A, B
@@ -453,6 +450,17 @@ set pc, pop
 		SET B, 0
 		SET C, 1
 		HWI [floppyID]
+		
+		SET A, X
+		JSR mem_free
+		SET A, [X]
+		IFN A, 0xCB82 ; If disk is OS disk
+			ADD PC, 0xA
+		JSR enter
+		SET A, txt_bootDsk
+		SET B, 0x7000
+		JSR print
+		SET PC, cmd_enter_load_exit
 		
 		:cmd_enter_load_exit
 		SET C, POP
