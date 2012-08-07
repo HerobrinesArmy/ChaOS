@@ -442,6 +442,8 @@ set pc, pop
 		JSR print
 		SET PC, cmd_enter_load_exit
 		
+		SET A, 2
+		HWI [floppyID]
 		SET A, 1
 		HWI [floppyID]
 		SET A, B

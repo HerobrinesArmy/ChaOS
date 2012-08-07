@@ -72,12 +72,6 @@ add [VRAM_end], 0x1ff
 SET [max_backspace], [video_cur]
 JSR mem_init
 
-SET A, 256
-JSR mem_alloc
-SET B, A
-SET I, B
-SET A, 4
-HWI [monitorID] 
 JSR logo_loadImage
 JSR logo_printASCII
 
@@ -91,10 +85,8 @@ IFN C, 100
 
 jsr fs_init
 SET A, 1
-SET B, I
+SET B, 0
 HWI [monitorID]
-SET A, B
-JSR mem_free
 JSR clrscr
 
 SET A, txt_Welcome
