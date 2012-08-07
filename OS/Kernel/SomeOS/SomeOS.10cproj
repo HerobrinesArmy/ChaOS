@@ -17,10 +17,8 @@
     <file path="displaylibs.10c" />
     <file path="startup.10c" />
     <file path="ABIchecks.10c" />
-    <file path="multitask manager.10c" />
     <file path="fat16.10c" />
     <file path="logo.10c" />
-    <file path="vector_library.10c" />
     <file path="cluster_manager.10c" />
     <file path="multitasking.10c" />
     <file path="interrupt.10c" />
