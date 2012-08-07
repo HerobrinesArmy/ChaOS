@@ -239,7 +239,7 @@ set pc, pop
 		SUB A, 1
 		ADD Z, 1
 		IFN B, A
-			SUB PC, 6
+			SUB PC, 5
 		jsr enter
 		SET A, POP
 		jsr printc
