@@ -30,5 +30,4 @@ SET B, 1
 SET A, POP
 SET C, [A]
 SET I, POP
-JSR new_program
 SET PC, POP

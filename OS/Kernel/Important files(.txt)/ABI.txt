@@ -14,7 +14,8 @@ For easy creation of First RAM entry (for Win Vista/7 Users)
 
 
 Breakdown of RAM entries and what they mean
- 1st RAM entry- used to store the value of a program, and what priveliges it recieves
+1st RAM entry- size of the program
+ 2nd RAM entry- used to store the value of a program, and what priveliges it recieves
 0-priority, 0 (background), through 7 (uses ALL cpu cycles)
 0-''
 0-''
@@ -31,7 +32,7 @@ Breakdown of RAM entries and what they mean
 0-''
 0-''
 0-''
-2-6 RAM entries- Name of the program, using 10 char into 5 word system (i.e. without color, because "hi" only needs one word because color isnt stored)
+3-7 RAM entries- Name of the program, using 10 char into 5 word system (i.e. without color, because "hi" only needs one word because color isnt stored)
 0
 0
 0

@@ -158,8 +158,6 @@ set pc, pop
 	:cmd_get_args_end
 	set [cmd_args_end], A
 	sub [cmd_args_end], 0x1
-	IFE [cmd_args_start], 0
-		SET [cmd_args_start], [cmd_args_end]
 	set B, pop
 	set A, pop
 	set pc, pop
@@ -213,10 +211,10 @@ set pc, pop
 		IFE Y, 1
 			JSR cmd_enter_clear
 		SET A, [max_backspace]
-		SET B, cmd_ping
+		SET B, cmd_echo
 		JSR startswith
 		IFE Y, 1
-			JSR cmd_enter_ping			
+			JSR cmd_enter_echo			
 		JSR enter
 		IFE X, 0
 			JSR cmd_enter_badcmd	
@@ -227,10 +225,12 @@ set pc, pop
 		SET A, POP
 		SET PC, POP
 		
-:cmd_enter_ping
+:cmd_enter_echo
 		set push, A
 		set push, B
 		SET PUSH, Z
+		IFE 0, [cmd_args_start]
+			SET PC, cmd_enter_echo_end
 		SET B, [cmd_args_start]
 		SUB B, 1
 		SET Z, 0
@@ -241,17 +241,13 @@ set pc, pop
 		IFN B, A
 			SUB PC, 6
 		jsr enter
-		set X, 0x1
-		set A, txt_pong
-		set B, 0x7000
-		jsr print
-		IFE [cmd_args_end], [cmd_args_start]
-			ADD PC, 6
 		SET A, POP
 		jsr printc
 		SUB Z, 1
 		IFN Z, 0
 			SUB PC, 6
+		:cmd_enter_echo_end
+		SET X, 1
 		SET Z, POP
 		set B, pop
 		set A, pop
@@ -432,8 +428,35 @@ set pc, pop
 		
 :cmd_enter_load
 		SET X, 1
-		SET A, [video_cur]
-		ADD A, 5
+		SET PUSH, A
+		SET PUSH, B
+		SET PUSH, X
+		SET PUSH, C
+		SET A, 0
+		HWI [floppyID]
+		IFE B, 1
+			ADD PC, 0xA
+		JSR enter
+		SET A, txt_noDsk
+		SET B, 0x7000
+		JSR print
+		SET PC, cmd_enter_load_exit
+		
+		SET A, 1
+		HWI [floppyID]
+		SET A, B
+		JSR mem_alloc
+		SET X, A
+		SET A, 0x10
+		SET B, 0
+		SET C, 1
+		HWI [floppyID]
+		
+		:cmd_enter_load_exit
+		SET C, POP
+		SET X, POP
+		SET B, POP
+		SET A, POP
 		SET PC, POP
 		
 :cmd_enter_help
