@@ -123,10 +123,10 @@ SET [max_backspace], [video_cur]
 SET PC, start
 
 #segment data
-:monitorID dat 0x0000
-:keyboardID dat 0x0000
-:floppyID dat 0x0000
-:clockID dat 0x0000
+:monitorID dat 0xffff
+:keyboardID dat 0xffff
+:floppyID dat 0xffff
+:clockID dat 0xffff
 :fs_root	dat 0xffff
 :video_cur dat 0x0000
 :VRAM     dat 0x9000
