@@ -14,14 +14,13 @@ DAT 0x200, 0x0001, 0x00C8, 0x0000, 0x05A0, 0x0000, 0x0003, 0x0002, 0x0028, 0x001
 DAT 0x736f, 0x7f6c ;serial number
 :codestart
 HWN I
-SET J, 0
-:setScreen
-ADD J, 1
-IFE I, J
+:set_hardware
+IFE I, 0
 	SET PC, init
-HWQ J
-IFE A, 0xB402
-	IFE B, 0x12D0
+SUB I, 1
+HWQ I
+IFE B, 0x12D0
+	IFE A, 0xB402
 		SET PC, clock_found
 IFE B, 0x7349
 	IFE A, 0xF615
@@ -32,26 +31,30 @@ IFE B, 0x30CF
 IFE B, 0x74FA
 	IFE A, 0x4CAE
 		SET PC, floppy_found
-SET PC, setScreen
+SET PC, set_hardware
+
 :clock_found
-SET [clockID], J
-SET PC, setScreen
+SET [clockID], I
+SET PC, set_hardware
+
 :monitor_found
+SET [monitorID], I
 SET A, 0
 SET B, [VRAM]
-SET [monitorID], J
-HWI J
-SET PC,setScreen
+HWI I
+SET PC, set_hardware
+
 :keyboard_found
+SET [keyboardID], I
 SET A, 0
-SET [keyboardID], J
-HWI J
-SET PC, setScreen
+HWI I
+SET PC, set_hardware
+
 :floppy_found
+SET [floppyID], I
 ;ife [fs_drive], 0x0
-	set [fs_drive], J
-SET [floppyID], J
-SET PC, setScreen
+	SET [fs_drive], I
+SET PC, set_hardware
 
 :init
 ;root dir fix...
