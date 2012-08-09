@@ -1,108 +1,90 @@
 :clrscr
-        set push, a
-        set push, i
-        set push, j
-       
-        set j, [VRAM]
-:clearAll
-        set a, 0x0000
-        set [j], a
-        add j, 1
-        ifg j, [VRAM_end]
-                set pc, clearEnd
-        set pc, clearAll
-:clearEnd
-       
-        set j, pop
-        set i, pop
-        set a, pop
-		SET PC, POP
+	set push, i
+	set push, j
+	set j, [VRAM_end]
+	set i, [VRAM_end]
+	sub i, [VRAM]
+	add i, 1
+	:__clrscr__loop
+	std [j], 0
+	ifn i, 0
+		set pc, __clrscr__loop
+	set j, pop
+	set i, pop
+	set pc, pop
 		
 :draw_cell ;takes X as X-coordinate, Y as Y-coordinate, and C for the character to draw
-set push, x
-set push, y
-set push, c
-
-ifg y, 11
+	ifg y, 11
+		set pc, pop
+	ifg x, 31
+		set pc, pop
+	set push, y
+	shl y, 5
+	add y, x
+	add y, [VRAM]
+	set [y], c
+	set y, pop
 	set pc, pop
-ifg x, 31
-	set pc, pop
-
-mul y, 32
-add y, x
-set push, A
-set A, [VRAM]
-add A, Y
-set [A], c
-set A, pop
-
-set c, pop
-set y, pop
-set x, pop
-set pc, pop
 
 :print  ; takes A as the start of the text, and B is text color (0 == NONE)
-        set push, a
-        set push, i
-        set push, j
-       
-        set j, [video_cur]
-:writeLoop
-		SET I, [A]
-        ife I, 0x0000																																						
-                set pc, continue2
-        BOR I, B
-        set [j], i
-        add a, 1
-        add j, 1
-        IFE J, 0x9180
-        	JSR scroll
-        set pc, writeLoop
- 
-:continue2
-        SET [video_cur], J
-        JSR enter
-       
-        set j, pop
-        set i, pop
-        set a, pop
-        SET PC, POP
-
+	set push, a
+	set push, i
+	set push, j
+	
+	; Switch from A to I, so that STI instructions can be used.
+	set i, a
+	set j, [video_cur]
+	:__print__loop
+	set a, [i]
+	ife a, 0																																	
+		set pc, __print__done
+	bor a, b
+	sti [j], a
+	ife j, 0x9180
+		jsr scroll
+	set pc, __print__loop
+	:__print__done
+	set [video_cur], j
+	jsr enter
+	set j, pop
+	set i, pop
+	set a, pop
+	set pc, pop
  
 :printc ; Takes A as the character to print
-		SET PUSH, J
-		SET J, [video_cur]
-        bor a, 0x7000
-        set [J], a
-        add [video_cur], 1
-        IFE [video_cur], 0x9180
-        	JSR scroll
-        SET J, POP
-		SET PC, POP
- 
- 
+	set push, j
+	set push, a
+	bor a, 0x7000
+	set j, [video_cur]
+	set [j], a
+	add [video_cur], 1
+	ife [video_cur], 0x9180
+		jsr scroll
+	set a, pop
+	set j, pop
+	set pc, pop
+
 :getchar
-        set push, a
-        :getcharLoop
-        set a, 1
-        hwi [keyboardID]
-        ife c, 0
-                set pc, getcharLoop
-        set a, pop
-		SET PC, POP
+	set push, a
+	set a, 1
+	:__getchar__loop
+	hwi [keyboardID]
+	ife c, 0
+		set pc, __getchar__loop
+	set a, pop
+	set pc, pop
  
 :backspace
-		IFE [max_backspace], [video_cur]
-			SET PC, POP
-        sub [video_cur], 0x0001
-        SET PUSH, A
-        SET A, 0x20
-        JSR printc
-        SET A, POP
-        sub [video_cur], 0x0001
-        SET PC, POP
+	ife [max_backspace], [video_cur]
+		set pc, pop
+	sub [video_cur], 1
+	set push, a
+	set a, 0x20
+	jsr printc
+	set a, pop
+	sub [video_cur], 1
+	set pc, pop
 
- 
 :enter
         :enterStart
         set push, a
@@ -475,15 +457,30 @@ set pc, pop
 		JSR enter
 		SET X, 1
 		SET Z, txt_Availcmds
+	:cmd_enter_help_startloop
 		SET A, [Z]
-	:cmd_enter_help_loop
 		IFE A, 0
-			SET A, 0x2C
+			SET PC, cmd_enter_help_startdone
 		JSR printc
 		ADD Z, 1
+		SET PC, cmd_enter_help_startloop
+	:cmd_enter_help_startdone
+		ADD Z, 1
+	:cmd_enter_help_cmdsloop
 		SET A, [Z]
-		IFN A, 0x1234
-			SET PC, cmd_enter_help_loop
+		IFE A, 0
+			SET PC, cmd_enter_help_comma
+		JSR printc
+	    ADD Z, 1
+		SET PC, cmd_enter_help_cmdsloop
+	:cmd_enter_help_comma
+		ADD Z, 1
+		IFE [Z], 0x1234
+			SET PC, cmd_enter_help_done
+	    SET A, 0x2c
+	    JSR printc
+	    SET PC, cmd_enter_help_cmdsloop
+	:cmd_enter_help_done
 		SET Z, POP
 		SET A, POP
 		SET PC, POP
@@ -596,40 +593,31 @@ set pc, pop
 		SET Z, POP
 		SET PC, POP
 		
-; Scrolls the screen one line (working)
+; Scrolls the screen one line
 :scroll
-      SET PUSH, X
-      SET PUSH, Y
-      SET PUSH, A
+	set push, i
+	set push, j
+	
+	set i, [VRAM] ; Set I to the start of video memory
+	set j, i
+	add j, 0x20   ; Set J to one line down from I
+	
+	:__scroll__move_everything_one_line_up
+	sti [i], [j]
+	ifn j, 0x9181
+		set pc, __scroll__move_everything_one_line_up
+	
+	:__scroll__clear_last_line
+	sti [i], 0
+	ifn i, 0x9181
+		set pc, __scroll__clear_last_line
+	
+	sub [video_cur], 0x20
+	sub [max_backspace], 0x20
+	set j, pop
+	set i, pop
+	set pc, pop
 
-      SET X, [VRAM] ; Set X to the video memory
-      SET Y, 0x20 ; Set Y to the second line in the video memory
-	  ADD Y, X
-
-:scroll_loop1
-      SET [X], [Y]
-      ADD X, 1
-      ADD Y, 1
-      IFG Y, 0x9180
-          SET PC, scroll_loop2
-      SET PC, scroll_loop1
-
-:scroll_loop2
-	  SET A, 0x0
-      SET [X], A
-      ADD X, 1
-      IFG X, 0x9180
-          SET PC, scroll_end
-      SET PC, scroll_loop2
-
-:scroll_end
-      SUB [video_cur], 0x20
-      SUB [max_backspace], 0x20
-      SET A, POP
-      SET Y, POP
-      SET X, POP
-      SET PC, POP
- 
 :null   dat 0x0
 :screen dat 0x0
 :line   dat 0x0
