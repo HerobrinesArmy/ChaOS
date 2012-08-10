@@ -274,6 +274,7 @@ set pc, pop
 		SET B, I
 		JSR enter
 		JSR fs_get_dir_entry
+		;dat 0x0
 		IFE [A], 0x000
 			SET PC, cmd_enter_ls_loop_end
 		IFE A, 0
