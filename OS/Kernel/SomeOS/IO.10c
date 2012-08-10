@@ -546,22 +546,27 @@
 
 :read
 		SET PUSH, A
+		set push, b
 		SET PUSH, C
         :readLoop
+		set b, [video_cur]
+        set [b], 0x709f ; white-on-black, blinking, full box
         JSR getChar
-        ife c, 0x0010
-                JSR backspace
-        ife c, 0x0010
-                set pc, readLoop   
-
+        set [b], 0
         ife c, 0x0011
-                set pc, readDone
+        	set pc, readDone
+        ifn c, 0x0010
+        	set pc, not_backspace
+        jsr backspace
+        set pc, readLoop
+        not_backspace:
         SET A, C
         JSR printc
         set pc, readLoop
         :readDone
         JSR cmd_enter
         SET C, POP
+        set b, pop
         SET A, POP
         SET PC, POP
         
