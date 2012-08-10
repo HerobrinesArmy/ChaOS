@@ -12,14 +12,15 @@
 
 :fs_FAT_number		dat 0x3
 :fs_reserved_number	dat 0xC8
-:fs_FAT_offset		dat 0xC8
-:fs_root_offset		dat 0xCB
+:fs_FAT_offset		dat 0xC9
+:fs_root_offset		dat 0xCC
 :fs_FAT_memory		dat 0x0
 :fs_drive			dat 0x0
 :fs_error_code		dat 0x0 ;0x1 is OOM, 0x2 Not Enough Space, 0xffff No Idea What's Wrong
 :fs_dir_entry		dat 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0
 
 :fs_init		;initializes the filesystem: allocates memory areas, reads the bootsector
+set pc, pop
 set push, A
 set A, 0x0
 add A, 0x8
@@ -47,7 +48,6 @@ set pc, pop
 set push, A
 set push, B
 set push, X
-add A, [fs_root_offset]
 set B, A
 set A, 0x10
 ;set X, 0x7000
@@ -63,7 +63,6 @@ set pc, pop
 set push, A
 set push, B
 set push, X
-add A, [fs_root_offset]
 set B, A
 set A, 0x11
 hwi [fs_drive]
@@ -88,10 +87,10 @@ ife A, 0x0
 set X, A
 set C, [fs_FAT_number]
 set A, [fs_FAT_offset]
-sub A, [fs_root_offset]
 jsr	fs_load_to_mem
+;dat 0x0
 add B, X
-set C, [Y]
+set C, [B]
 set A, X
 jsr mem_free
 set Y, pop
@@ -127,7 +126,6 @@ ife A, 0x0
 	set pc, fs_get_free_cluster_oom
 set X, A
 set A, [fs_FAT_offset]
-sub A, [fs_root_offset]
 set C, [fs_FAT_number]
 ;dat 0x0
 jsr	fs_load_to_mem
@@ -304,7 +302,9 @@ set I, 0x0
 set push, A
 set C, A
 :fs_load_file_count_sectors
+;dat 0x0
 jsr fs_get_FAT_entry
+;dat 0
 add I, 0x1
 ife C, 0xffff
 	set pc, fs_load_file_load
@@ -315,7 +315,9 @@ set pc, fs_load_file_count_sectors
 :fs_load_file_load
 set A, I
 mul A, 0x200
+;dat 0
 jsr mem_alloc
+;dat 0
 ife A, 0x0
 	set pc, fs_load_file_oom
 set X, A
@@ -326,7 +328,9 @@ set C, A
 jsr fs_get_FAT_entry
 set push, C
 set C, 0x1
+;dat 0
 jsr fs_load_to_mem
+;dat 0
 set C, pop
 add X, 0x200
 add I, 0x1
@@ -494,7 +498,6 @@ set push, J
 set push, X
 set push, A
 jsr fs_load_file
-dat 0
 set X, A
 set A, peek
 jsr fs_get_free_dir_entry
