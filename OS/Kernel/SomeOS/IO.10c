@@ -25,7 +25,7 @@
 	set [y], c
 	set y, pop
 	set pc, pop
-
+	
 :print  ; takes A as the start of the text, and B is text color (0 == NONE)
 	set push, a
 	set push, i
@@ -50,7 +50,7 @@
 	set i, pop
 	set a, pop
 	set pc, pop
- 
+	
 :printc ; Takes A as the character to print
 	set push, j
 	set push, a
@@ -63,7 +63,7 @@
 	set a, pop
 	set j, pop
 	set pc, pop
-
+	
 :getchar
 	set push, a
 	set a, 1
@@ -73,7 +73,7 @@
 		set pc, __getchar__loop
 	set a, pop
 	set pc, pop
- 
+	
 :backspace
 	ife [max_backspace], [video_cur]
 		set pc, pop
@@ -84,7 +84,7 @@
 	set a, pop
 	sub [video_cur], 1
 	set pc, pop
-
+	
 :enter
         :enterStart
         set push, a
@@ -475,7 +475,7 @@
 		SET PC, cmd_enter_help_cmdsloop
 	:cmd_enter_help_comma
 		ADD Z, 1
-		IFE [Z], 0x1234
+		IFE Z, cmd_avail_end
 			SET PC, cmd_enter_help_done
 	    SET A, 0x2c
 	    JSR printc
@@ -545,32 +545,32 @@
 		set pc, end
 
 :read
-		SET PUSH, A
-		set push, b
-		SET PUSH, C
-        :readLoop
-		set b, [video_cur]
-        set [b], 0x709f ; white-on-black, blinking, full box
-        JSR getChar
-        set [b], 0
-        ife c, 0x0011
-        	set pc, readDone
-        ifn c, 0x0010
-        	set pc, not_backspace
-        jsr backspace
-        set pc, readLoop
-        not_backspace:
-        SET A, C
-        JSR printc
-        set pc, readLoop
-        :readDone
-        JSR cmd_enter
-        SET C, POP
-        set b, pop
-        SET A, POP
-        SET PC, POP
-        
-:startswith ; A is memory location of text, B is memory location of command, Y is return value
+	set push, a
+	set push, b
+	set push, c
+	:__read__loop
+	set b, [video_cur]
+	set [b], 0x709f     ; white-on-black, blinking, full box
+	jsr getChar
+	set [b], 0
+	ife c, 0x0011
+		set pc, __read__done
+	ifn c, 0x0010
+		set pc, __read__echo_to_screen
+	jsr backspace
+	set pc, __read__loop
+	:__read__echo_to_screen
+	set a, c
+	jsr printc
+	set pc, __read__loop
+	:__read__done
+	jsr cmd_enter
+	set c, pop
+	set b, pop
+	set a, pop
+	set pc, pop
+	
+:startswith    ; A is memory location of text, B is memory location of command, Y is return value
 	SET PUSH, Z
 	set y, 0
 	
@@ -605,7 +605,7 @@
 	
 	set i, [VRAM] ; Set I to the start of video memory
 	set j, i
-	add j, 0x20   ; Set J to one line down from I
+	add j, 32   ; Set J to one line down from I
 	
 	:__scroll__move_everything_one_line_up
 	sti [i], [j]

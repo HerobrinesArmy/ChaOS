@@ -123,35 +123,58 @@ SET [max_backspace], [video_cur]
 SET PC, start
 
 #segment data
+
+; Hardware IDs.
+;   These MUST start out as 0xffff.
+;   
+;   That way, if the hardware is not present but we try to do stuff
+;   with that hardware, it won't do random stuff with some other
+;   hardware, like corrupting data on a floppy disk or something.
+;   
+;   For 0xffff to cause that problem, you need 65,536 hardware
+;   devices attached so that it can do random stuff to device 65,535.
+;   Any other choice will cause mayhem with even less hardware
+;   devices attached, which raises the probability of failure
+;   unnecessarily.
+;   
+;   Plus, 0xffff is -1, which is a common in-band error signal.
 :monitorID dat 0xffff
 :keyboardID dat 0xffff
 :floppyID dat 0xffff
 :clockID dat 0xffff
+
 :fs_root	dat 0xffff
+
+; Text screen metadata.
 :video_cur dat 0x0000
 :VRAM     dat 0x9000
 :VRAM_end dat 0x0
+
 :max_backspace dat 0x0000
 :folder_cur dat 0x0000
 :cmd_args_start	dat 0x0
 :cmd_args_end	dat 0x0
 :folder_tree dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
-:txt_Welcome dat "Welcome to the CHAOS CLI", 0x0000
-:txt_Badcmd dat "Unrecognized command", 0x0000
-:txt_version dat "Version 0.1", 0x0000
-:txt_done dat "done", 0x0000
-:txt_error dat "ERROR: "
-:txt_oom dat "Out of Memory", 0x0000
-:txt_noDsk dat "No Disk Inserted", 0x0
-:txt_bootDsk dat "OS disk detected, aborting", 0
-:txt_Availcmds dat "Available commands: ", 0x0000
-:cmd_ls dat "ls", 0x0000
-:cmd_mkdir dat "mkdir", 0x0000
-:cmd_clear dat "clear", 0x0000
-:cmd_version dat "version", 0x0000
-:cmd_help dat "help", 0x0000
-:cmd_load dat "load", 0x0000
-:cmd_diskname dat "diskname", 0x0000
-:cmd_format_datafloppy dat "format_datafloppy", 0x0000
-:cmd_echo dat "echo", 0x0
-:cmd_avail_end dat 0x1234
+
+; Shell messages.
+:txt_Welcome   dat "Welcome to the CHAOS CLI", 0
+:txt_Badcmd    dat "Unrecognized command", 0
+:txt_version   dat "Version 0.1", 0
+:txt_done      dat "done", 0
+:txt_error     dat "ERROR: "
+:txt_oom       dat "Out of Memory", 0
+:txt_noDsk     dat "No Disk Inserted", 0
+:txt_bootDsk   dat "OS disk detected, aborting", 0
+:txt_Availcmds dat "Available commands: ", 0
+
+; Shell commands.
+:cmd_ls                 dat "ls", 0
+:cmd_mkdir              dat "mkdir", 0
+:cmd_clear              dat "clear", 0
+:cmd_version            dat "version", 0
+:cmd_help               dat "help", 0
+:cmd_load               dat "load", 0
+:cmd_diskname           dat "diskname", 0
+:cmd_format_datafloppy  dat "format_datafloppy", 0
+:cmd_echo               dat "echo", 0
+:cmd_avail_end
