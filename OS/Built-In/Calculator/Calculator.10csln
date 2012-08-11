@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<solution>
+  <name>Calculator</name>
+  <properties>
+    <property name="emuLoad.projectName">main</property>
+    <property name="emuLoadMode">project</property>
+  </properties>
+  <projects>
+    <project path="main\main.10cproj" />
+  </projects>
+</solution>

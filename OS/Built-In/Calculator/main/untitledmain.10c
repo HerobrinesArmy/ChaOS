@@ -1,0 +1,96 @@
+; --------------------------------------------
+; Title:   Calculator
+; Author:  Bone Storm (HRSDL)
+; Date:    8/10/2012
+; Version: 0.1
+; --------------------------------------------
+
+theData: dat "5+10*2/3-5",0x0000
+
+SET PUSH, 0
+SET A,0
+SET B,0
+SET I,0
+
+:BToEnd
+ADD B,1
+IFN [theData+B],0x0000
+SET PC, BToEnd
+SET PC, StartLoop
+:StartLoop
+SUB B,1
+SET J,1;J will keep track of the digit place
+:loopNum1
+SET C, [theData+B]
+;Check to see if the string is done
+IFE B,-1
+SET PC, calculate
+;Check to see if there is an operation sign
+IFE C, '-'
+SET PC, pushA
+IFE C, '+'
+SET PC, pushA
+IFE C, '*'
+SET PC, pushA
+IFE C, '/'
+SET PC, pushA
+;Check to see if C is a number
+SET Z,1
+IFE C, '1'
+SET Z, 0
+IFE C, '2'
+SET Z, 0
+IFE C, '3'
+SET Z, 0
+IFE C, '4'
+SET Z, 0
+IFE C, '5'
+SET Z, 0
+IFE C, '6'
+SET Z, 0
+IFE C, '7'
+SET Z, 0
+IFE C, '8'
+SET Z, 0
+IFE C, '9'
+SET Z, 0
+IFE C, '0'
+SET Z, 0
+IFE Z,1
+SET PC, error
+
+SUB C, 0x30
+MUL C,J
+MUL J,10
+ADD A, C
+SUB B, 1
+SET PC, loopNum1
+
+:pushA
+SET PUSH, A
+SET PUSH, C
+SET A,0
+SET PC, StartLoop
+
+:calculate
+:calculateLoop
+SET I, POP
+SET B, POP
+IFE I,0
+SET PC,end
+IFE I, '+'
+ADD A,B
+IFE I, '-'
+SUB A,B
+IFE I, '*'
+MUL A,B
+IFE I, '/'
+DIV A,B
+SET PC,calculateLoop
+
+:error
+SET PC,error
+
+:end;If the program ends here, Register A should hold the correct result
+SET PC,end
+
