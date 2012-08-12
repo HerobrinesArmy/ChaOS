@@ -2,28 +2,61 @@
     ; Title:   TEA (16-bit)
     ; Author:  Liraal
     ; Date:    2012-06-25
-    ; Version: 0x1 (Working)
+    ; Version: 0x2 (Working)
     ; For use within Herobrine's Army
     ;--------------------------------------------
      
-    ;EXEC CODE===================================
-    set [v0], 0x0000
-    set [v1], 0x0000
-    jsr encrypt
-    jsr decrypt
-    set i, [v0]
-    set j, [v1]
-    sub pc, 1
-     
     ;ROUTINES====================================
-    :encrypt        ;params: v0, v1
+    ;IMPORTANT: A correct string to encrypt 
+    ;must contain an even number of chars 
+    ;or end with two '0's instead of one.
+    ;============================================
+    :tea_encrypt_string ;params: A - address of 1. byte of input, B - address of 1. byte of output
+    set push, A
+    set push, B
+    .loop
+    set [v0], [A]
+    add A, 0x1
+    set [v1], [A]
+    add A, 0x1
+    jsr tea_encrypt
+    set [B], [v0]
+    add B, 0x1
+    set [B], [v1]
+    add B, 0x1
+    ifn [A], 0x0
+    	set pc, .loop
+    set B, pop
+    set A, pop
+    set pc, pop
+    
+    :tea_decrypt_string ;params: A - address of 1. byte of input, B - address of 1. byte of output
+    set push, A
+    set push, B
+    .loop
+    set [v0], [A]
+    add A, 0x1
+    set [v1], [A]
+    add A, 0x1
+    jsr tea_decrypt
+    set [B], [v0]
+    add B, 0x1
+    set [B], [v1]
+    add B, 0x1
+    ifn [A], 0x0
+    	set pc, .loop
+    set B, pop
+    set A, pop
+    set pc, pop
+    
+    :tea_encrypt        ;params: v0, v1
     set push, a
     set push, i
     set [sum], 0x0
     set i, 0x0
-    :encryptForLoop
+    :.loop
     ife i, 0x20
-            set pc, encryptEnd
+            set pc, .end
     ;----------------
     add [sum], [delta]
     ;setting v0------
@@ -66,22 +99,20 @@
     add [v1], [t0]
      
     add i, 1
-    set pc, encryptForLoop
-    :encryptEnd
+    set pc, .loop
+    :.end
     set i, pop
     set a, pop
     set pc, pop
      
-     
-     
-    :decrypt        ;params: v0, v1
+    :tea_decrypt        ;params: v0, v1
     set push, a
     set push, i
     set [sum], 0x3720
     set i, 0x0
-    :decryptForLoop
+    :.loop
     ife i, 0x20
-            set pc, decryptEnd
+            set pc, .end
      
     ;setting v1------
     set a, [v0]
@@ -125,8 +156,8 @@
     sub [sum], [delta]
      
     add i, 1
-    set pc, decryptForLoop
-    :decryptEnd
+    set pc, .loop
+    :.end
     set i, pop
     set a, pop
     set pc, pop

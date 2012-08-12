@@ -269,7 +269,7 @@ set pc, pop
 		SET PUSH, Z
 		SET PUSH, J
 		SET A, [folder_cur]
-		SET I, 1
+		SET I, 0
 	:cmd_enter_ls_loop
 		SET B, I
 		JSR enter
@@ -307,6 +307,7 @@ set pc, pop
 		SET Y, A
 		SET Z, Y
 		JSR fat16_7bitTo16bit
+		dat 0x0
 		SET J, 0
 	:cmd_enter_ls_loop2
 		IFE [Z], 0
@@ -373,6 +374,7 @@ set pc, pop
 		:cmd_enter_mkdir_loop_end
 		SET I, PEEK
 		SET Y, I
+		SET J, I
 		JSR fat16_16bitTo7bit
 		SET [Y], [J]
 		ADD Y, 1
