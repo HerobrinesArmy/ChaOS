@@ -4,14 +4,12 @@
         set push, j
        
         set j, [VRAM]
-:clearAll
+:.loop
         set a, 0x0000
         set [j], a
         add j, 1
-        ifg j, [VRAM_end]
-                set pc, clearEnd
-        set pc, clearAll
-:clearEnd
+        ifn j, [VRAM_end]
+        	set pc, .loop
        
         set j, pop
         set i, pop
@@ -47,19 +45,20 @@ set pc, pop
         set push, j
        
         set j, [video_cur]
-:writeLoop
+:.loop
 		SET I, [A]
-        ife I, 0x0000																																						
-                set pc, continue2
+       ; ife I, 0x0000																																						
+       ;         set pc, continue2
         BOR I, B
         set [j], i
         add a, 1
         add j, 1
         IFE J, 0x9180
         	JSR scroll
-        set pc, writeLoop
+        ifn [a], 0x0
+        	set pc, .loop
  
-:continue2
+;:continue2
         SET [video_cur], J
         JSR enter
        
@@ -83,11 +82,11 @@ set pc, pop
  
 :getchar
         set push, a
-        :getcharLoop
+        :.loop
         set a, 1
         hwi [keyboardID]
         ife c, 0
-                set pc, getcharLoop
+                set pc, .loop
         set a, pop
 		SET PC, POP
  
@@ -135,27 +134,27 @@ set pc, pop
 	set push, A
 	set push, B
 	set A, [max_backspace]
-	SET [cmd_args_start], 0
-	:cmd_get_args_loop
+	ET S[cmd_args_start], 0
+	:.loop
 	set B, [A]
 	and B, 0x7F
 	ife B, 0x0
-		set pc, cmd_get_args_end
+		set pc, .end
 	ife B, 0x20
-		set pc, cmd_get_args_assign
+		set pc, .assign
 	add A, 0x1
-	set pc, cmd_get_args_loop
-	:cmd_get_args_assign
+	set pc, .loop
+	:.assign
 	set [cmd_args_start], A
 	add [cmd_args_start], 0x1
-	:cmd_get_args_loop2
+	:.loop2
 	set B, [A]
 	and B, 0x7F
 	ife B, 0x0
-		set pc, cmd_get_args_end
+		set pc, .end
 	add A, 0x1
-	set pc, cmd_get_args_loop2
-	:cmd_get_args_end
+	set pc, .loop2
+	:.end
 	set [cmd_args_end], A
 	sub [cmd_args_end], 0x1
 	set B, pop

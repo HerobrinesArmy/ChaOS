@@ -132,15 +132,16 @@
     set i, 0x0
     set j, [VRAM]
     add j, b
-    :write8loop
-    ife i, 0x8
-            set pc, write8cont
+    :.loop
+    ;ife i, 0x8
+    ;        set pc, write8cont
     set c, [a]
     bor c, x
     sti [j], c
     add a, 0x1
-    set pc, write8loop
-    :write8cont
+	ifn i, 0x8    
+	    set pc, .loop
+    ;:write8cont
     jsr refresh
     set j, pop
     set i, pop
@@ -154,12 +155,13 @@
     mul j, 0x20
     add j, [VRAM]
     set i, 0
-    :horizontalLineLoop
-    ife i, 0x1F
-            set pc, horizontalLineEnd
+    :.loop
+    ;ife i, 0x1F
+    ;        set pc, horizontalLineEnd
     sti [j], 0x7007
-    set pc, horizontalLineLoop
-    :horizontalLineEnd
+    ifn i, 0x1F
+    	set pc, .loop
+    ;:horizontalLineEnd
     jsr refresh
     set j, pop
     set i, pop
@@ -171,14 +173,15 @@
     sub j, 1
     add j, [VRAM]
     set i, 0
-    :verticalLineLoop
-    ife i, 0xC
-            set pc, verticalLineEnd
+    :.loop
+    ;ife i, 0xC
+    ;        set pc, verticalLineEnd
     set [j], 0x701D
     add i, 1
     add j, 0x20
-    set pc, verticalLineLoop
-    :verticalLineEnd
+    ifn i, 0xC
+    	set pc, .loop
+    ;:verticalLineEnd
     jsr refresh
     set j, pop
     set i, pop
@@ -192,9 +195,9 @@
     set push, x
     set j, 0
     set i, 0
-    :menuLoop
-    ife i, 0xC
-            set pc, menuEnd
+    :.loop
+    ;ife i, 0xC
+    ;        set pc, menuEnd
     set push, a
     set push, b
     set x, 0x7000
@@ -207,8 +210,9 @@
     add a, 0x8
     add i, 1
     add j, 0x20
-    set pc, menuLoop
-    :menuEnd
+    ifn i, 0xC
+    	set pc, .loop
+    ;:menuEnd
     set j, 9
     jsr verticalLine
     jsr refresh
@@ -226,19 +230,20 @@
     set push, j
     set j, [VRAM]
     set i, 0
-    :menuContentLoop
+    :.loop
     ife i, 0x16
             set i, 0x0
     ife i, 0x0
             add j, 0x9
-    ife [a], 0x0
-            set pc, menuContentLoopEnd
+    ;ife [a], 0x0
+    ;        set pc, menuContentLoopEnd
     set c, [a]
     bor c, 0x7000
     sti [j], c
     add a, 1
-    set pc, menuContentLoop
-    :menuContentLoopEnd
+    ifn [a], 0x0
+    	set pc, .loop
+    ;:menuContentLoopEnd
     jsr refresh
     set j, pop
     set i, pop
