@@ -134,7 +134,7 @@ set pc, pop
 	set push, A
 	set push, B
 	set A, [max_backspace]
-	ET S[cmd_args_start], 0
+	SET [cmd_args_start], 0
 	:.loop
 	set B, [A]
 	and B, 0x7F
