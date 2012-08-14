@@ -360,9 +360,11 @@ set pc, pop
 		SET PC, POP
 		SET Y, A
 		SET A, Z
+		SET J, [cmd_args_end]
+		ADD J, 0x1
 		:cmd_enter_mkdir_loop
 		SET Z, [A]
-		IFE A, [cmd_args_end]
+		IFE A, J
 			SET PC, cmd_enter_mkdir_loop_end
 		SET [Y], Z
 		ADD A, 1
@@ -418,6 +420,7 @@ set pc, pop
 		SET C, POP
 		SET B, PEEK
 		SET A, [folder_cur]
+		;dat 0
 		JSR fs_add_dir_entry
 		SET A, POP
 		JSR mem_free

@@ -55,6 +55,7 @@ SET PC, setScreen
 
 :init
 ;root dir fix...
+;if it crashes here, try insterting floppies
 SET A, 0x0
 SET B, 0x0
 HWI [floppyID]
@@ -74,7 +75,7 @@ IFN B, 0x0
 	dat 0x0
 SET [0xA000], 0xffff
 SET A, 0x11
-SET B, 201
+SET B, 0xC9
 SET C, 1
 SET X, 0xA000
 HWI [floppyID]
