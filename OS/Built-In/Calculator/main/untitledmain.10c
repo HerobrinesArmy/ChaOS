@@ -4,17 +4,58 @@
 ; Date:    8/10/2012
 ; Version: 0.1
 ; --------------------------------------------
+	hwn i					; Get the list of attached hardware
+	set j, 0				; Count
+:loop
+	hwq j					; Step 1: Get info
+	ife a, 0xf615				; If monitor...
+		set pc, display_detected
+	ife a, 0x7406				; keyboard...
+		set pc, keyboard_detected
+	ife a, 0xb402				; clock...
+		set pc, clock_detected
+:continue
+	add j, 1				; Count++
+	ife j, i				; When finished iterating
+		set pc, initialize_display	; Start setting up the display routine
+	set pc, loop
 
-theData: dat "5+10*2/3-5",0x0000
 
-SET PUSH, 0
+:display_detected
+	set [display_address], j		; set the address
+	SET A, 0
+	SET B, 0x8000
+	HWI [display_address]
+	set pc, continue			; then continue finding stuff
+:keyboard_detected
+	set [keyboard_address], j		; set the address
+	set pc, continue			; then continue finding stuff
+:clock_detected
+	set [clock_address], j		; set the address
+	set pc, continue			; then continue finding stuff
+
+:initialize_display
+SET PC, start
+	
+:display_address
+DAT 0xFFFF
+:keyboard_address
+DAT 0xFFFF
+:clock_address
+DAT 0xFFFF
+
+
+theData: dat "!19",0xFFFF
+
+:start
+SET PUSH, 0;This allows the program to identify the end of the string due to the fact the stack can have random values
 SET A,0
 SET B,0
 SET I,0
 
 :BToEnd
 ADD B,1
-IFN [theData+B],0x0000
+IFN [theData+B],0xFFFF
 SET PC, BToEnd
 SET PC, StartLoop
 :StartLoop
@@ -26,6 +67,8 @@ SET C, [theData+B]
 IFE B,-1
 SET PC, calculate
 ;Check to see if there is an operation sign
+IFE C, '!'
+SET PC, fibA
 IFE C, '-'
 SET PC, pushA
 IFE C, '+'
@@ -33,6 +76,8 @@ SET PC, pushA
 IFE C, '*'
 SET PC, pushA
 IFE C, '/'
+SET PC, pushA
+IFE C, '^'
 SET PC, pushA
 ;Check to see if C is a number
 SET Z,1
@@ -58,7 +103,6 @@ IFE C, '0'
 SET Z, 0
 IFE Z,1
 SET PC, error
-
 SUB C, 0x30
 MUL C,J
 MUL J,10
@@ -77,7 +121,7 @@ SET PC, StartLoop
 SET I, POP
 SET B, POP
 IFE I,0
-SET PC,end
+SET PC,print
 IFE I, '+'
 ADD A,B
 IFE I, '-'
@@ -86,10 +130,106 @@ IFE I, '*'
 MUL A,B
 IFE I, '/'
 DIV A,B
+IFE I, '^'
+JSR AToTheBPower
 SET PC,calculateLoop
+
+:fibA
+SUB A,1
+SET PUSH, J
+SET PUSH, X;prev
+SET PUSH, Y;result
+SET PUSH, Z;sum
+SET J, 0xFFFF
+SET X,0xFFFF
+SET Y,1
+SET Z,0
+IFE A,1
+SET PC, fibEnd1or0
+IFL A,1
+SET PC, fibEnd1or0
+:fibLoop
+ADD J,1
+SET Z,0
+ADD Z,X
+ADD Z,Y
+SET X,Y
+SET Y,Z
+IFG J,A
+SET PC, fibEnd
+SET PC,fibLoop
+
+:fibEnd1or0
+SET Z, POP
+SET Y, POP
+SET X, POP
+SET J, POP
+SUB B, 1
+SET PC, loopNum1
+
+:fibEnd
+SET A, Y
+SET Z, POP
+SET Y, POP
+SET X, POP
+SET J, POP
+SUB B, 1
+SET PC, loopNum1
+
+
+:AToTheBPower
+
+IFE B, 0
+SET PC, powEnd0
+IFL B, 0
+SET PC, powEndLess0
+SET C,A
+
+SET PUSH, C
+
+:powLoop
+IFE B,1
+SET PC, powEnd
+SUB B,1
+MUL A,C
+SET PC, powLoop
+
+IFE B, 0
+SET PC, powEnd0
+IFL B, 0
+SET PC, powEndLess0
+
+:powEnd0
+SET PC, POP
+
+:powEndLess0
+SET A, 0
+SET PC,POP
+
+:powEnd
+SET C,POP
+SET PC, POP
 
 :error
 SET PC,error
+
+:print
+SET J,10000;Place Counter
+SET I,0x8000;Screen Counter
+:printLoop
+SET B, A
+DIV B, J
+DIV J, 10
+IFE J,0xFFFF;This is the value of "0x0000/10" No idea why
+SET PC,end
+IFE B,0
+SET PC, printLoop
+IFG B, 9
+MOD B, 10
+ADD B,0xF030
+SET [I], B
+ADD I,1
+SET PC,printLoop
 
 :end;If the program ends here, Register A should hold the correct result
 SET PC,end
