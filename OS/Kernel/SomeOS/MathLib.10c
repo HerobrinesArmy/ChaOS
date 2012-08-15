@@ -441,30 +441,6 @@ IFG J,A
 SET PC, fibEnd
 SET PC,fibLoop
 
-SET PUSH, J
-SET PUSH, X;prev
-SET PUSH, Y;result
-SET PUSH, Z;sum
-SET J, 0xFFFF
-SET X,0xFFFF
-SET Y,1
-SET Z,0
-IFE A,1
-SET PC, fibEnd1or0
-IFL A,1
-SET PC, fibEnd1or0
-SUB A,1
-:fibLoop
-ADD J,1
-SET Z,0
-ADD Z,X
-ADD Z,Y
-SET X,Y
-SET Y,Z
-IFG J,A
-SET PC, fibEnd
-SET PC,fibLoop
-
 :fibEnd1or0
 SET Z, POP
 SET Y, POP
