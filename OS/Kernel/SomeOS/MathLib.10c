@@ -1,77 +1,45 @@
 ; --------------------------------------------
-; Title:   Calculator
+; Title:   MathLib
 ; Author:  Bone Storm (HRSDL)
 ; Date:    8/10/2012
-; Version: 0.1
+; Version: 1.0.0
 ; --------------------------------------------
-	hwn i					; Get the list of attached hardware
-	set j, 0				; Count
-:loop
-	hwq j					; Step 1: Get info
-	ife a, 0xf615				; If monitor...
-		set pc, display_detected
-	ife a, 0x7406				; keyboard...
-		set pc, keyboard_detected
-	ife a, 0xb402				; clock...
-		set pc, clock_detected
-:continue
-	add j, 1				; Count++
-	ife j, i				; When finished iterating
-		set pc, initialize_display	; Start setting up the display routine
-	set pc, loop
 
+;Now these points of data make a beautiful line*.
+;And we're out of BETA, we're releasing on time!
 
-:display_detected
-	set [display_address], j		; set the address
-	SET A, 0
-	SET B, 0x8000
-	HWI [display_address]
-	set pc, continue			; then continue finding stuff
-:keyboard_detected
-	set [keyboard_address], j		; set the address
-	set pc, continue			; then continue finding stuff
-:clock_detected
-	set [clock_address], j		; set the address
-	set pc, continue			; then continue finding stuff
+;Specs can be found here: http://dl.dropbox.com/u/98223383/MathLib%20specs.pdf
 
-:initialize_display
-SET PC, start
-	
-:display_address
-DAT 0xFFFF
-:keyboard_address
-DAT 0xFFFF
-:clock_address
-DAT 0xFFFF
+:getEquationFromUser
+SET B,A
+SET C,0
+:equationSetLoop
+SET I, [B]
+SET [theData+C], [B]
+ADD B, 1
+ADD C, 1
+IFN [B], 0
+SET PC, equationSetLoop
 
-;The new calculator will not allow you to make mathematical errors like 6-+6 or 6//6 without creating an error.
-;Also, you can now set the base to a number by adding a tag at the end of it (10h) for 10 in hex.
-;The tags are i for b"i"nary, o for "o"ctal, t for "t"en, and h for "h"ex
-;I couldn't use b or d as tags because it would cause confusion with hex's b and d.
-;A new command "setDefaultBase" was also added. This will allow you to change the default base between the number 2 and 16. Always assigned in decimal
-;So if I type, base 2, then type 10 on the next line, 2 would be the value since 10 in binary is 2.
-;mod ( % ) operator was added.
-;You can "double fib still" ( !!7 = !13 = 233)
-;
-;Example Used:
-;Base is by default 10.
-;!!7%fh^10i
-;233%15^2
-;8^2
-;64
+SET [theData+C], 0xFFFF
 
-
-theData: dat "!!7%fh^10i",0xFFFF
-setBaseLine: dat "base 10",0xFFFF
-;By the release, these would be the same line
+SET PC, POP
 
 :subAndJump
 SUB B,1
 SET PC, loopNum1
 
-:start
-JSR setDefaultBase;This will execute when the user input has the first word "base", but for now, it will just execute at the start 
-SET PUSH, 0;This allows the program to identify the end of the string due to the fact the stack can have random values
+:newEquation;This would be called whenever a new equation is requested, A should be the start of the string and the answer will return in A
+SET PUSH, B
+SET PUSH, C
+SET PUSH, I
+SET PUSH, J
+SET PUSH, X
+SET PUSH, Y
+SET PUSH, Z
+SET PUSH, 0
+JSR getEquationFromUser
+
 SET A,0
 SET B,0
 SET I,0
@@ -100,11 +68,13 @@ SET PC, subAndJump
 :loopNum1
 SET C, [theData+B]
 ;Check to see if the string is done
-IFE B,-1
+IFE B,0xFFFF
 SET PC, calculate
 ;Check to see if there is an operation sign
 IFE C, '!'
 SET PC, fibA
+IFE C, '`'
+SET PC, sqrtA
 IFE C, '-'
 SET PC, pushA
 IFE C, '+'
@@ -199,6 +169,42 @@ IFE [theData+B], 't'; t for "t"en
 SET [base], 10
 SET PC, POP
 
+:sqrtA
+SET PUSH, Z
+SET Z,1
+IFE B,0
+SET Z, 0
+SET I,theData
+SUB I,1
+ADD I,B
+SET I,[I]
+IFE I, '!'
+SET Z,0
+IFE I, '^'
+SET Z,0
+IFE I, '*'
+SET Z,0
+IFE I, '/'
+SET Z,0
+IFE I, '+'
+SET Z,0
+IFE I, '-'
+SET Z,0
+IFE I, '%'
+SET Z,0
+IFE I, '`'
+SET Z,0
+IFE Z,1
+SET PC, sqrtError
+SET Z, POP
+JSR sqrt
+SUB B, 1
+SET PC, loopNum1
+
+:sqrtError
+SET Z, POP
+SET PC, error
+
 :pushA
 SET Z,1
 SET Y,theData
@@ -269,24 +275,119 @@ SET A,0
 SET PC, StartLoop
 
 :calculate
+SET I,0
+SET PUSH, A
+:pushToDat
+SET Z,POP
+IFE Z,0
+SET PC, continueCalculate
+SET [equation+I], Z
+ADD I,1
+SET PC, pushToDat
+
+:continueCalculate
+SET Z,2;Z will represent the step in order of operations
+SET Y,0
+SET PC,calculateLoop
+:sub1toZ
+SET Y,0
+SUB Z,1
 :calculateLoop
-SET I, POP
-SET B, POP
-IFE I,0
-SET PC,print
+SET A, [equation+Y]
+ADD Y,1
+SET I, [equation+Y]
+ADD Y,1
+SET B, [equation+Y]
+SET J,A
+IFE [equation+Y],0
+IFG Z,2
+SET PC,return
+IFE [equation+Y],0
+SET PC, sub1toZ
 IFE I, '+'
+IFE Z,0
 ADD A,B
 IFE I, '-'
+IFE Z,0
 SUB A,B
 IFE I, '*'
+IFE Z,1
 MUL A,B
 IFE I, '/'
+IFE Z,1
 DIV A,B
 IFE I, '^'
+IFE Z,2
 JSR AToTheBPower
 IFE I, '%'
+IFE Z,1
 MOD A,B
+IFE J,A
+JSR repushCal
+IFN J,A
+JSR replaceCal
 SET PC,calculateLoop
+
+:repushCal
+SET [equation+Y], B
+SUB Y,1
+SET [equation+Y], I
+SUB Y,1
+SET [equation+Y], A
+ADD Y,2
+SET PC,POP
+
+:replaceCal
+SET [equation+Y], 0
+SUB Y,1
+SET [equation+Y], 0
+SUB Y,1
+SET [equation+Y], A
+ADD Y,2
+JSR moveZeros
+SUB Y,2
+SET PC, POP
+
+:moveZeros
+SET PUSH, A
+SET PUSH, B
+SET PUSH, I
+SET PUSH, J
+SET PUSH, Z
+SET PUSH, Y
+SUB Y,1
+SET A,Y
+ADD Y,1
+SET B,Y
+ADD Y,1
+SET I,Y
+ADD Y,1
+SET J,Y
+SET PUSH, Z
+
+:move0Loop
+SET [equation+A],[equation+I]
+SET C,[equation+A]
+SET [equation+B],[equation+J]
+SET Z,0
+IFN [equation+A], 0
+IFN [equation+B], 0
+SET Z,1
+ADD A,2
+ADD B,2
+ADD I,2
+ADD J,2
+IFE Z,1
+SET PC,move0Loop
+
+SET Z, POP
+SET Y, POP
+SET Z, POP
+SET J, POP
+SET I, POP
+SET B, POP
+SET A, POP
+SET PC, POP
 
 :fibA
 SET PUSH, Z
@@ -309,11 +410,37 @@ IFE I, '+'
 SET Z,0
 IFE I, '-'
 SET Z,0
-IFE Z, '%'
+IFE I, '%'
+SET Z,0
+IFE I, '`'
 SET Z,0
 IFE Z,1
 SET PC, fibError
 SET Z, POP
+SET PUSH, J
+SET PUSH, X;prev
+SET PUSH, Y;result
+SET PUSH, Z;sum
+SET J, 0xFFFF
+SET X,0xFFFF
+SET Y,1
+SET Z,0
+IFE A,1
+SET PC, fibEnd1or0
+IFL A,1
+SET PC, fibEnd1or0
+SUB A,1
+:fibLoop
+ADD J,1
+SET Z,0
+ADD Z,X
+ADD Z,Y
+SET X,Y
+SET Y,Z
+IFG J,A
+SET PC, fibEnd
+SET PC,fibLoop
+
 SET PUSH, J
 SET PUSH, X;prev
 SET PUSH, Y;result
@@ -390,43 +517,31 @@ SET C,POP
 SET PC, POP
 
 :fibError
-SET Z,POP
+SET C,POP
 SET PC, error
 
 :error
-SET I,0
-:errorLoop
-SET C, [errorTXT+I]
-IFE C,0x0000
-SET PC,end
-ADD C,0xF000
-SET [0x8000+I],C
-ADD I, 1
-SET PC,errorLoop
+SET [equation],0
+SET PC, return
 
-:print
-SET J,10000;Place Counter
-SET I,0x8000;Screen Counter
-:printLoop
-SET B, A
-DIV B, J
-DIV J, 10
-IFE J,0xFFFF;This is the value of "0x0000/10" No idea why
-SET PC,end
-IFE B,0
-SET PC, printLoop
-IFG B, 9
-MOD B, 10
-ADD B,0xF030
-SET [I], B
-ADD I,1
-SET PC,printLoop
+:return
+SET A,[equation]
+SET Z, POP
+SET Y, POP
+SET X, POP
+SET J, POP
+SET I, POP
+SET C, POP
+SET B, POP
+SET PC, POP
 
-:end;In the future, end will just wait for the user's next input
-SET PC,end
-
-:setDefaultBase;Will always be calculated in base 10 and cannot go below base 2 or above base 16
-SET I, setBaseLine
+:setDefaultBase;Reads the A register and sets the default base of an equation to it. Will always be calculated in base 10 and cannot go below base 2 or above base 16
+SET PUSH, A
+SET PUSH, C
+SET PUSH, I
+SET PUSH, J
+SET PUSH, Z
+SET I, A
 SET A,0
 SET J,1
 :setToLastForBase
@@ -474,10 +589,83 @@ SET PC, error
 IFL A,2
 SET PC, error
 SET [defaultBase], A
+SET Z, POP
+SET J, POP
+SET I, POP
+SET C, POP
+SET A, POP
 SET PC, POP
 
-:errorTXT dat "GENERIC ERROR. A SPECIFIC ERROR IS NEEDED HERE.", 0x0000
+:test
+SET Z,0
+:testLoop
+SET C, [equation+Z]
+ADD Z,1
+SET PC, testLoop
+
+:getETA;Gets the ETA of something. Reads A for distance or amount in a file and reads B for rate. Returns answer in I. Nothing special, but a handy feature.
+SET PUSH, A
+DIV A,B
+SET I,A
+SET A, POP
+SET PC, POP
+
+
+:distance3DSpace;Gets the distance in 3 dimensional space from point a,b,c to point x,y,z. Returning the value in I.
+SET PUSH, A
+SET PUSH, B
+SET PUSH, C
+SET PUSH, X
+SET PUSH, Y
+SET PUSH, Z
+
+SUB A,X
+MLI A,A
+SUB B,Y
+MLI B,B
+SUB C,Z
+MLI C,C
+
+
+ADD A, B
+ADD A, C
+
+JSR sqrt; distance between two 3D points = sqrt((x1-x2)^2+(y1-y2)^2+(z1-z2)^2)
+
+SET I,A
+
+SET Z, POP
+SET Y, POP
+SET X, POP
+SET C, POP
+SET B, POP
+SET A, POP
+SET PC, POP
+
+:sqrt;Finds the square root of A and returns it in A
+SET PUSH, B
+SET PUSH, C
+SET B,A
+:sqrtLoop
+SET C,B
+MUL C,C
+IFE C,A
+SET PC, continueSqrt
+IFL C,A
+SET PC, continueSqrt
+SUB B,1
+SET PC,sqrtLoop
+:continueSqrt
+SET A,B
+SET C, POP
+SET B, POP
+SET PC, POP
+
+:parenCount dat 0
 
 :defaultBase dat 10
 :base dat 0x0000
+
+theData:dat 0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000;If you do not give this, an overwrite error will occur
+:equation dat 0x0000
 
