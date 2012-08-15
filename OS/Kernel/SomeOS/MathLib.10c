@@ -300,7 +300,7 @@ ADD Y,1
 SET B, [equation+Y]
 SET J,A
 IFE [equation+Y],0
-IFG Z,2
+IFL Z,0
 SET PC,return
 IFE [equation+Y],0
 SET PC, sub1toZ
