@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<solution>
+  <name>Kernel</name>
+  <properties>
+    <property name="emuLoad.projectName">Bootloader</property>
+    <property name="emuLoadMode">project</property>
+  </properties>
+  <projects>
+    <project path="Bootloader\Bootloader.10cproj" />
+    <project path="OSfloppy\OSfloppy.10cproj" />
+    <project path="Main\Main.10cproj" />
+  </projects>
+</solution>

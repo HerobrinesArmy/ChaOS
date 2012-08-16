@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project version="1.7.5" type="code">
+  <name>Bootloader</name>
+  <properties>
+    <property name="code.generateBinaryOutput">False</property>
+    <property name="code.binaryOutputFilename">Bootloader.bin</property>
+    <property name="code.generateHexOutput">false</property>
+    <property name="code.hexOutputFilename">Bootloader.hex</property>
+    <property name="code.setFirstFile">false</property>
+  </properties>
+  <references />
+  <files>
+    <file path="main.10c" />
+  </files>
+</project>
