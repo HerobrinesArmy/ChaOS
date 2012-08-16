@@ -1,0 +1,4 @@
+A library that is designed to be called by programmers developeing for ChaOS MUST be assigned a seperate page, free of any system code or non-applicablle calls.
+
+The page MUST be titled lib_name, and functions must be named lib_name_function
+
