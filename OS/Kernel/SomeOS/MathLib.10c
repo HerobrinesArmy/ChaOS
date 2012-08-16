@@ -488,7 +488,6 @@ JSR AToTheBPower
 SET Y,A; a^3
 SET A,3
 JSR factoral
-DIV 
 
 SET B, POP
 SET Y, POP
