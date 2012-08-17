@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project version="1.7.5" type="code">
+  <name>Identifier</name>
+  <properties>
+    <property name="code.generateBinaryOutput">true</property>
+    <property name="code.binaryOutputFilename">Identifier.bin</property>
+    <property name="code.generateHexOutput">false</property>
+    <property name="code.hexOutputFilename">Identifier.hex</property>
+    <property name="code.setFirstFile">false</property>
+  </properties>
+  <references />
+  <files>
+    <file path="main.10c" />
+    <file path="..\..\Kernel\SomeOS\MathLib.10c" />
+    <file path="IDandNames.dat">
+      <property name="Identifier">IDandNames</property>
+    </file>
+    <file path="Names.dat">
+      <property name="Identifier">names</property>
+    </file>
+  </files>
+</project>
