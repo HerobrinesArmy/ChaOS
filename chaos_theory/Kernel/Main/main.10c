@@ -1,0 +1,72 @@
+; --------------------------------------------
+; Title:   main
+; Author:  
+; Date:    2012-08-17
+; Version: 0x1
+; --------------------------------------------
+
+#segment boot
+;fat header, makes disk valid fat16
+DAT 0xCB82 ;add pc, 0x11 - also magic word for bootable disk
+DAT 0x9105, 0x042D, 0xFBFA, 0x44D3, 0xCF58 ;media name, with some luck that means "HA BootDisk" 0xFBDD, 0x2269, 0xE7AC 
+DAT 0x200, 0x0001, 0x00C8, 0x0001, 0x05A0, 0x0000, 0x0003, 0x0002, 0x0028, 0x0012 ;200 reserved sectors for the OS, 3 sectors for the FAT tables, rest for data
+DAT 0x736f, 0x7f6c ;serial number
+
+;init
+set A, 0x0
+set B, 0x0
+set C, 0x0
+set I, 0x0
+set J, 0x0
+set X, 0x0
+set Y, 0x0
+set Z, 0x0
+
+jsr mem_init
+
+:main_get_hardware
+set J, 0x0
+hwn I
+set [device_number], I
+:.loop
+hwq J
+ife B, 0x12d0
+	ife A, 0xb402
+		jsr .clock
+ife B, 0x30cf
+	ife A, 0x7406 
+		jsr .keyboard
+ife B, 0x7349
+	ife A, 0xf615 
+		jsr .screen
+ife B, 0x74fa
+	ife A, 0x4cae
+		jsr .floppy
+add J, 0x1
+ifn J, I
+	set pc, .loop
+set pc, .end
+:.clock ;clock init
+set [clockID], J
+set pc, pop
+:.keyboard
+set [keyboardID], J
+set pc, pop
+:.screen
+set [screenID], J
+set pc, pop
+:.floppy
+set [fs_drive], J
+set [floppyID], J
+set pc, pop
+.end
+;exec code start here
+
+
+
+;variables
+:device_number	dat 0x0
+:clockID 		dat 0x0
+:keyboardID 	dat 0x0
+:screenID 		dat 0x0
+:floppyID		dat 0x0

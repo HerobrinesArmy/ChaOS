@@ -1,0 +1,146 @@
+; --------------------------------------------
+; Title:   filesystem
+; Author:  Liraal
+; Date:    2012-08-16
+; Version: 0x1
+; --------------------------------------------
+
+;=============================================
+;VARIABLES
+;=============================================
+:fs_drive 		dat 0x0
+:fs_dir	  		dat 0x0
+:fs_FAT_offset	dat 0x0
+:fs_FAT_number	dat 0x0
+:fs_root_offset	dat 0x0
+:fs_FAT			dat 0x0
+:fs_dir_entry	dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+;=============================================
+;ROUTINES
+;=============================================
+
+;I/O
+
+:fs_load_sector	;A - sector number, B - number of sectors, C - memory area to read to
+set push, X
+set X, C
+set C, B
+set B, A
+set A, 0x10
+hwi [fs_drive]
+set A, B
+set B, C
+set C, X
+set X, pop
+set pc, pop
+
+:fs_write_sector	;A - sector number, B - number of sectors, C - memory area to write from
+set push, X
+set X, C
+set C, B
+set B, A
+set A, 0x11
+hwi [fs_drive]
+set A, B
+set B, C
+set C, X
+set X, pop
+set pc, pop
+
+;FAT access
+
+:fs_load_FAT
+set push, A
+set push, B
+set push, C
+set A, [fs_FAT_number]
+mul A, 0x200
+jsr mem_alloc
+set C, A
+set A, [fs_FAT_offset]
+set B, [fs_FAT_number]
+jsr fs_load_sector
+set [fs_FAT], C
+set C, pop
+set B, pop
+set A, pop
+set pc, pop
+
+:fs_update_FAT
+set push, A
+set push, B
+set push, C
+set A, [fs_FAT_number]
+set C, [fs_FAT]
+set A, [fs_FAT_offset]
+set B, [fs_FAT_number]
+jsr fs_write_sector
+set A, [fs_FAT]
+jsr mem_free
+set [fs_FAT], 0x0
+set C, pop
+set B, pop
+set A, pop
+set pc, pop
+
+:fs_get_FAT_entry	;A - starting sector
+set push, B
+set push, X
+set push, Y
+set X, A
+set Y, 0x0
+ife [fs_FAT], 0x0
+	jsr fs_load_FAT
+set B, A
+add X, A
+set A, [X]
+set X, A
+set A, B
+set A, X
+set Y, pop
+set X, pop
+set B, pop
+set pc, pop
+
+:fs_get_free_sector ;returns the number of the next free sector or 0x0 if none
+set push, I
+set push, X
+set push, Y
+set Y, 0x0
+ife [fs_FAT], 0x0
+	jsr fs_load_FAT
+set A, [fs_FAT]
+set push, A
+set I, A
+set X, [fs_FAT_number]
+mul X, 0x200
+.loop
+ ife [I], 0x0
+ 	set pc, .end
+ add I, 0x1
+ ifl I, X
+	set pc, .loop
+set I, 0x0
+.end
+set A, pop
+set A, I
+set Y, pop
+set X, pop
+set I, pop
+set pc, pop
+
+;file management
+
+;:fs_create_file	;A - length in sectors
+;set push, B
+;set push, X
+;set B, 0x0
+;set X, A
+;.loop
+;jsr fs_get_free_sector
+;ife A, 0x0
+;	set pc, _fs_create_file_nes
+;add A, [fs_FAT]
+;ife B, 0x0							;//TODO: needs fixing!
+;	set B, A
+;ifn 
