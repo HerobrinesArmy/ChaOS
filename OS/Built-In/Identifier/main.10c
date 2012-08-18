@@ -1,0 +1,464 @@
+; -------------------------------------------
+; Title:   HA Identifier
+; Author:  Bone Storm
+; Date:    8/15/2012
+; Version: 0.8
+; --------------------------------------------
+
+;TODO
+;Add function for getting ID from name
+;Add a remove ID and Name function
+;Add a add ID and Name function
+
+SET I,CODE
+JSR loadUsername
+:end
+
+SET C, [I]
+ADD I,1
+
+SET PC,end
+
+:loadUsername
+JSR getNumberOfUsers
+SET A, [NumberOfUsers]
+JSR getUsernameNumber
+MUL I,32
+SUB I,31
+ADD I,IDandNames
+SET PC, POP
+
+:getNumberOfUsers
+SET PUSH, A
+SET A,0
+SET [NumberOfUsers],0
+:getNumOfUsersLoop
+ADD A,1
+ADD [NumberOfUsers],1
+IFN [IDandNames+A], ';'
+SET PC, getNumOfUsersLoop
+SET A,[NumberOfUsers]
+DIV [NumberOfUsers],32
+
+SET A, POP
+SET PC,POP
+
+:getUsernameNumber
+SET PUSH, A
+SET PUSH, B
+SET PUSH, C
+SET PUSH, J
+SET PUSH, Z
+SET A,0
+SET B,0
+SET C,0
+:nextStorePerson
+SET B,0
+:clearStorePerson
+SET [StoredPerson+B],0
+ADD B,1
+IFN B, 15
+SET PC,clearStorePerson
+
+ADD C,1
+SET B,0
+SET A,3
+:getUsernameLoop
+SET J, [names+A]
+SET [StoredPerson+B], [names+A]
+ADD A,1
+ADD B,1
+IFN [names+A],';'
+SET PC, getUsernameLoop
+
+SET Z,1
+SET J,0
+SET PUSH, I
+:compareUsernames
+IFN [StoredPerson+J],[I]
+SET Z,0
+IFE Z,1
+IFE [StoredPerson+J],0
+IFE [I],0
+SET PC, continueCompareUsernames
+ADD I,1
+ADD J,1
+IFN J,15
+SET PC, compareUsernames
+
+:continueCompareUsernames
+SET I, POP
+IFN C, [NumberOfUsers]
+IFE Z,0
+SET PC, nextStorePerson
+
+IFE Z, 0
+SET C, 0
+
+SET I,C
+ADD I,1
+
+SET Z, POP
+SET J, POP
+SET C, POP
+SET B, POP
+SET A, POP
+SET PC, POP
+
+:loadCode;I will be the string and the person will be returned in I
+SUB I,1
+SET PUSH, A
+SET PUSH, B
+SET PUSH, C
+SET PUSH, J
+SET PUSH, X
+SET PUSH, Y
+SET PUSH, Z
+
+SET C, IDandNames
+ADD C,1
+:getLengthOfIDLoop
+SET J,[C]
+IFE [C], ';'
+SET PC,continueLoadCode
+ADD C,1
+SET PC, getLengthOfIDLoop
+
+:continueLoadCode
+SUB C, IDandNames
+SET [lengthOfID],C
+SUB [lengthOfID],1
+
+SET A,33
+ADD A,I
+SET C,4
+:loopZ
+SUB C,1
+SUB A,1
+SET J, [A]
+SET [ZID+C], [A]
+IFN C,0
+SET PC,loopZ
+
+SET C,4
+:loopY
+SUB C,1
+SUB A,1
+SET [YID+C], [A]
+IFN C,0
+SET PC,loopY
+
+SET C,4
+:loopX
+SUB C,1
+SUB A,1
+SET [XID+C], [A]
+IFN C,0
+SET PC,loopX
+
+SET C,4
+:loopJ
+SUB C,1
+SUB A,1
+SET [JID+C], [A]
+IFN C,0
+SET PC,loopJ
+
+SET C,4
+:loopI
+SUB C,1
+SUB A,1
+SET [IID+C], [A]
+IFN C,0
+SET PC,loopI
+
+SET C,4
+:loopC
+SUB C,1
+SUB A,1
+SET [CID+C], [A]
+IFN C,0
+SET PC,loopC
+
+SET C,4
+:loopB
+SUB C,1
+SUB A,1
+SET [BID+C], [A]
+IFN C,0
+SET PC,loopB
+
+SET C,4
+:loopA
+SUB C,1
+SUB A,1
+SET [AID+C], [A]
+IFN C,0
+SET PC,loopA
+
+SET A,ZID
+JSR newEquation
+SET Z,A
+
+SET A,YID
+JSR newEquation
+SET Y,A
+
+SET A,XID
+JSR newEquation
+SET X,A
+
+SET A,JID
+JSR newEquation
+SET J,A
+
+SET A,IID
+JSR newEquation
+SET I,A
+
+SET A,CID
+JSR newEquation
+SET C,A
+
+SET A,BID
+JSR newEquation
+SET B,A
+
+SET A,AID
+JSR newEquation
+
+;At this point, the variables should all store the right code a decoder might want to be placed here
+
+JSR findPerson
+JSR indexToPerson
+IFE I,0
+SET [NameOfPerson+I],'?'
+ADD I,1
+IFE I,1
+SET [NameOfPerson+I], 0
+SET I,NameOfPerson
+
+SET Z, POP
+SET Y, POP
+SET X, POP
+SET J, POP
+SET C, POP
+SET B, POP
+SET A, POP
+SET PC,POP
+
+:indexToPerson
+IFE I,0;0 indicates that it is an invalid ID
+SET PC, POP
+SET PUSH, A
+SET A,0
+:goToFirstLetter
+IFE [names+A], 0xA
+SUB I,1
+ADD A,1
+IFN I,1
+SET PC, goToFirstLetter
+
+SET I,0
+:writeNameToNameOfPerson
+SET [NameOfPerson+I], [names+A]
+ADD I,1
+ADD A,1
+IFE I,13
+SET PC, finishIndexToPerson
+IFE [names+A], ';'
+SET PC, finishIndexToPerson
+SET PC, writeNameToNameOfPerson
+
+:finishIndexToPerson
+SET A, POP
+SET PC, POP
+
+:findPerson
+SET [backupA], A
+SET [backupB], B
+SET [backupC], C
+SET [backupI], I
+SET [backupJ], J
+SET [backupX], X
+SET [backupY], Y
+SET [backupZ], Z
+SET A,[lengthOfID]
+ADD A,1
+SET PC,continue
+
+:nextPerson
+SUB [lengthOfID],32
+SET A,[lengthOfID]
+
+IFL [lengthOfID],2
+SET PC, invalidID
+ADD A,1
+SET [booleanID], 1
+
+:continue
+
+SET C,4
+:loop2Z
+SUB C,1
+SUB A,1
+SET J,[IDandNames+A]
+SET [ZID+C], [IDandNames+A]
+SET B,A
+MOD B,4
+IFN B,1
+SET PC,loop2Z
+
+SET C,4
+:loop2Y
+SUB C,1
+SUB A,1
+SET [YID+C], [IDandNames+A]
+SET B,A
+MOD B,4
+IFN B,1
+SET PC,loop2Y
+
+SET C,4
+:loop2X
+SUB C,1
+SUB A,1
+SET [XID+C], [IDandNames+A]
+SET B,A
+MOD B,4
+IFN B,1
+SET PC,loop2X
+
+SET C,4
+:loop2J
+SUB C,1
+SUB A,1
+SET [JID+C], [IDandNames+A]
+SET B,A
+MOD B,4
+IFN B,1
+SET PC,loop2J
+
+SET C,4
+:loop2I
+SUB C,1
+SUB A,1
+SET [IID+C], [IDandNames+A]
+SET B,A
+MOD B,4
+IFN B,1
+SET PC,loop2I
+
+SET C,4
+:loop2C
+SUB C,1
+SUB A,1
+SET [CID+C], [IDandNames+A]
+SET B,A
+MOD B,4
+IFN B,1
+SET PC,loop2C
+
+SET C,4
+:loop2B
+SUB C,1
+SUB A,1
+SET [BID+C], [IDandNames+A]
+SET B,A
+MOD B,4
+IFN B,1
+SET PC,loop2B
+
+SET C,4
+:loop2A
+SUB C,1
+SUB A,1
+SET [AID+C], [IDandNames+A]
+SET B,A
+MOD B,4
+IFN B,1
+SET PC,loop2A
+
+SET A,ZID
+JSR newEquation
+SET Z,A
+
+SET A,YID
+JSR newEquation
+SET Y,A
+
+SET A,XID
+JSR newEquation
+SET X,A
+
+SET A,JID
+JSR newEquation
+SET J,A
+
+SET A,IID
+JSR newEquation
+SET I,A
+
+SET A,CID
+JSR newEquation
+SET C,A
+
+SET A,BID
+JSR newEquation
+SET B,A
+
+SET A,AID
+JSR newEquation
+
+IFN [backupZ], Z
+SET [booleanID], 0
+IFN [backupY], Y
+SET [booleanID], 0
+IFN [backupX], X
+SET [booleanID], 0
+IFN [backupJ], J
+SET [booleanID], 0
+IFN [backupI], I
+SET [booleanID], 0
+IFN [backupC], C
+SET [booleanID], 0
+IFN [backupB], B
+SET [booleanID], 0
+IFN [backupA], A
+SET [booleanID], 0
+
+IFE [booleanID], 0
+SET PC,nextPerson
+
+SET I, [lengthOfID]
+DIV I,32
+SET PC, POP
+
+:invalidID
+SET I,0
+SET PC, POP
+
+:backupA dat 0
+:backupB dat 0
+:backupC dat 0
+:backupI dat 0
+:backupJ dat 0
+:backupY dat 0
+:backupX dat 0
+:backupZ dat 0
+
+:booleanID dat 0
+:lengthOfID dat 0
+AID: dat "0000h",0x0000
+BID: dat "0000h",0x0000
+CID: dat "0000h",0x0000
+IID: dat "0000h",0x0000
+JID: dat "0000h",0x0000
+XID: dat "0000h",0x0000
+YID: dat "0000h",0x0000
+ZID: dat "0000h",0x0000
+NumberOfUsers: dat 0
+StoredPerson: dat 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+NameOfPerson: dat 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0;Maximum characters are 15
+;:CODE dat "0123456789abcdef0123456789abcdef",0x0000;Will not be here by release. Will just be user input
+:CODE dat "Person1",0x0000
