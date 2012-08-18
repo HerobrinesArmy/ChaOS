@@ -93,9 +93,7 @@ set pc, pop
 :fs_get_FAT_entry	;A - starting sector
 set push, B
 set push, X
-set push, Y
 set X, A
-set Y, 0x0
 ife [fs_FAT], 0x0
 	jsr fs_load_FAT
 set A, [fs_FAT]
@@ -105,7 +103,6 @@ set A, [X]
 set X, A
 set A, B
 set A, X
-set Y, pop
 set X, pop
 set B, pop
 set pc, pop
@@ -113,8 +110,6 @@ set pc, pop
 :fs_get_free_sector ;returns the number of the next free sector or 0x0 if none
 set push, I
 set push, X
-set push, Y
-set Y, 0x0
 ife [fs_FAT], 0x0
 	jsr fs_load_FAT
 set A, [fs_FAT]
@@ -132,7 +127,6 @@ set I, [fs_FAT]
 :.end
 sub I, [fs_FAT]
 set A, I
-set Y, pop
 set X, pop
 set I, pop
 set pc, pop
@@ -145,22 +139,20 @@ ife A, 0x0
 set push, A
 set push, B
 set push, X
-set B, 0x0
 set X, A
-add X, 0x1
-dat 0
 jsr fs_get_free_sector
 set B, A
 add B, [fs_FAT]
-ife X, 0x1
-	set pc, .end
+add X, 0x1
 :.loop
+ife X, 0x0
+	set pc, .end
 jsr fs_get_free_sector
 set [B], A
-add B, A
+set B, A
 add B, [fs_FAT]
-ifn X, 0x0
-	set pc, .loop
+sub X, 0x1
+set pc, .loop
 :.end
 set [B], 0xFFFF
 jsr fs_update_FAT
