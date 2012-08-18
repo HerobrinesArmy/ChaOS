@@ -56,13 +56,21 @@ set pc, pop
 set [screenID], J
 set pc, pop
 :.floppy
+ifn [floppyID], 0x0
+	set pc, pop
 set [fs_drive], J
 set [floppyID], J
 set pc, pop
 .end
 ;exec code start here
 
-
+SET A, 0x3
+jsr fs_create_file
+SET A, 0xC8
+SET B, 0x1
+SET C, 0x200
+jsr fs_load_sector
+dat 0x0, 0x1234
 
 ;variables
 :device_number	dat 0x0

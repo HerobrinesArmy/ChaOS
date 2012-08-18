@@ -10,14 +10,19 @@
 ;=============================================
 :fs_drive 		dat 0x0
 :fs_dir	  		dat 0x0
-:fs_FAT_offset	dat 0x0
-:fs_FAT_number	dat 0x0
-:fs_root_offset	dat 0x0
+:fs_FAT_offset	dat 0xC8
+:fs_FAT_number	dat 0x3
+:fs_root_offset	dat 0xCB
 :fs_FAT			dat 0x0
 :fs_dir_entry	dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
 ;=============================================
 ;ROUTINES
 ;=============================================
+
+;errors
+:fs_oom dat 0x0, 0x2345	;out of memory
+:fs_nes	dat 0x0, 0x3456
+
 
 ;I/O
 
@@ -56,6 +61,8 @@ set push, C
 set A, [fs_FAT_number]
 mul A, 0x200
 jsr mem_alloc
+ife A, 0x0
+	jsr fs_oom
 set C, A
 set A, [fs_FAT_offset]
 set B, [fs_FAT_number]
@@ -91,6 +98,7 @@ set X, A
 set Y, 0x0
 ife [fs_FAT], 0x0
 	jsr fs_load_FAT
+set A, [fs_FAT]
 set B, A
 add X, A
 set A, [X]
@@ -110,19 +118,19 @@ set Y, 0x0
 ife [fs_FAT], 0x0
 	jsr fs_load_FAT
 set A, [fs_FAT]
-set push, A
 set I, A
 set X, [fs_FAT_number]
 mul X, 0x200
-.loop
+add X, I
+:.loop
  ife [I], 0x0
  	set pc, .end
  add I, 0x1
  ifl I, X
 	set pc, .loop
-set I, 0x0
-.end
-set A, pop
+set I, [fs_FAT]
+:.end
+sub I, [fs_FAT]
 set A, I
 set Y, pop
 set X, pop
@@ -131,16 +139,33 @@ set pc, pop
 
 ;file management
 
-;:fs_create_file	;A - length in sectors
-;set push, B
-;set push, X
-;set B, 0x0
-;set X, A
-;.loop
-;jsr fs_get_free_sector
-;ife A, 0x0
-;	set pc, _fs_create_file_nes
-;add A, [fs_FAT]
-;ife B, 0x0							;//TODO: needs fixing!
-;	set B, A
-;ifn 
+:fs_create_file	;A - length in sectors
+ife A, 0x0
+	set pc, pop
+set push, A
+set push, B
+set push, X
+set B, 0x0
+set X, A
+add X, 0x1
+dat 0
+jsr fs_get_free_sector
+set B, A
+add B, [fs_FAT]
+ife X, 0x1
+	set pc, .end
+:.loop
+jsr fs_get_free_sector
+set [B], A
+add B, A
+add B, [fs_FAT]
+ifn X, 0x0
+	set pc, .loop
+:.end
+set [B], 0xFFFF
+jsr fs_update_FAT
+set X, pop
+set B, pop
+set A, pop
+set pc, pop
+

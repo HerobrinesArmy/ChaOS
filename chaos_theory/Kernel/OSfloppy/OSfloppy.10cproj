@@ -7,11 +7,18 @@
     <property name="filesystem.enabled">true</property>
     <property name="filesystem.type">Structureless</property>
     <property name="autoLoad.enabled">True</property>
+    <property name="versionIncrement">22</property>
   </properties>
   <references />
   <files>
     <file path="..\Main\Main.bin">
       <property name="Identifier">Kernel-Main</property>
+      <property name="disk.index">0</property>
+      <property name="disk.entryTypeName">sector</property>
+    </file>
+    <file path="root_dir_entry.10c">
+      <property name="disk.index">200</property>
+      <property name="disk.entryTypeName">sector</property>
     </file>
   </files>
 </project>
