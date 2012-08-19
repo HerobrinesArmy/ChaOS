@@ -239,3 +239,16 @@ set C, pop
 set B, pop
 set A, pop
 set pc, pop
+
+:fs_delete_file	;A - starting cluster
+set push, B
+:.loop
+set B, A
+jsr fs_get_FAT_entry
+add B, [fs_FAT]
+set [B], 0x0
+ifn A, 0xFFFF
+	set pc, .loop
+set B, pop
+jsr fs_update_FAT
+set pc, pop

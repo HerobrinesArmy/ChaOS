@@ -71,6 +71,8 @@ SET X, 0x0
 JSR fs_edit_file
 SET A, 0x1
 JSR fs_load_file
+SET A, 0x1
+JSR fs_delete_file
 dat 0x0, 0x1234
 
 ;variables
