@@ -65,11 +65,12 @@ set pc, pop
 ;exec code start here
 
 SET A, 0x3
-jsr fs_create_file
-SET A, 0xC8
-SET B, 0x1
-SET C, 0x200
-jsr fs_load_sector
+JSR fs_create_file
+SET A, 0x1
+SET X, 0x0
+JSR fs_edit_file
+SET A, 0x1
+JSR fs_load_file
 dat 0x0, 0x1234
 
 ;variables

@@ -55,6 +55,8 @@ set pc, pop
 ;FAT access
 
 :fs_load_FAT
+ifn [fs_FAT], 0x0
+	set pc, pop
 set push, A
 set push, B
 set push, C
@@ -161,3 +163,79 @@ set B, pop
 set A, pop
 set pc, pop
 
+:fs_get_file_length	;A - starting cluster
+set push, I
+set I, 0x0
+:.loop
+jsr fs_get_FAT_entry
+add I, 0x1
+ifn A, 0xFFFF
+	ifl I, 0x5A0
+		set pc, .loop
+set A, I
+set I, pop
+set pc, pop
+
+:fs_load_file	;A - starting cluster (as always)
+set push, B
+set push, C
+set push, I
+set push, X
+set push, Y
+set Y, A
+set I, 0x0
+jsr fs_get_file_length
+set push, A
+mul A, 0x200
+jsr mem_alloc
+set X, A
+set A, Y
+:.loop
+set B, 0x1
+set C, X
+jsr fs_load_sector
+add X, 0x200
+jsr fs_get_FAT_entry
+add I, 0x1
+ifn A, 0xFFFF
+	ifl I, 0x5A0
+		set pc, .loop
+set A, pop
+mul A, 0x200
+sub X, A
+set A, X
+jsr fs_update_FAT
+set Y, pop
+set X, pop
+set I, pop
+set C, pop
+set B, pop
+set pc, pop
+
+:fs_edit_file	;A - starting cluster (as always), X - memory area to read from
+set push, A
+set push, B
+set push, C
+set push, X
+set push, Y
+set B, A
+jsr fs_get_file_length
+mul A, 0x200
+set Y, A
+set A, B
+:.loop
+set B, 0x1
+set C, X
+jsr fs_write_sector
+jsr fs_get_FAT_entry
+add X, 0x200
+ifn A, 0xFFFF
+	ifl X, Y
+		set pc, .loop
+jsr fs_update_FAT
+set Y, pop
+set X, pop
+set C, pop
+set B, pop
+set A, pop
+set pc, pop
