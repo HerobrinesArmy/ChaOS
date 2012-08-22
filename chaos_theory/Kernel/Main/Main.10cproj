@@ -14,5 +14,6 @@
     <file path="filesystem.10c" />
     <file path="..\..\..\OS\Kernel\SomeOS\memory_manager.10c" />
     <file path="main.10c" />
+    <file path="multi-threading.10c" />
   </files>
 </project>

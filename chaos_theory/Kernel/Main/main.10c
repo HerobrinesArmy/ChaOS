@@ -64,6 +64,12 @@ set pc, pop
 .end
 ;exec code start here
 
+SET B, 6
+SET A, 0
+HWQ [clockID]
+SET B, 0;multi-threading_interrupt_handler_clock
+SET A, 2
+HWQ [clockID]
 SET A, 0x3
 JSR fs_create_file
 SET A, 0x1
