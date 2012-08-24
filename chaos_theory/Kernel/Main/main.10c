@@ -64,12 +64,13 @@ set pc, pop
 .end
 ;exec code start here
 
-SET B, 6
+SET B, 12
 SET A, 0
-HWQ [clockID]
-SET B, 0;multi-threading_interrupt_handler_clock
+HWI [clockID]
+SET B, 1
 SET A, 2
-HWQ [clockID]
+HWI [clockID]
+IAS multi_threading_interrupt
 SET A, 0x3
 JSR fs_create_file
 SET A, 0x1
@@ -79,6 +80,7 @@ SET A, 0x1
 JSR fs_load_file
 SET A, 0x1
 JSR fs_delete_file
+SUB PC, 1
 dat 0x0, 0x1234
 
 ;variables

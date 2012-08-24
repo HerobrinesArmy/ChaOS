@@ -1,0 +1,48 @@
+	MULTI-TASKING SYSTEM SPECS
+
+The Goal of the Multi-tasking system is as follows:
+
+Allow a preempive solution to multiple programs
+
+Enable process switching where progs have no idea of other progs
+
+Make the Implemtation completely independant of programs, for easy modification
+
+
+IMPLEMENTATION:
+
+A Clock handler will be used to switch between programs,
+using a priority-based round robin system.
+
+Each program will have a time quantum based off of their priority and CPU time available
+
+Every time the clock interrupt triggers, it will switch programs, based on their priority
+
+For example, the ChaOS CLI will have a priority of +100 (on a scale of +32767 to -32767)
+
+Programs will have a stack size of 100 words, which should be enough for them, branching downward from the main stack
+
+Each slot will contain the following information:
+
+Location of PC in that program
+
+Priority level
+
+Registers (A,B,I,X,Y,J,Z, and SP)
+
+The algorithm to determine what program goes next is as follows (courtesy of macman)
+
+Add all priorities
+
+divide the priority for a program by the added amount
+
+multiply by 100
+
+That will be the CPU slice for that program, This will also equal the number of Kilo Hertz
+Each program will execute for.
+
+After selecting a program (the one with the highest CPU slice), the clock is modified in order
+to only go off when the program needs to switch.
+
+The switcher will keep track of how many kiloHertz have been used so far, and will only select programs
+that will fit inside the timeframe, so this method should run all programs given to it.
