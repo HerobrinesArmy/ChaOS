@@ -2,7 +2,7 @@
 ; Title:   lib_STDIO
 ; Author:  Alex
 ; Date:    8/24/2012
-; Version: 
+; Version: 0.5
 ; --------------------------------------------
 
 ; From the spec
@@ -16,6 +16,35 @@
 ;Implement security against bad programs
 ;
 ;Make the Implemtation completely independant of programs, for easy modification
+
+:lib_STDIO_init
+    ; INPUT: NONE
+    ; OUTPUT: NONE
+    ; DESC: Sets neccecary variables to function
+    ; NOTE: EITHER CALL THIS OR SET THE DAT VARS YOURSELF!
+    SET PUSH, J
+    SET J, 0
+    HWN C
+    :lib_STDIO_initLoop
+        IFE B, 0x30CF
+            IFE A, 0x7406 
+                JSR lib_STDIO_initKeyboard
+        IFE B, 0x7349
+            IFE A, 0xF615 
+                JSR lib_STDIO_initScreen
+        ADD J, 1
+        IFE J, C
+            SET PC, lib_STDIO_initLoopEnd
+        SET PC, lib_STDIO_initLoop
+    :lib_STDIO_initScreen
+    SET [lib_STDIO_monitorID], J
+    SET PC, POP
+    :lib_STDIO_initKeyboard
+    SET [lib_STDIO_KeyboardID], J
+    SET PC, POP
+    :lib_STDIO_initLoopEnd
+    SET J, POP
+    SET PC, POP
 
 :lib_STDIO_getChar
     ; INPUT: B, A
@@ -38,7 +67,7 @@
     SET I, 0
     :lib_STDIO_getCharLoop
         SET A, 1
-        HWI [keyboardID]
+        HWI [lib_STDIO_KeyboardID]
         IFE C, 0
             IFN X, 0
                 SET PC, lib_STDIO_getCharLoop
@@ -51,7 +80,7 @@
             SET PC, lib_STDIO_getCharLoopEnd
         ADD I, 1
         IFN I, B
-            SET PC, lib_STDIO_getCharLoopEnd
+            SET PC, lib_STDIO_getCharLoop
     :lib_STDIO_getCharLoopEnd
     SET I, POP
     SET X, POP
@@ -65,3 +94,6 @@
     ; INPUT: B, A
     ; OUTPUT: NONE
     ; DESC: print B characters starting at location A
+    
+:lib_STDIO_KeyboardID dat 0x0000
+:lib_STDIO_MonitorID dat 0x0000

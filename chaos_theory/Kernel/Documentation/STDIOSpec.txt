@@ -18,6 +18,10 @@ STDIO will keep track of the screen and keyboard hardware ID
 
 STDIO will have these functions:
 
+STDIO_init
+
+Sets the screen and keyboard hardware ID
+
 STDIO_getChar
 
 If A == 0, getChar is non blocking, gets B characters, and
