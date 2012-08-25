@@ -1,0 +1,67 @@
+; --------------------------------------------
+; Title:   lib_STDIO
+; Author:  Alex
+; Date:    8/24/2012
+; Version: 
+; --------------------------------------------
+
+; From the spec
+;
+;The Goal of the STDIO library is as follows:
+;
+;Enable extremely flexible and fast Input and Output system
+;
+;Allow programs easy access to screen, keyboard, and FS access
+;
+;Implement security against bad programs
+;
+;Make the Implemtation completely independant of programs, for easy modification
+
+:lib_STDIO_getChar
+    ; INPUT: B, A
+    ; OUTPUT: A
+    ; DESC: If A == 0, return ASAP, returns B characters starting with address A
+    ; NOTE: A will be 0 if getChar fails!
+    ; NOTE: Caller is responsible for freeing memory!
+    SET C, A
+    SET A, B
+    JSR mem_alloc
+    IFE A, 0
+        SET PC, POP
+    SET PUSH, Z
+    SET PUSH, Y
+    SET PUSH, X
+    SET PUSH, I
+    SET X, C
+    SET Z, A
+    SET Y, A
+    SET I, 0
+    :lib_STDIO_getCharLoop
+        SET A, 1
+        HWI [keyboardID]
+        IFE C, 0
+            IFN X, 0
+                SET PC, lib_STDIO_getCharLoop
+        IFE C, 0x0010
+            IFL Y, Z
+                SUB Z, 0x0001
+        SET [Z], C
+        ADD Z, 0x0001
+        IFE C, 0
+            SET PC, lib_STDIO_getCharLoopEnd
+        ADD I, 1
+        IFN I, B
+            SET PC, lib_STDIO_getCharLoopEnd
+    :lib_STDIO_getCharLoopEnd
+    SET I, POP
+    SET X, POP
+    SET A, Y
+    SET Y, POP
+    SET Z, POP
+    SET PC, POP
+        
+    
+:lib_STDIO_print
+    ; INPUT: B, A
+    ; OUTPUT: NONE
+    ; DESC: print B characters starting at location A
