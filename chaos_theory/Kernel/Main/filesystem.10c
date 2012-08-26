@@ -15,6 +15,7 @@
 :fs_root_offset	dat 0xCB
 :fs_FAT			dat 0x0
 :fs_dir_entry	dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+:fs_dir_entry_end 	;dat 0x0
 ;=============================================
 ;ROUTINES
 ;=============================================
@@ -251,4 +252,128 @@ ifn A, 0xFFFF
 	set pc, .loop
 set B, pop
 jsr fs_update_FAT
+set pc, pop
+
+;dir management
+
+:fs_get_dir_entry	;A - guess what? starting cluster, B - number of the entry
+jsr fs_load_file
+set push, I
+set push, J
+set J, A
+set I, B
+mul I, 0x10
+add J, I
+set I, fs_dir_entry
+:.loop
+sti [I], [J]
+ifn I, fs_dir_entry_end
+	set pc, .loop
+jsr mem_free
+set A, fs_dir_entry
+set J, pop
+set I, pop
+set pc, pop
+
+:fs_get_free_dir_entry	;A - cluster output: A - number of entry or 0xFFFF if none
+set push, I
+set push, J
+set push, X
+set push, A
+jsr fs_load_file
+set X, A
+sub X, 0x1
+set I, 0x0
+set A, peek
+jsr fs_get_file_length
+set J, A
+mul J, 0x200
+set A, 0x0
+:.loop
+:.loop2
+add I, 0x1
+ife I, 0x10
+	set pc, .end
+add X, 0x1
+ife [X], 0x0
+	set pc, .loop2
+add A, 0x1
+set I, 0x0
+add X, 0x10
+ifn X, J
+	set pc, .loop
+set A, X
+jsr mem_free
+set X, pop
+set J, pop
+set I, pop
+set A, 0xFFFF
+set pc, pop
+:.end
+set A, X
+jsr mem_free
+set X, pop
+set J, pop
+set I, pop
+set pc, pop
+
+:fs_add_dir_entry	;A - cluster, B - address
+set push, A
+set push, B
+set push, C
+set push, X
+set push, Y
+set C, A
+jsr fs_load_file
+set X, A
+set push, A
+set A, C
+jsr fs_get_free_dir_entry
+mul A, 0x10
+add X, A
+set Y, X
+add Y, 0x10
+:.loop
+set [X], [B]
+add X, 0x1
+add B, 0x1
+ifn X, Y
+	set pc, .loop
+set A, C
+set X, pop
+jsr fs_edit_file
+set A, X
+jsr mem_free
+set Y, pop
+set X, pop
+set C, pop
+set B, pop
+set A, pop
+set pc, pop
+
+:fs_remove_dir_entry ;A - cluster B - number of the entry
+set push, A
+set push, B
+set push, X
+set push, A
+jsr fs_load_file
+set X, A
+set push, A
+mul B, 0x10
+add X, B
+set A, X
+add A, 0x10
+:.loop
+set [X], 0x0
+add X, 0x1
+ifn X, A
+	set pc, .loop
+set X, pop
+set A, pop
+jsr fs_edit_file
+set A, X
+jsr mem_free
+set X, pop
+set B, pop
+set A, pop
 set pc, pop
