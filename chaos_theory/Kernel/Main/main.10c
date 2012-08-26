@@ -64,6 +64,7 @@ set pc, pop
 .end
 ;exec code start here
 
+<<<<<<< HEAD
 SET A, 0x0
 JSR fs_get_free_dir_entry
 ;SET X, tmp
@@ -71,6 +72,25 @@ JSR fs_get_free_dir_entry
 ;SET A, 0x0
 ;SET B, 0x0
 ;JSR fs_get_dir_entry
+=======
+SET B, 12
+SET A, 0
+HWI [clockID]
+SET B, 1
+SET A, 2
+HWI [clockID]
+IAS multi_threading_interrupt
+SET A, 0x3
+JSR fs_create_file
+SET A, 0x1
+SET X, 0x0
+JSR fs_edit_file
+SET A, 0x1
+JSR fs_load_file
+SET A, 0x1
+JSR fs_delete_file
+SUB PC, 1
+>>>>>>> 098e6ccee2f861eb156bb882f3a849898ab740bd
 dat 0x0, 0x1234
 
 ;variables

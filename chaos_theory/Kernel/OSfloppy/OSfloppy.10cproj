@@ -7,7 +7,7 @@
     <property name="filesystem.enabled">true</property>
     <property name="filesystem.type">Structureless</property>
     <property name="autoLoad.enabled">True</property>
-    <property name="versionIncrement">22</property>
+    <property name="versionIncrement">28</property>
   </properties>
   <references />
   <files>

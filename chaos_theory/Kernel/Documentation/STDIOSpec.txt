@@ -1,0 +1,34 @@
+		CHAOS STDIO LIBRARY
+
+The Goal of the STDIO library is as follows:
+
+Enable extremely flexible and fast Input and Output system
+
+Allow programs easy access to screen, keyboard, and FS access
+
+Implement security against bad programs
+
+Make the Implemtation completely independant of programs,
+for easy modification
+
+
+IMPLEMENTATION
+
+STDIO will keep track of the screen and keyboard hardware ID
+
+STDIO will have these functions:
+
+STDIO_init
+
+Sets the screen and keyboard hardware ID
+
+STDIO_getChar
+
+If A == 0, getChar is non blocking, gets B characters, and
+returns A as the start of the characters
+
+NOTE: A will be 0 if getChar fails!
+
+STDIO_print
+
+print B characters starting at location A
