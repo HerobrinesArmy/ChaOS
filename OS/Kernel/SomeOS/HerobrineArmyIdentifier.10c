@@ -6,18 +6,38 @@
 ; --------------------------------------------
 
 ;TODO
-;Add function for getting ID from name
 ;Add a remove ID and Name function
 ;Add a add ID and Name function
 
-SET I,CODE
-JSR loadUsername
-:end
 
-SET C, [I]
-ADD I,1
 
-SET PC,end
+:addUsername;WORK IN PROGRESS. NEED TO LEARN HOW TO USE FLOPPY'S. CURRENTLY GETS INFO FROM 2 .dat FILES.
+SET PUSH, A
+SET PUSH, B
+JSR getNumberOfUsers
+SET B,[NumberOfUsers]
+SET A,0
+
+:endOfFileLoop
+ADD A,1
+IFE B,0
+SET PC, continueEndOfFileLoop
+IFE [A+Names], ';'
+SUB B,1
+SET PC, endOfFileLoop
+
+:continueEndOfFileLoop
+
+:writeToFileLoop
+
+SET PC, writeToFileLoop
+
+:continueWriteToFile
+SET [A+Names], ';'
+SET B, POP
+SET A, POP
+SET PC,POP
+
 
 :loadUsername
 JSR getNumberOfUsers
