@@ -1,0 +1,729 @@
+; --------------------------------------------
+; Title:   MathLib
+; Author:  Bone Storm (HRSDL)
+; Date:    8/10/2012
+; Version: 1.0.0
+; --------------------------------------------
+
+;Now these points of data make a beautiful line*.
+;And we're out of BETA, we're releasing on time!
+
+;Specs can be found here: http://dl.dropbox.com/u/98223383/MathLib%20specs.pdf
+
+:getEquationFromUser
+SET B,A
+SET C,0
+:equationSetLoop
+SET I, [B]
+SET [theData+C], [B]
+ADD B, 1
+ADD C, 1
+IFN [B], 0
+SET PC, equationSetLoop
+
+SET [theData+C], 0xFFFF
+
+SET PC, POP
+
+:subAndJump
+SUB B,1
+SET PC, loopNum1
+
+:newEquation;This would be called whenever a new equation is requested, A should be the start of the string and the answer will return in A
+SET PUSH, B
+SET PUSH, C
+SET PUSH, I
+SET PUSH, J
+SET PUSH, X
+SET PUSH, Y
+SET PUSH, Z
+SET PUSH, 0
+JSR getEquationFromUser
+
+SET A,0
+SET B,0
+SET I,0
+
+:BToEnd
+ADD B,1
+IFN [theData+B],0xFFFF
+SET PC, BToEnd
+SET PC, StartLoop
+:StartLoop
+SUB B,1
+SET J,1;J will keep track of the digit place
+JSR checkSuffix
+SET Z, [theData+B]
+IFE [theData+B],'h'
+SET PC, subAndJump
+SET Z, [theData+B]
+IFE [theData+B], 'i'
+SET PC, subAndJump
+SET Z, [theData+B]
+IFE [theData+B], 'o'
+SET PC, subAndJump
+SET Z, [theData+B]
+IFE [theData+B], 't'
+SET PC, subAndJump
+:loopNum1
+SET C, [theData+B]
+;Check to see if the string is done
+IFE B,0xFFFF
+SET PC, calculate
+;Check to see if there is an operation sign
+IFE C, ':'
+SET PC, factoralA
+IFE C, '!'
+SET PC, fibA
+IFE C, '`'
+SET PC, sqrtA
+IFE C, '-'
+SET PC, pushA
+IFE C, '+'
+SET PC, pushA
+IFE C, '*'
+SET PC, pushA
+IFE C, '/'
+SET PC, pushA
+IFE C, '^'
+SET PC, pushA
+IFE C, '%'
+SET PC, pushA
+;Check to see if C is a number
+SET Z,1
+IFE C, '1'
+IFG [base],1
+SET Z, 0
+IFE C, '2'
+IFG [base],2
+SET Z, 0
+IFE C, '3'
+IFG [base],3
+SET Z, 0
+IFE C, '4'
+IFG [base],4
+SET Z, 0
+IFE C, '5'
+IFG [base],5
+SET Z, 0
+IFE C, '6'
+IFG [base],6
+SET Z, 0
+IFE C, '7'
+IFG [base],7
+SET Z, 0
+IFE C, '8'
+IFG [base],8
+SET Z, 0
+IFE C, '9'
+IFG [base],9
+SET Z, 0
+IFE C, '0'
+SET Z, 0
+IFE C, 'a'
+IFG [base],10
+SET Z, 0
+IFE C, 'b'
+IFG [base],11
+SET Z, 0
+IFE C, 'c'
+IFG [base],12
+SET Z, 0
+IFE C, 'd'
+IFG [base],13
+SET Z, 0
+IFE C, 'e'
+IFG [base],14
+SET Z, 0
+IFE C, 'f'
+IFG [base],15
+SET Z, 0
+IFE Z,1
+SET PC, error
+IFE c,'a'
+SET c,0x3a
+IFE c,'b'
+SET c,0x3b
+IFE c,'c'
+SET c,0x3c
+IFE c,'d'
+SET c,0x3d
+IFE c,'e'
+SET c,0x3e
+IFE c,'f'
+SET c,0x3f
+SUB C, 0x30
+MUL C,J
+MUL J,[base]
+ADD A, C
+SUB B, 1
+SET PC, loopNum1
+
+:checkSuffix
+SET [base], [defaultBase]
+IFE [theData+B], 'h'; h for "h"ex
+SET [base], 16
+IFE [theData+B], 'i'; i for b"i"nary
+SET [base], 2
+IFE [theData+B], 'o'; o for "o"ctal
+SET [base], 8
+IFE [theData+B], 't'; t for "t"en
+SET [base], 10
+SET PC, POP
+
+:sqrtA
+SET PUSH, Z
+SET Z,1
+IFE B,0
+SET Z, 0
+SET I,theData
+SUB I,1
+ADD I,B
+SET I,[I]
+IFE I, '!'
+SET Z,0
+IFE I, '^'
+SET Z,0
+IFE I, '*'
+SET Z,0
+IFE I, '/'
+SET Z,0
+IFE I, '+'
+SET Z,0
+IFE I, '-'
+SET Z,0
+IFE I, '%'
+SET Z,0
+IFE I, '`'
+SET Z,0
+IFE I, '{'
+SET Z,0
+IFE I, '}'
+SET Z,0
+IFE I, '|'
+SET Z,0
+IFE I, ':'
+SET Z,0
+IFE Z,1
+SET PC, sqrtError
+SET Z, POP
+JSR sqrt
+SUB B, 1
+SET PC, loopNum1
+
+:sqrtError
+SET Z, POP
+SET PC, error
+
+:pushA
+SET Z,1
+SET Y,theData
+SUB Y,1
+ADD Y,B
+SET Y,[Y]
+IFE Y, '1'
+IFG [base],1
+SET Z, 0
+IFE Y, '2'
+IFG [base],2
+SET Z, 0
+IFE Y, '3'
+IFG [base],3
+SET Z, 0
+IFE Y, '4'
+IFG [base],4
+SET Z, 0
+IFE Y, '5'
+IFG [base],5
+SET Z, 0
+IFE Y, '6'
+IFG [base],6
+SET Z, 0
+IFE Y, '7'
+IFG [base],7
+SET Z, 0
+IFE Y, '8'
+IFG [base],8
+SET Z, 0
+IFE Y, '9'
+IFG [base],9
+SET Z, 0
+IFE Y, '0'
+SET Z, 0
+IFE Y, 'a'
+IFG [base],10
+SET Z, 0
+IFE Y, 'b'
+IFG [base],11
+SET Z, 0
+IFE Y, 'c'
+IFG [base],12
+SET Z, 0
+IFE Y, 'd'
+IFG [base],13
+SET Z, 0
+IFE Y, 'e'
+IFG [base],14
+SET Z, 0
+IFE Y, 'f'
+IFG [base],15
+SET Z, 0
+IFE Y, 'h'
+SET Z, 0
+IFE Y, 't'
+SET Z, 0
+IFE Y, 'i'
+SET Z, 0
+IFE Y, 'o'
+SET Z, 0
+IFE Z,1
+SET PC, error
+
+SET PUSH, A
+SET PUSH, C
+SET A,0
+SET PC, StartLoop
+
+:calculate
+SET I,0
+SET PUSH, A
+:pushToDat
+SET Z,POP
+IFE Z,0
+SET PC, continueCalculate
+SET [equation+I], Z
+ADD I,1
+SET PC, pushToDat
+
+:continueCalculate
+SET Z,2;Z will represent the step in order of operations
+SET Y,0
+SET PC,calculateLoop
+:sub1toZ
+SET Y,0
+SUB Z,1
+:calculateLoop
+SET A, [equation+Y]
+ADD Y,1
+SET I, [equation+Y]
+ADD Y,1
+SET B, [equation+Y]
+SET J,A
+IFE [equation+Y],0
+IFE Z,0xFFFF
+SET PC,return
+IFE [equation+Y],0
+SET PC, sub1toZ
+IFE I, '+'
+IFE Z,0
+ADD A,B
+IFE I, '-'
+IFE Z,0
+SUB A,B
+IFE I, '*'
+IFE Z,1
+MUL A,B
+IFE I, '/'
+IFE Z,1
+DIV A,B
+IFE I, '^'
+IFE Z,2
+JSR AToTheBPower
+IFE I, '%'
+IFE Z,1
+MOD A,B
+IFE J,A
+JSR repushCal
+IFN J,A
+JSR replaceCal
+SET PC,calculateLoop
+
+:repushCal
+SET [equation+Y], B
+SUB Y,1
+SET [equation+Y], I
+SUB Y,1
+SET [equation+Y], A
+ADD Y,2
+SET PC,POP
+
+:replaceCal
+SET [equation+Y], 0
+SUB Y,1
+SET [equation+Y], 0
+SUB Y,1
+SET [equation+Y], A
+ADD Y,2
+JSR moveZeros
+SUB Y,2
+SET PC, POP
+
+:moveZeros
+SET PUSH, A
+SET PUSH, B
+SET PUSH, I
+SET PUSH, J
+SET PUSH, Z
+SET PUSH, Y
+SUB Y,1
+SET A,Y
+ADD Y,1
+SET B,Y
+ADD Y,1
+SET I,Y
+ADD Y,1
+SET J,Y
+SET PUSH, Z
+
+:move0Loop
+SET [equation+A],[equation+I]
+SET C,[equation+A]
+SET [equation+B],[equation+J]
+SET Z,0
+IFN [equation+A], 0
+IFN [equation+B], 0
+SET Z,1
+ADD A,2
+ADD B,2
+ADD I,2
+ADD J,2
+IFE Z,1
+SET PC,move0Loop
+
+SET Z, POP
+SET Y, POP
+SET Z, POP
+SET J, POP
+SET I, POP
+SET B, POP
+SET A, POP
+SET PC, POP
+
+:fibA
+SET PUSH, Z
+SET Z,1
+IFE B,0
+SET Z, 0
+SET I,theData
+SUB I,1
+ADD I,B
+SET I,[I]
+IFE I, '!'
+SET Z,0
+IFE I, '^'
+SET Z,0
+IFE I, '*'
+SET Z,0
+IFE I, '/'
+SET Z,0
+IFE I, '+'
+SET Z,0
+IFE I, '-'
+SET Z,0
+IFE I, '%'
+SET Z,0
+IFE I, '`'
+SET Z,0
+IFE I, '{'
+SET Z,0
+IFE I, '}'
+SET Z,0
+IFE I, '|'
+SET Z,0
+IFE I, ':'
+SET Z,0
+IFE Z,1
+SET PC, fibError
+SET Z, POP
+SET PUSH, J
+SET PUSH, X;prev
+SET PUSH, Y;result
+SET PUSH, Z;sum
+SET J, 0xFFFF
+SET X,0xFFFF
+SET Y,1
+SET Z,0
+IFE A,1
+SET PC, fibEnd1or0
+IFL A,1
+SET PC, fibEnd1or0
+SUB A,1
+:fibLoop
+ADD J,1
+SET Z,0
+ADD Z,X
+ADD Z,Y
+SET X,Y
+SET Y,Z
+IFG J,A
+SET PC, fibEnd
+SET PC,fibLoop
+
+:fibEnd1or0
+SET Z, POP
+SET Y, POP
+SET X, POP
+SET J, POP
+SUB B, 1
+SET PC, loopNum1
+
+:fibEnd
+SET A, Y
+SET Z, POP
+SET Y, POP
+SET X, POP
+SET J, POP
+SUB B, 1
+SET PC, loopNum1
+
+:sine
+SET PUSH, X
+SET PUSH, Y
+SET PUSH, B
+
+SET X,A
+
+SET B,3
+JSR AToTheBPower
+SET Y,A; a^3
+SET A,3
+JSR factoral
+
+SET B, POP
+SET Y, POP
+SET X, POP
+SET PC, POP
+
+:factoralA
+SET PUSH, Z
+IFE I, '!'
+SET Z,0
+IFE I, '^'
+SET Z,0
+IFE I, '*'
+SET Z,0
+IFE I, '/'
+SET Z,0
+IFE I, '+'
+SET Z,0
+IFE I, '-'
+SET Z,0
+IFE I, '%'
+SET Z,0
+IFE I, '`'
+SET Z,0
+IFE I, '{'
+SET Z,0
+IFE I, '}'
+SET Z,0
+IFE I, '|'
+SET Z,0
+IFE I, ':'
+SET Z,0
+IFE Z,1
+SET PC,error
+SET Z, POP
+JSR factoral
+SUB B,1
+SET PC, loopNum1
+
+:factoral
+SET PUSH, B
+SET B,A
+SET A,1
+:factoralLoop
+MUL A,B
+SUB B,1
+IFN B,0
+SET PC, factoralLoop
+
+SET B, POP
+SET PC,POP
+
+
+:AToTheBPower
+
+IFE B, 0
+SET PC, powEnd0
+IFL B, 0
+SET PC, powEndLess0
+SET C,A
+
+SET PUSH, C
+
+:powLoop
+IFE B,1
+SET PC, powEnd
+SUB B,1
+MUL A,C
+SET PC, powLoop
+
+IFE B, 0
+SET PC, powEnd0
+IFL B, 0
+SET PC, powEndLess0
+
+:powEnd0
+SET PC, POP
+
+:powEndLess0
+SET A, 0
+SET PC,POP
+
+:powEnd
+SET C,POP
+SET PC, POP
+
+:fibError
+SET C,POP
+SET PC, error
+
+:error
+SET [equation],0
+SET PC, return
+
+:return
+SET A,[equation]
+SET Z, POP
+SET Y, POP
+SET X, POP
+SET J, POP
+SET I, POP
+SET C, POP
+SET B, POP
+SET PC, POP
+
+:setDefaultBase;Reads the A register and sets the default base of an equation to it. Will always be calculated in base 10 and cannot go below base 2 or above base 16
+SET PUSH, A
+SET PUSH, C
+SET PUSH, I
+SET PUSH, J
+SET PUSH, Z
+SET I, A
+SET A,0
+SET J,1
+:setToLastForBase
+IFE [I],0xFFFF
+SET PC, continueSetBase
+ADD I,1
+SET PC, setToLastForBase
+:continueSetBase
+SUB I,1
+IFE [I], ' '
+SET PC, endBase
+SET C, [I]
+SET Z,1
+IFE C, '1'
+SET Z, 0
+IFE C, '2'
+SET Z, 0
+IFE C, '3'
+SET Z, 0
+IFE C, '4'
+SET Z, 0
+IFE C, '5'
+SET Z, 0
+IFE C, '6'
+SET Z, 0
+IFE C, '7'
+SET Z, 0
+IFE C, '8'
+SET Z, 0
+IFE C, '9'
+SET Z, 0
+IFE C, '0'
+SET Z, 0
+IFE Z,1
+SET PC, error
+SUB C, 0x30
+MUL C, J
+MUL J, 10
+ADD A,C
+SET PC, continueSetBase
+
+:endBase
+IFG A,16
+SET PC, error
+IFL A,2
+SET PC, error
+SET [defaultBase], A
+SET Z, POP
+SET J, POP
+SET I, POP
+SET C, POP
+SET A, POP
+SET PC, POP
+
+:test
+SET Z,0
+:testLoop
+SET C, [equation+Z]
+ADD Z,1
+SET PC, testLoop
+
+:getETA;Gets the ETA of something. Reads A for distance or amount in a file and reads B for rate. Returns answer in I. Nothing special, but a handy feature.
+SET PUSH, A
+DIV A,B
+SET I,A
+SET A, POP
+SET PC, POP
+
+
+:distance3DSpace;Gets the distance in 3 dimensional space from point a,b,c to point x,y,z. Returning the value in I.
+SET PUSH, A
+SET PUSH, B
+SET PUSH, C
+SET PUSH, X
+SET PUSH, Y
+SET PUSH, Z
+
+SUB A,X
+MLI A,A
+SUB B,Y
+MLI B,B
+SUB C,Z
+MLI C,C
+
+
+ADD A, B
+ADD A, C
+
+JSR sqrt; distance between two 3D points = sqrt((x1-x2)^2+(y1-y2)^2+(z1-z2)^2)
+
+SET I,A
+
+SET Z, POP
+SET Y, POP
+SET X, POP
+SET C, POP
+SET B, POP
+SET A, POP
+SET PC, POP
+
+:sqrt;Finds the square root of A and returns it in A
+SET PUSH, B
+SET PUSH, C
+SET B,A
+:sqrtLoop
+SET C,B
+MUL C,C
+IFE C,A
+SET PC, continueSqrt
+IFL C,A
+SET PC, continueSqrt
+SUB B,1
+SET PC,sqrtLoop
+:continueSqrt
+SET A,B
+SET C, POP
+SET B, POP
+SET PC, POP
+
+:parenCount dat 0
+
+:defaultBase dat 10
+:base dat 0x0000
+
+theData:dat 0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000;If you do not give this, an overwrite error will occur
+:equation dat 0x0000
+
