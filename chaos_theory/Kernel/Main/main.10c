@@ -62,7 +62,15 @@ set [fs_drive], J
 set [floppyID], J
 set pc, pop
 .end
-;exec code start here
+
+SET A, 0x0
+SET B, tmp
+JSR fs_add_dir_entry
+SET A, 0x0
+SET B, 0x1
+JSR fs_get_dir_entry
+dat 0
+
 
 SET B, 12
 SET A, 0
@@ -71,17 +79,8 @@ SET B, 1
 SET A, 2
 HWI [clockID]
 IAS multi_threading_interrupt
-SET A, 0x3
-JSR fs_create_file
-SET A, 0x1
-SET X, 0x0
-JSR fs_edit_file
-SET A, 0x1
-JSR fs_load_file
-SET A, 0x1
-JSR fs_delete_file
+
 SUB PC, 1
-dat 0x0, 0x1234
 
 ;variables
 :device_number	dat 0x0
@@ -89,3 +88,4 @@ dat 0x0, 0x1234
 :keyboardID 	dat 0x0
 :screenID 		dat 0x0
 :floppyID		dat 0x0
+:tmp	dat 1,3,3,3,5,6,7,8,9,10,11,12,13,14,15,16,0
