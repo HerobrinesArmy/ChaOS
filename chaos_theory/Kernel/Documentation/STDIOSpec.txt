@@ -32,3 +32,5 @@ NOTE: A will be 0 if getChar fails!
 STDIO_print
 
 print B characters starting at location A, using Color C
+
+NOTE: Handles backspace and Enter!

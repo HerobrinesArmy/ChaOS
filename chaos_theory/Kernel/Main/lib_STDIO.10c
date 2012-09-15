@@ -2,7 +2,7 @@
 ; Title:   lib_STDIO
 ; Author:  Alex
 ; Date:    8/24/2012
-; Version: 0.5
+; Version: 0.6
 ; --------------------------------------------
 
 ; From the spec
@@ -51,6 +51,7 @@
     SET I, POP
     SET J, POP
     SET [lib_STDIO_MonitorPos], 0x8000
+    SET [lib_STDIO_MonitorStart], [lib_STDIO_MonitorPos]
     SET [lib_STDIO_MonitorEnd], [lib_STDIO_MonitorPos]
     ADD [lib_STDIO_MonitorEnd], 386
     SET PC, POP
@@ -106,10 +107,24 @@
     SET PUSH, I
     ADD B, A
     :lib_STDIO_printLoop
-        BOR [A], C
-        SET I, [lib_STDIO_MonitorPos]
-        SET [I], [A]
-        ADD [lib_STDIO_MonitorPos], 1
+        IFE [A], 0x0010
+            SET PC, lib_STDIO_printLoopBack
+        IFE [A], 0x0011
+            JSR lib_STDIO_enter
+        IFE [A], 0x0011
+            SET PC, lib_STDIO_printLoopCont
+        SET PC, lib_STDIO_printLoopPrint
+        :lib_STDIO_printLoopBack
+            SUB [lib_STDIO_MonitorPos], 1
+            SET I, [lib_STDIO_MonitorPos]
+            SET [I], 0
+            SET PC, lib_STDIO_printLoopCont
+        :lib_STDIO_printLoopPrint
+            BOR [A], C
+            SET I, [lib_STDIO_MonitorPos]
+            SET [I], [A]
+            ADD [lib_STDIO_MonitorPos], 1
+        :lib_STDIO_printLoopCont
         IFE [lib_STDIO_MonitorPos], [lib_STDIO_MonitorEnd]
             JSR lib_STDIO_scroll
         ADD A,1
@@ -150,8 +165,30 @@
         SET Y, POP
         SET X, POP
         SET PC, POP
+
+:lib_STDIO_enter
+    ; INPUT: NONE
+    ; OUTPUT: NONE
+    ; DESC: Helper function, moves to the next line
+    SET PUSH, J
+    SET PUSH, A
+    SET A, [lib_STDIO_MonitorPos]
+    SET J, A
+    MOD J, 0x0020
+    SUB A, J
+    ADD A, 0x0020
+    IFG A, [lib_STDIO_MonitorEnd]
+        SET A, [lib_STDIO_MonitorStart]
+    SET [lib_STDIO_MonitorPos], A
+    IFG A, [lib_STDIO_MonitorEnd]
+        JSR lib_STDIO_scroll
+    SET A, POP
+    SET J, POP
+    SET PC, POP
+    
     
 :lib_STDIO_KeyboardID dat 0x0000
 :lib_STDIO_MonitorPos dat 0x0000
 :lib_STDIO_MonitorEnd dat 0x0000
+:lib_STDIO_MonitorStart dat 0x0000
 :lib_STDIO_MonitorID dat 0x0000

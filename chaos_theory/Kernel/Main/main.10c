@@ -80,6 +80,8 @@ HWI [clockID]
 IAS multi_threading_interrupt
 
 JSR lib_STDIO_init
+
+:main_loop_temp
 SET A, 1
 SET B, 1
 JSR lib_STDIO_getChar
@@ -87,7 +89,7 @@ SET B, 1
 SET C, 0x7000
 JSR lib_STDIO_print
 
-SUB PC, 1
+SET PC, main_loop_temp
 
 ;variables
 :device_number	dat 0x0

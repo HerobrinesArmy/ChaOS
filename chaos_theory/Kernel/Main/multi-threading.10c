@@ -8,7 +8,6 @@
 :multi_threading_interrupt
 IFN A, 1
 	SET PC, multi_threading_interrupt_end
-SET [0x8000], 0x51
 :multi_threading_interrupt_end
 RFI 0
 
