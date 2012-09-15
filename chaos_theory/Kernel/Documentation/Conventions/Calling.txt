@@ -1,0 +1,124 @@
+Code standards
+
+Below you will find a code standards that must be followed by every developers for any projects.
+Feel free to comment it, be sure to apply its more recent revision in all your codes..
+
+------
+
+*The code must be the more compatible with the RFC X1000 (Standard-ABI) that basically consist in :
+*Registers A, B, C must be assumed as modified after the call of a function : they must be saved before the call, and restored after, if their content have to be preserved.
+*Registers X, Y, Z, I, J must not be preserved by the called function, so they must be identical before and after the call of a function for the calling function.
+*The stack must NOT be modified after a function call : it must be the same before and after the call.
+*Any argument to a function must be passed with the register A, B or C. Any return value must also be returned with the registers A, B or C.
+
+*Example :
+
+SET A, 1
+SET B, 2
+SET Z, 3
+SET PUSH, B ; Here we save the content of the B register, because we need to keep its value, and we must assume that it can be modified by the function
+JSR  func1
+; Now A and B must be assumed (and are indeed) modified, and Z must be assumed (and is) not modified.
+SET B, POP ; The function did not have modified the stack, as needed : we just have to restore the value of the B register now.
+:end
+   SET PC, end
+
+:func1
+   SET PUSH, Z ; We use Z in this function, and Z need to be protected, that’s what we do here to save it ...
+   SET Z, A
+   SET A, 2
+   ADD B, Z
+   SET Z, POP ; And here to restore its value.
+   SET PC, POP
+
+------
+
+Now a little bit of code syntax :
+
+*A “tab” is composed of 4 SPACES (soft tab) and so it’s not a hard tab (“tab” key) !
+Right : ‘    ‘ -  Wrong : ‘	’ (highlight the content to see the difference between both)
+
+*Use CAPS for every hexadecimal value, register name, and function name.
+Right : SET A, 0x00FA - Wrong : set a, 0x00fa
+
+*Indent your code correctly ! And comment it correctly too !
+
+*Example :
+
+; Here is the comment on the top of that library/program that describe what it does, and how to use it, as well as credits and every other usefull informations (changelog, …)
+
+:func1 ; Main function, no tab
+    SET A, 0x1234 ; We are in a function, one soft tab
+    IFE A, 0x1234 ; Still in the func
+        SET PC, func2InsideFunc1 ; We are still in the func, but after a condition operation : one more soft tab here
+    :func2InsideFunc1 ; A func in a func ! We are still in a func, so one soft tab
+        IFE A, 0x1234 ; 2 soft tab, because we are in a func that is already in a func
+            JSR func3OutsideFunc1 ; After an if ! Triple soft tab :
+
+; Above is an EMPTY LINE that separate main functions ! DO NOT put empty lines INSIDE your functions ! It’s NOT recommended to put comments on your functions, only on top of them (see next comment).
+; Those two comments (this one and the one above) must NOT be here, comments must ALWAYS be at the TOP of each functions, and not INSIDE, except for a comment on the TOP of each libraries to describe them for example.
+:func3OutsideFunc1
+     ; ALWAYS specify what are the input and the output of each function if there are, as well as a little descriptive message about it and what it does ! Like that :
+    ; Here is the comment that describe the usage of func3OutsideFunc1
+    ; Output - C : 0x9876 in any case (but that’s just an example =P)
+    SET B, 0x0001
+    :loopInsideFunc3
+        IFE B, 0x0005 ; we are at the start of the loop that is in the func3 = double soft tab
+            SET PC, end ; still in the loop + IFE = triple soft tab
+        ADD B, 0x0001 ; still in the loop
+        SET PC, loopInsideFunc3 ; still in the loop
+    SET C, 0x9876 ; we are out of the loop here, so only one soft tab
+    SET PC, POP
+
+:end
+    ; End function to stop the program execution
+    SET PC, end
+
+*For functions/variable names, use the following formatting :
+:project_functionName
+:project_VariableName
+:project_CONSTANTNAME
+*And separate functions from variables !
+
+*Example :
+
+; Description of the lib/program
+
+; ---- Functions ----
+
+:RPG_Main
+    ; Description of RPG_Main
+    :RPG_MainLoop ; We are in the Loop function that is part of the Main function of the RPG project.
+    ; No description here : a function inside a function MUST NOT be very important, or have I/O, … Use a “real” function for that.
+        :RPG_MainLoopCase1
+        :RPG_MainLoopCase2
+    :RPG_MainLoopEnd
+    :RPG_MainRandomFunc
+
+:RPG_saveChar
+
+:RPG_drawMap
+    :RPG_drawMapLoop
+
+:RPG_iHopeYouUnderstoodFunctionFormattingNow
+
+; ---- Variables ----
+
+:RPG_PlayerPos
+    DAT 0x0000, 0x0000
+
+:RPG_PLAYERVELOCITY ; Constant ! Must not be modified !
+    DAT 0x0012
+
+:RPG_MAP
+    DAT 0x0001, 0x0001, 0x0000, 0x0001
+    DAT 0x0000, 0x0101, 0x1000, 0x0011
+    DAT 0x1001, 0x0011, 0x0001, 0x1100
+
+:RPG_PlayerLife
+    DAT 0x0005
+
+*For All your DAT thingy, use only HEX !
+Right : DAT 0x123F , Wrong : DAT 4671
+
+*For all your operations, you can use hex or decimal, but if that’s binary operations like AND, BOR, … use only HEX ! Use decimal (if you want to) only for MUL or DIV or SHR or that kind of functions

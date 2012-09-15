@@ -23,9 +23,11 @@
     ; DESC: Sets neccecary variables to function
     ; NOTE: EITHER CALL THIS OR SET THE DAT VARS YOURSELF!
     SET PUSH, J
+    SET PUSH, I
     SET J, 0
-    HWN C
+    HWN I
     :lib_STDIO_initLoop
+        HWQ J
         IFE B, 0x30CF
             IFE A, 0x7406 
                 JSR lib_STDIO_initKeyboard
@@ -33,16 +35,20 @@
             IFE A, 0xF615 
                 JSR lib_STDIO_initScreen
         ADD J, 1
-        IFE J, C
+        IFG J, I
             SET PC, lib_STDIO_initLoopEnd
         SET PC, lib_STDIO_initLoop
     :lib_STDIO_initScreen
     SET [lib_STDIO_monitorID], J
+    SET A, 0
+    SET B, 0x8000
+    HWI J
     SET PC, POP
     :lib_STDIO_initKeyboard
     SET [lib_STDIO_KeyboardID], J
     SET PC, POP
     :lib_STDIO_initLoopEnd
+    SET I, POP
     SET J, POP
     SET [lib_STDIO_MonitorPos], 0x8000
     SET [lib_STDIO_MonitorEnd], [lib_STDIO_MonitorPos]
@@ -97,10 +103,12 @@
     ; INPUT: B, A, C
     ; OUTPUT: NONE
     ; DESC: print B characters starting at location A, with color C
+    SET PUSH, I
     ADD B, A
     :lib_STDIO_printLoop
         BOR [A], C
-        SET [lib_STDIO_MonitorPos], [A]
+        SET I, [lib_STDIO_MonitorPos]
+        SET [I], [A]
         ADD [lib_STDIO_MonitorPos], 1
         IFE [lib_STDIO_MonitorPos], [lib_STDIO_MonitorEnd]
             JSR lib_STDIO_scroll
@@ -108,6 +116,7 @@
         IFN A, B
             SET PC, lib_STDIO_printLoop
     :lib_STDIO_printEnd
+    SET I, POP
     SET PC, POP
     
 :lib_STDIO_scroll

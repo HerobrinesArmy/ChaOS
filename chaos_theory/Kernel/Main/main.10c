@@ -69,7 +69,6 @@ JSR fs_add_dir_entry
 SET A, 0x0
 SET B, 0x1
 JSR fs_get_dir_entry
-dat 0
 
 
 SET B, 12
@@ -79,6 +78,14 @@ SET B, 1
 SET A, 2
 HWI [clockID]
 IAS multi_threading_interrupt
+
+JSR lib_STDIO_init
+SET A, 1
+SET B, 1
+JSR lib_STDIO_getChar
+SET B, 1
+SET C, 0x7000
+JSR lib_STDIO_print
 
 SUB PC, 1
 
