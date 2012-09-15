@@ -3,7 +3,7 @@
   <name>Kernel</name>
   <properties>
     <property name="emuLoad.projectName">Bootloader</property>
-    <property name="emuLoadMode">project</property>
+    <property name="emuLoadMode">none</property>
   </properties>
   <projects>
     <project path="Bootloader\Bootloader.10cproj" />
