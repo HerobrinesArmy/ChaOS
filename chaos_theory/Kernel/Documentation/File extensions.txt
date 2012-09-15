@@ -1,0 +1,17 @@
+File extensions defined as standard compliant for ChaOS2.0
+
+.txt (text)
+.img (LibPixel image)
+.vid (LibPixel video)
+.bsc (BASIC)
+.run (ASM program)
+.cll (Lib call)
+.spr (spreadsheet)
+.map (3d map)
+.dmp (data dump)
+.bin (other)
+
+
+
+
+.lol (lol)
