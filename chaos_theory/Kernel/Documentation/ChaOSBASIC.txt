@@ -1,0 +1,35 @@
+Spec revision 0x0003
+DCPU-BASIC tokens
+
+26 Variables (A-Z)
+10 strings
+10 matrixes
+10 lists (vectors)
+Does not allow syscalls
+Labels consist of 4 standard ASCII text chars
+
+Whitespace is used to seperate entries of opcodes and operands, a new line is used to create a new code line, commas seperate multiple operands using one opcode (Disp "text", A)
+Parens CAN be used after a command, though they are not required
+
+Disp "text", A, Str1
+
+If
+Then
+Else
+End
+
+Goto
+Label
+
+> (store command)
+
+Input
+
+STOP
+SSTOP
+
+RETURN (If a BASIC prog is called by an ASM one, return stores the locations of BASIC variables in an area the ASMprog can read and hands control back to the task scheduler)
+
+The CTRL-D combo enters debug mode, displaying an overlay of the programs data and variables, as well as any errors
+
+The CTRL-K combo kills the program no matter what, UNLESS the program is being called by an ASM prog as a subroutine 
