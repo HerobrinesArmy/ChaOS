@@ -1,0 +1,8 @@
+ChaOSNet Revision 0x0004 Packet Behaviour
+
+
+
+
+When a packet is sent by a program ChaOSNet appends the directed address and desired port as a header, plus any data the program wants to send. The footer contains the return BaseNetAddr
+
+When a packet is recieved by the ChaOSNet service running on a given DCPU, the computer checks if a program has been bound to that port. If so, it stores the packet in the program's data buffer (along with the programPage), to be freely parsed and interpreted by the program when needed. For example, a webserver could respond to requests from any client that sends it data, returning the contentsof a webpage for example. Data parsing is handled entirely program side, though for general conventions please referr to the Data parsing spec.
