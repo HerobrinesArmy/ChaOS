@@ -2,3 +2,5 @@
 *.bin
 #ignore compiled filesystem images
 *.bief
+#ignore the .DS_Store files that MacOS insists on creating everywhere
+.DS_Store
