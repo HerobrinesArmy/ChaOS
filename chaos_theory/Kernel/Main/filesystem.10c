@@ -139,11 +139,11 @@ set pc, pop
 :fs_create_file	;A - length in sectors
 ife A, 0x0
 	set pc, pop
-set push, A
 set push, B
 set push, X
 set X, A
 jsr fs_get_free_sector
+set push, A
 set B, A
 add B, [fs_FAT]
 :.loop
@@ -158,9 +158,9 @@ set pc, .loop
 :.end
 set [B], 0xFFFF
 jsr fs_update_FAT
+set A, pop
 set X, pop
 set B, pop
-set A, pop
 set pc, pop
 
 :fs_get_file_length	;A - starting cluster
@@ -390,4 +390,60 @@ jsr mem_free
 set X, pop
 set B, pop
 set A, pop
+set pc, pop
+
+;advanced fs routines
+
+:fs_mkfile ;A - address of filename (converted to 5-word), B- file size in clusters, output: A - number of the entry in current dir
+set push, I
+set push, J
+set I, 0x0
+set J, fs_dir_entry
+.loop
+sti [J], [A]
+add A, 0x1
+ifl i, 0x5
+	set pc, .loop
+set [J], 0x0
+add J, 0x7 ;skipping the datetime, for we have no clock in yet
+set A, B
+jsr fs_create_file
+set [J], A
+add J, 0x1
+set [J], B
+add J, 0x1
+set [J], 0x0
+set A, [fs_dir]
+set B, fs_dir_entry
+jsr fs_add_dir_entry
+set J, pop
+set I, pop
+set pc, pop
+
+:fs_mkdir ;A - address of dir name (converted to 5-word), B- dir size in clusters, output: A - number of the entry in current dir
+set push, I
+set push, J
+set I, 0x0
+set J, fs_dir_entry
+.loop
+sti [J], [A]
+add A, 0x1
+ifl i, 0x5
+	set pc, .loop
+set [J], 0x0
+add J, 0x1
+set [J], 0x10
+add J, 0x6 ;skipping the datetime, for we have no clock in yet
+set A, B
+jsr fs_create_file
+set [J], A
+add J, 0x1
+set [J], B
+add J, 0x1
+set [J], 0x0
+set A, [fs_dir]
+set B, fs_dir_entry
+jsr fs_add_dir_entry
+set J, pop
+set I, pop
 set pc, pop

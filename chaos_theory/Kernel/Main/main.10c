@@ -63,15 +63,6 @@ set [floppyID], J
 set pc, pop
 .end
 
-SET A, 0x0
-SET B, tmp
-JSR fs_add_dir_entry
-SET A, 0x0
-SET B, 0x1
-JSR fs_get_dir_entry
-dat 0
-
-
 SET B, 12
 SET A, 0
 HWI [clockID]
