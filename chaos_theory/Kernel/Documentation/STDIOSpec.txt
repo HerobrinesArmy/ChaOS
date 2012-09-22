@@ -20,7 +20,7 @@ STDIO will have these functions:
 
 STDIO_init
 
-Sets the screen and keyboard hardware ID
+Sets the screen and keyboard hardware ID, will also initialize the screen
 
 STDIO_getChar
 
@@ -31,4 +31,6 @@ NOTE: A will be 0 if getChar fails!
 
 STDIO_print
 
-print B characters starting at location A
+print B characters starting at location A, using Color C
+
+NOTE: Handles backspace and Enter!

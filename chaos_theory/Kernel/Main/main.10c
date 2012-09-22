@@ -71,7 +71,25 @@ SET A, 2
 HWI [clockID]
 IAS multi_threading_interrupt
 
-SUB PC, 1
+JSR lib_STDIO_init
+
+SET A, 0xBEEF
+SET B, 1
+JSR calcMD5
+SET A, B
+SET B, 4
+SET C, 0x0000
+JSR lib_STDIO_print
+
+:main_loop_temp
+SET A, 1
+SET B, 1
+JSR lib_STDIO_getChar
+SET B, 1
+SET C, 0x7000
+JSR lib_STDIO_print
+
+SET PC, main_loop_temp
 
 ;variables
 :device_number	dat 0x0

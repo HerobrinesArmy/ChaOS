@@ -6,11 +6,10 @@
 ; --------------------------------------------
 
 :multi_threading_interrupt
-IFN A, 1
-	SET PC, multi_threading_interrupt_end
-SET [0x8000], 0x51
+    IFN A, 1
+        SET PC, multi_threading_interrupt_end
 :multi_threading_interrupt_end
-RFI 0
+    RFI 0
 
 ;NOTE: These are listed by priority 
 :multi_threading_prog1 dat 0,0,0,0,0,0,0,0,0,0
