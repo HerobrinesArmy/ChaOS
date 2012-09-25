@@ -733,6 +733,10 @@ SET I,0
 :checkForEqualsLoop
 IFE [A],'='
 SET I,1
+IFE [A], '>'
+SET I,1
+IFE [A], '<'
+SET I,1
 ADD A,1
 IFN [A],0
 SET PC, checkForEqualsLoop
@@ -748,7 +752,20 @@ SET A,0
 :subEquation1Loop
 SET [subEquation1+A], [equation+A]
 ADD A,1
-IFN [equation+A],'='
+SET Z,0
+IFE [equation+A],'='
+SET Z,1
+IFE [equation+A],'>'
+SET Z,1
+IFE [equation+A],'<'
+SET Z,1
+IFE [equation+A],'='
+SET [compareChar], [equation+A]
+IFE [equation+A],'>'
+SET [compareChar], [equation+A]
+IFE [equation+A],'<'
+SET [compareChar], [equation+A]
+IFE Z,0
 SET PC, subEquation1Loop
 
 SET B,0
@@ -771,17 +788,24 @@ SET A, subEquation2
 JSR newEquation
 SET [equation],0
 IFE A,J
+IFE [compareChar], '='
+SET [equation],1
+IFL A,J
+IFE [compareChar], '>'
+SET [equation],1
+IFG A,J
+IFE [compareChar], '<'
 SET [equation],1
 SET Z,POP;Theres an extra POP for some reason and this is faster
 SET PC, return
 
 :parenCount dat 0
-
+:compareChar dat 0
 :defaultBase dat 10
 :base dat 0x0000
 
 theData:dat 0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000;If you do not give this, an overwrite error will occur
 :subEquation1 dat 0x0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 :subEquation2 dat 0x0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-:equation dat 0x0000,0,0,0,0,0,0,0,0,0,0
+:equation dat 0,0x0000,0,0,0,0,0,0,0,0,0,0
 
