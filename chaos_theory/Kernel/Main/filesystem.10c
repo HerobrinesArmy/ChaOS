@@ -447,3 +447,177 @@ jsr fs_add_dir_entry
 set J, pop
 set I, pop
 set pc, pop
+
+;additional routines
+:fs_to5word   ;i - input, 5Word, j - output, 11 Word
+set push, a
+set push, b
+set push, c
+set push, i
+set push, j
+set a, [i]
+add i,1
+shl a, 0x9
+set b, [i]
+shl b, 0x2
+bor a, b
+add i, 1
+set b, [i]
+and b, 0x60
+shr b, 0x5
+bor a, b
+set [j], a ;1st word
+add j, 1
+set a, [i]
+and a, 0x1F
+shl a, 0xB
+add i, 1
+set b, [i]
+shl b, 0x4
+bor a, b
+add i, 1
+set b, [i]
+and b, 0x78
+shr b, 0x3
+bor a, b
+set [j], a ;2nd word
+add j, 1
+set a, [i]
+and a, 0x7
+shl a, 0xD
+add i, 1
+set b, [i]
+shl b, 0x6
+bor a, b
+add i, 1
+set b, [i]
+and b, 0x7E
+shr b, 1
+bor a, b
+set [j], a ;3rd word
+add j, 1
+set a, [i]
+and a, 0x1
+shl a, 0xF
+add i, 1
+set b, [i]
+shl b, 0x8
+bor a, b
+add i, 1
+set b, [i]
+shl b, 1
+bor a, b
+add i, 1
+set b, [i]
+and b, 0x40
+shr b, 0x6
+bor a, b
+set [j], a ;4th word
+add j ,1
+set a, [i]
+and a, 0x3F
+shl a, 0xA
+add i, 1
+set b, [i]
+shl b, 0x3
+bor a, b
+set [j], a ;5th word
+set j, pop
+set i, pop
+set c, pop
+set b, pop
+set a, pop
+set pc, pop
+
+:fs_to11word ;y - adress of the 1. byte of the string, z - 1. byte of output
+set push, a
+set push, b
+set push, c
+set push, y
+set push, z
+set a, [y]
+add y, 1
+set b, a
+and b, 0xFE00
+shr b, 0x9
+set [z], b	;1st char
+add z, 1
+set b, a
+and b, 0x1FC
+shr b, 0x2
+set [z], b	;2nd char
+add z, 1 
+set b, a
+set a, [y]
+add y, 1
+set c, a
+and b, 0x3
+and c, 0xF800
+shl b, 0x5
+shr c, 0xB
+bor b, c
+set [z], b ;3rd char
+add z, 1
+set b, a
+and b, 0x7F0
+shr b, 0x4
+set [z], b ;4th char
+add z, 1
+set b, a
+set a, [y]
+add y, 1
+set c, a
+and b, 0xF
+and c, 0xE000
+shl b, 0x3
+shr c, 0xD
+bor b, c
+set [z], b ;5th char
+add z, 1
+set b, a
+and b, 0x1FC0
+shr b, 0x6
+set [z], b ;6th char
+add z, 1
+set b, a
+set a, [y]
+add y, 1
+set c, a
+and b, 0x3F
+and c, 0x8000
+shl b, 1
+shr c, 0xF
+bor b, c
+set [z], b ;7th char
+add z, 1
+set b, a
+and b, 0x7F00
+shr b, 0x8
+set [z], b ;8th char
+add z, 1
+set b, a
+and b, 0xFE
+shr b, 1
+set [z], b ;9th char
+add z, 1
+set b, a
+set a, [y]
+add y, 1
+set c, a
+and b, 0x1
+and c, 0xFC00
+shl b, 0x6
+shr c, 0xA
+bor b, c
+set [z], b	;10th char
+add z, 1
+set b, a
+and b, 0x3F8
+shr b, 3
+set [z], b ;11th char
+set z, pop
+set y, pop
+set c, pop
+set b, pop
+set a, pop
+set pc, pop
