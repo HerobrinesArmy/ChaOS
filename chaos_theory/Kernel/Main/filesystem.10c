@@ -394,18 +394,15 @@ set pc, pop
 
 ;advanced fs routines
 
-:fs_mkfile ;A - address of filename (converted to 5-word), B- file size in clusters, output: A - number of the entry in current dir
+:fs_mkfile ;A - address of filename (regular 11-char word), B- file size in clusters, output: A - number of the entry in current dir
 set push, I
 set push, J
-set I, 0x0
+set I, B
+set B, fs_dir_entry
+jsr fs_to5word
+set B, I
 set J, fs_dir_entry
-.loop
-sti [J], [A]
-add A, 0x1
-ifl i, 0x5
-	set pc, .loop
-set [J], 0x0
-add J, 0x7 ;skipping the datetime, for we have no clock in yet
+add J, 0xC
 set A, B
 jsr fs_create_file
 set [J], A
@@ -449,12 +446,14 @@ set I, pop
 set pc, pop
 
 ;additional routines
-:fs_to5word   ;i - input, 5Word, j - output, 11 Word
+:fs_to5word   ;a - input, 5Word, b - output, 11 Word
 set push, a
 set push, b
 set push, c
 set push, i
 set push, j
+set i, a
+set j, b
 set a, [i]
 add i,1
 shl a, 0x9
@@ -529,12 +528,14 @@ set b, pop
 set a, pop
 set pc, pop
 
-:fs_to11word ;y - adress of the 1. byte of the string, z - 1. byte of output
+:fs_to11word ;a - adress of the 1. byte of the string, b - 1. byte of output
 set push, a
 set push, b
 set push, c
 set push, y
 set push, z
+set y, a
+set z, b
 set a, [y]
 add y, 1
 set b, a
