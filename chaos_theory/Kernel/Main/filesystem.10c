@@ -445,8 +445,51 @@ set J, pop
 set I, pop
 set pc, pop
 
+:fs_find_entry_by_name ;A - name as 11-word, output: A - entry number or 0xFFFF if none
+set push, I
+set push, C
+set push, B
+set B, fs_dir_entry
+jsr fs_to5word
+set A, [fs_dir]
+jsr fs_load_file
+set push, A
+set I, 0x0
+ .loop
+ set push, A
+ set B, fs_dir_entry
+ set C, 0x5
+ jsr fs_util_compare
+ ife A, 0x0
+  set pc, .end
+ set A, peek
+ set B, 0x5
+ jsr fs_util_isnull
+ set C, A
+ set A, pop
+ add A, 0x10
+ add I, 0x1
+ ifn C, 0x0
+  set pc, .loop
+set A, pop
+jsr mem_free
+set B, pop
+set C, pop
+set I, pop
+set A, 0xFFFF
+set pc, pop
+.end
+set ex, pop
+set A, pop
+jsr mem_free
+set A, I
+set B, pop
+set C, pop
+set I, pop
+set pc, pop
+
 ;additional routines
-:fs_to5word   ;a - input, 5Word, b - output, 11 Word
+:fs_to5word   ;a - input, 11-Word, b - output, 5-Word
 set push, a
 set push, b
 set push, c
@@ -622,3 +665,60 @@ set c, pop
 set b, pop
 set a, pop
 set pc, pop
+
+ :fs_util_compare ;A, B; C
+ set push, B
+ set push, I
+ set I, 0x0
+  :fs_util_compare_loop
+  ifn [A], [B]
+	set pc, fs_util_compare_end
+  add A, 0x1
+  add B, 0x1
+  add I, 0x1
+  ifn I, C
+  	set pc, fs_util_compare_loop
+  set I, pop
+  set B, pop
+  set A, 0x0
+  set pc, pop
+  :fs_util_compare_end
+  set I, pop
+  set B, pop
+  set A, 0xFFFF
+  set pc, pop
+
+ :fs_util_assign ;A, B; C
+ set push, C
+ set push, I
+ set push, J
+ set I, A
+ set J, B
+ add C, I
+  :fs_util_assign_loop
+  sti [I], [J]
+  ifn I, C
+  	set pc, fs_util_assign_loop
+ set J, pop
+ set I, pop
+ set C, pop
+ set pc, pop
+ 
+ :fs_util_isnull ;A ; B
+ set push, B
+ add B, A
+ :fs_util_isnull_loop
+ ifn [A], 0x0
+ 	set pc, fs_util_isnull_end
+ add A, 0x1
+ ifn A, B
+  set pc, fs_util_isnull_loop
+ set A, 0x0
+ set B, pop
+ set pc, pop
+ :fs_util_isnull_end
+ set A, 0xFFFF
+ set B, pop
+ set pc, pop
+
+ 
