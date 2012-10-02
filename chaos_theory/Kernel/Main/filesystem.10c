@@ -15,7 +15,9 @@
 :fs_root_offset	dat 0xCB
 :fs_FAT			dat 0x0
 :fs_dir_entry	dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
-:fs_dir_entry_end 	;dat 0x0
+:fs_dir_entry_end
+:fs_dir_tree	dat 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+:fs_dir_tree_end
 ;=============================================
 ;ROUTINES
 ;=============================================
@@ -190,7 +192,6 @@ mul A, 0x200
 jsr mem_alloc
 ife A, 0x0
 	dat 0
-	;set A, 0x7000
 set X, A
 set A, Y
 :.loop
@@ -488,6 +489,83 @@ set C, pop
 set I, pop
 set pc, pop
 
+:fs_cd	;A - name as 11word or all zeros to back up
+set push, B
+set push, A
+set B, 0xB
+jsr fs_util_isnull
+ife A, 0x0
+	set pc, .back
+set A, pop
+jsr fs_find_entry_by_name
+jsr fs_dir_push
+set B, pop
+set pc, pop
+.back
+jsr fs_dir_pop
+set A, pop
+set B, pop
+set pc, pop
+
+;dir tree exploration
+
+:fs_dir_push	;A - a dir to move to
+set push, I
+set I, fs_dir_tree
+.loop
+ ife [I], 0x0
+ 	set pc, .end
+ add I, 0x1
+ ifn I, fs_dir_tree_end
+ 	set pc, .loop
+set I, fs_dir_tree
+.end
+set [I], A
+jsr fs_dir_update
+set I, pop
+set pc, pop
+
+:fs_dir_pop	;output: A - startng cluster of current dir before popping
+set push, I
+set I, fs_dir_tree_end
+.loop
+	ifn [I], 0x0
+		set pc, .end
+	sub I, 0x1
+	ifn I, fs_dir_tree
+		set pc, .loop
+set A, 0x0
+set I, pop
+set pc, pop
+set A, [I]
+set [I], 0x0
+jsr fs_dir_update
+set I, pop
+set pc, pop
+
+:fs_dir_peek	;output: A - starting cluster of current dir
+set push, I
+set I, fs_dir_tree_end
+.loop
+	ifn [I], 0x0
+		set pc, .end
+	sub I, 0x1
+	ifn I, fs_dir_tree
+		set pc, .loop
+set A, 0x0
+set I, pop
+set pc, pop
+set A, [I]
+set I, pop
+set pc, pop
+
+:fs_dir_update	;refresh the fs_dir pointer
+set push, A
+jsr fs_dir_peek
+set [fs_dir], A
+set A, pop
+set pc, pop
+	
 ;additional routines
 :fs_to5word   ;a - input, 11-Word, b - output, 5-Word
 set push, a
