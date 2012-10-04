@@ -261,6 +261,78 @@ set B, pop
 jsr fs_update_FAT
 set pc, pop
 
+:fs_resize_file	;A - starting cluster, B - new length
+ife B, 0x0
+	set pc, fs_delete_file
+set push, A
+jsr fs_get_file_length
+ifl A, B
+	set pc, .extend
+ifg A, B
+	set pc, .shirnk
+set A, pop
+set pc, pop
+.shrink
+;//TODO
+
+:fs_file_set_metadata	;A - starting cluster, B - address of metadata
+set push, X
+set push, C
+set push, B
+set push, A
+set X, B
+set A, 0x200
+jsr mem_alloc
+ife A, 0x0
+	dat 0x0
+set C, A
+set A, peek
+set B, 0x1
+jsr fs_load_sector
+set A, C
+set B, X
+set push, C
+set C, 0x10
+jsr fs_util_assign
+set C, pop
+set A, peek
+set B, 0x1
+jsr fs_write_sector
+set A, C
+jsr mem_free
+set A, pop
+set B, pop
+set C, pop
+set X, pop
+set pc, pop
+
+:fs_file_get_metadata	;A - starting cluster, output: A - address of metadata
+set push, X
+set push, C
+set push, B
+set push, A
+set X, B
+set A, 0x200
+jsr mem_alloc
+ife A, 0x0
+	dat 0x0
+set C, A
+set A, peek
+set B, 0x1
+jsr fs_load_sector
+set A, fs_dir_entry
+set B, C
+set push, C
+set C, 0x10
+jsr fs_util_assign
+set A, pop
+jsr mem_free
+set A, pop
+set B, pop
+set C, pop
+set X, pop
+set pc, pop
+
 ;dir management
 
 :fs_get_dir_entry	;A - guess what? starting cluster, B - number of the entry
@@ -398,6 +470,7 @@ set pc, pop
 :fs_mkfile ;A - address of filename (regular 11-char word), B- file size in clusters, output: A - number of the entry in current dir
 set push, I
 set push, J
+set push, B
 set I, B
 set B, fs_dir_entry
 jsr fs_to5word
@@ -406,6 +479,7 @@ set J, fs_dir_entry
 add J, 0xC
 set A, B
 jsr fs_create_file
+set push, A
 set [J], A
 add J, 0x1
 set [J], B
@@ -414,6 +488,9 @@ set [J], 0x0
 set A, [fs_dir]
 set B, fs_dir_entry
 jsr fs_add_dir_entry
+set A, pop
+jsr fs_file_set_metadata
+set B, pop
 set J, pop
 set I, pop
 set pc, pop
@@ -421,6 +498,7 @@ set pc, pop
 :fs_mkdir ;A - address of dir name (converted to 5-word), B- dir size in clusters, output: A - number of the entry in current dir
 set push, I
 set push, J
+set push, B
 set I, 0x0
 set J, fs_dir_entry
 .loop
@@ -434,6 +512,7 @@ set [J], 0x10
 add J, 0x6 ;skipping the datetime, for we have no clock in yet
 set A, B
 jsr fs_create_file
+set push, A
 set [J], A
 add J, 0x1
 set [J], B
@@ -442,6 +521,9 @@ set [J], 0x0
 set A, [fs_dir]
 set B, fs_dir_entry
 jsr fs_add_dir_entry
+set A, pop
+jsr fs_file_set_metadata
+set B, pop
 set J, pop
 set I, pop
 set pc, pop
