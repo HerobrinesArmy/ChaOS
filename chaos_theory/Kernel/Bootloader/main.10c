@@ -1,31 +1,39 @@
 ; --------------------------------------------
 ; Title:   main
-; Author:  Alex Ford and smith10
-; Date:    2012-08-06
-; Version: 2.0
+; Author:  Lucus
+; Date:    24-9-2012
+; Version: 3.0
 ; --------------------------------------------
 
-;fills ram with first 128 sectors (0x10000 words) from the first inserted floppy in the first floppy drive
-;if no floppy present it busy-waits
+; This code loops over all connected devices until it finds a floppy drive with a floppy in it.
+; Then it copies the first 128 sectors from the floppy into the memory, filling it completely.
+; After that, the code will start to execute from address 0.
 
-start:
-ADD J, 1
-HWQ J
-IFE B, 0x74fa
-	IFE A, 0x4cae
-		SET PC, loadOS
-SET PC, start
-
-;RESERVE 0xF000
-
-:loadOS
-SET A, 0
-HWI J
-IFE B, 0
-	SUB PC, 4
-SET A, 0x10
-SET B, 0
-SET C, 128
-SET X, 0x0000
-SET [0xFFFF], 0x1E40 ;added so that after the HWI call, pc is in cell 0x0
-SET PC, 0xFFFF
+set pc, boot
+:boot
+hwn z
+set i, 0
+:.LoopStart
+hwq i
+ife a, 0x4cae
+ife b, 0x74fa
+ife c, 0x07c2
+ife x, 0x4948
+ife y, 0x2154
+set pc, HMDfound
+ife i, z
+set i, 0
+sti pc, .LoopStart
+:HMDfound
+set a, 0
+hwi i
+ifn b, 1
+sti pc, .LoopStart
+set a, 16
+set b, 0
+set c, 128
+set x, 0
+set [0xffff], [hwi_i] ;After the hwi call, pc will be 0
+set pc, 0xffff
+:hwi_i
+hwi i
