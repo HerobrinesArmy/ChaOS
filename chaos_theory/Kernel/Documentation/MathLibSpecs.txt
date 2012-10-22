@@ -1,0 +1,51 @@
+MathLib 1.1.0 Specifications:
+
+setDefaultBase
+	-READS: A
+
+	Sets the default base of all equations to the A register, provided that A is between 2-16
+
+newEquation
+	-READS: A
+	-WRITES: A
+
+	Reads a string of numbers and operations and evaluates the answer.
+	
+	Numbers can have "base tags" at the end of it which will change the base of that specific number.
+	The bases are i for binary, o for octal, t for ten, h for hexadecimal.
+		- ex. 100i evaluates to 6 while 100o evaluates to 64
+
+	Current Operators:
+	+ 	addition
+	- 	subtraction
+	* 	multiplication
+	/	division (integer)
+	!	fibonacci
+	`	square root (always rounds down)
+	:	factorial
+	%	modulo
+	^	exponent
+
+	Note that this program follows the order of operation except factorial (:), fibonacci (!), and square root (`), which have the highest priority.
+	In addition the 3 previously stated operations must be place behind the number.
+		-ex. `16 is correct syntax while 16` will return an error
+
+	Comparison Operators:
+	=	Equal To
+	>	Greater Than
+	<	Less Than
+
+	If at least one comparison operator is included, the equation will return 1 if true and 0 if false
+	If there are no comparison operators, the value of the numbers will be returned.
+
+	Note that multiple comparison operators can be used.
+		-ex. 5=5=5 will parse to 5=(5=5), then 5=1, then 0.
+
+	Please note that any error in the equation will automatically return the value 0
+
+distance3DSpace
+	-READS: A,B,C,X,Y,Z
+	-WRITES: I
+
+	Returns the distance in 3 Dimensional space from point (a,b,c) to point (x,y,z)
+	
